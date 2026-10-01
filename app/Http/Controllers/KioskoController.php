@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Empresa;
+use App\Models\Fichaje;
+use App\Models\User;
+use App\Support\Tenant;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class KioskoController extends Controller
+{
+    public function show(string $token): View
+    {
+        $empresa = $this->empresaDelToken($token);
+
+        if (! $empresa->subscribed('default')) {
+            return view('kiosko.bloqueado', compact('empresa'));
+        }
+
+        return view('kiosko.show', compact('empresa'));
+    }
+
+    public function fichar(Request $request, string $token): RedirectResponse
+    {
+        $empresa = $this->empresaDelToken($token);
+
+        if (! $empresa->subscribed('default')) {
+            return redirect()->route('kiosko.show', $token);
+        }
+
+        $data = $request->validate([
+            'pin' => ['required', 'digits:6'],
+        ]);
+
+        $empleado = User::buscarPorPin($empresa->id, $data['pin']);
+
+        if (! $empleado) {
+            // Mensaje genérico a propósito: no se distingue entre "PIN
+            // incorrecto" y "empleado inactivo" para no dar pistas.
+            return back()->withErrors(['pin' => 'PIN incorrecto.']);
+        }
+
+        // No hay usuario autenticado en el kiosco: el tenant se fija a mano
+        // a partir de la empresa resuelta por el token de la URL.
+        Tenant::set($empresa->id);
+
+        $ultimoFichaje = Fichaje::where('user_id', $empleado->id)
+            ->orderByDesc('fecha_hora')
+            ->first();
+
+        $tipo = $ultimoFichaje?->tipo === 'entrada' ? 'salida' : 'entrada';
+
+        Fichaje::create([
+            'user_id' => $empleado->id,
+            'tipo' => $tipo,
+            'fecha_hora' => now(),
+            'origen' => 'kiosco',
+            'ip_address' => $request->ip(),
+            'user_agent' => substr((string) $request->userAgent(), 0, 255),
+        ]);
+
+        return redirect()->route('kiosko.show', $token)->with('resultado', [
+            'nombre' => $empleado->name,
+            'tipo' => $tipo,
+        ]);
+    }
+
+    protected function empresaDelToken(string $token): Empresa
+    {
+        $empresa = Empresa::where('kiosko_token', $token)->first();
+
+        abort_if(! $empresa || ! $empresa->activa, 404);
+
+        return $empresa;
+    }
+}

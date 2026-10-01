@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Tarifa;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+use Laravel\Cashier\Checkout;
+use Symfony\Component\HttpFoundation\Response;
+
+class FacturacionController extends Controller
+{
+    public function index(): View
+    {
+        $empresa = Auth::user()->empresa;
+        $tarifa = Tarifa::actual();
+        $empleadosActivos = $empresa->usuarios()->where('activo', true)->count();
+
+        return view('admin.facturacion.index', [
+            'empresa' => $empresa,
+            'tarifa' => $tarifa,
+            'empleadosActivos' => $empleadosActivos,
+            'precioMensual' => $tarifa->calcularPrecioMensual($empleadosActivos),
+            'empleadosExtra' => $tarifa->empleadosExtra($empleadosActivos),
+            'suscripcion' => $empresa->subscription('default'),
+            // Historial de facturas (una por mes mientras la suscripción esté
+            // activa). Vacío si la empresa nunca ha llegado a ser cliente en Stripe.
+            'facturas' => $empresa->stripe_id ? $empresa->invoices() : collect(),
+        ]);
+    }
+
+    public function suscribir(): Checkout|RedirectResponse
+    {
+        $empresa = Auth::user()->empresa;
+        $tarifa = Tarifa::actual();
+
+        if (! $tarifa->stripe_price_base_id || ! $tarifa->stripe_price_extra_id) {
+            return redirect()->route('admin.facturacion.index')
+                ->with('status', 'Las tarifas todavía no están sincronizadas con Stripe. Contacta con el soporte.');
+        }
+
+        $empleadosActivos = $empresa->usuarios()->where('activo', true)->count();
+        $extra = $tarifa->empleadosExtra($empleadosActivos);
+
+        $builder = $empresa->newSubscription('default')
+            ->price($tarifa->stripe_price_base_id, 1);
+
+        if ($extra > 0) {
+            $builder->price($tarifa->stripe_price_extra_id, $extra);
+        }
+
+        return $builder->checkout([
+            'success_url' => route('admin.facturacion.index').'?suscripcion=ok',
+            'cancel_url' => route('admin.facturacion.index').'?suscripcion=cancelada',
+        ]);
+    }
+
+    public function portal(): RedirectResponse
+    {
+        return Auth::user()->empresa->redirectToBillingPortal(route('admin.facturacion.index'));
+    }
+
+    public function descargarFactura(string $factura): Response
+    {
+        $empresa = Auth::user()->empresa;
+        $nombreArchivo = 'factura-'.$empresa->findInvoiceOrFail($factura)->date()->format('Y-m');
+
+        return $empresa->downloadInvoice($factura, [
+            'vendor' => 'Fichaje App',
+            'product' => 'Suscripcion',
+        ], $nombreArchivo);
+    }
+}
