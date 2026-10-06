@@ -332,7 +332,7 @@ public/images/           # Logo y favicon
 - **Un commit por cada cambio terminado**, con mensaje descriptivo y las pruebas en verde.
 - Cada tabla nueva se añade al `GRANT` de `database/sql/create_app_user.sql`.
 - Las migraciones se ejecutan con la conexión `mysql_migrations` cuando se usa la base de datos endurecida.
-- Después de cambiar vistas con clases nuevas de Tailwind hay que volver a ejecutar `npm run build`.
+- Después de cambiar vistas con clases nuevas de Tailwind hay que ejecutar `npm run build` y **commitear `public/build`**: el hosting no tiene Node, así que los estilos compilados viajan en el repositorio.
 
 ## Pendiente / hoja de ruta
 
