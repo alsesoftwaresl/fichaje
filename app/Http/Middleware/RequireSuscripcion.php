@@ -20,7 +20,7 @@ class RequireSuscripcion
         $user = Auth::user();
         $empresa = $user->empresa;
 
-        if ($empresa->subscribed('default')) {
+        if ($empresa->tieneAcceso()) {
             return $next($request);
         }
 
@@ -31,7 +31,7 @@ class RequireSuscripcion
             $empresa->sincronizarSuscripcionesDesdeStripe();
             $empresa->unsetRelation('subscriptions');
 
-            if ($empresa->subscribed('default')) {
+            if ($empresa->tieneAcceso()) {
                 return $next($request);
             }
         }

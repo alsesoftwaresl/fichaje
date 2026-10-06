@@ -22,6 +22,16 @@
             <p class="pt-2 border-t border-slate-100"><span class="text-slate-500">Total estimado:</span> <span class="text-lg font-semibold text-slate-900">{{ number_format($precioMensual, 2) }}€/mes</span></p>
         </x-card>
 
+        @if ($empresa->tieneLicenciaActiva())
+            <x-card class="p-6 space-y-2 text-sm">
+                <x-badge tone="success">Licencia gratuita activa</x-badge>
+                <p class="text-slate-600">
+                    {{ $empresa->licencia_hasta ? 'Válida hasta el '.$empresa->licencia_hasta->format('d/m/Y').'.' : 'Sin fecha de caducidad.' }}
+                    No se te cobra nada.
+                </p>
+            </x-card>
+        @endif
+
         <x-card class="p-6">
             @if ($empresa->subscribed('default'))
                 <div class="flex items-center gap-2 mb-4">
@@ -69,6 +79,18 @@
                     @csrf
                     <x-primary-button type="submit">Empezar prueba gratis de {{ $diasPrueba }} días</x-primary-button>
                 </form>
+
+                @unless ($empresa->tieneLicenciaActiva())
+                    <form method="POST" action="{{ route('admin.facturacion.licencia') }}" class="mt-6 pt-6 border-t border-slate-100">
+                        @csrf
+                        <x-input-label for="codigo" value="¿Tienes un código de licencia?" />
+                        <div class="mt-1 flex flex-col gap-2 sm:flex-row">
+                            <x-text-input id="codigo" name="codigo" type="text" class="block w-full font-mono uppercase" :value="old('codigo')" placeholder="ACH-XXXX-XXXX" maxlength="32" autocomplete="off" required />
+                            <x-secondary-button type="submit">Canjear</x-secondary-button>
+                        </div>
+                        <x-input-error class="mt-2" :messages="$errors->get('codigo')" />
+                    </form>
+                @endunless
             @endif
         </x-card>
 

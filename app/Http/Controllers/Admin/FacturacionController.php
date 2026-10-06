@@ -22,7 +22,7 @@ class FacturacionController extends Controller
         // Al volver del Checkout de Stripe puede que el webhook aún no haya
         // llegado: se copia la suscripción desde Stripe para no mostrar
         // "sin suscripción" a quien acaba de contratar.
-        if (! $empresa->subscribed('default')) {
+        if (! $empresa->tieneAcceso()) {
             $empresa->sincronizarSuscripcionesDesdeStripe();
             $empresa->unsetRelation('subscriptions');
         }

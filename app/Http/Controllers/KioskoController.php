@@ -76,7 +76,7 @@ class KioskoController extends Controller
      */
     protected function estaSuscrita(Empresa $empresa): bool
     {
-        if ($empresa->subscribed('default')) {
+        if ($empresa->tieneAcceso()) {
             return true;
         }
 
@@ -85,7 +85,7 @@ class KioskoController extends Controller
             $empresa->unsetRelation('subscriptions');
         }
 
-        return $empresa->subscribed('default');
+        return $empresa->tieneAcceso();
     }
 
     protected function empresaDelToken(string $token): Empresa

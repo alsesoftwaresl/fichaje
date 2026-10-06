@@ -125,7 +125,7 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.R.L.**
 
 | Rol | Cómo entra | Qué puede hacer |
 |---|---|---|
-| **super_admin** | Email + contraseña | Gestionar empresas y tarifas. No entra en rutas de empresa. |
+| **super_admin** | Email + contraseña | Gestionar empresas, tarifas y códigos de licencia gratuita. No entra en rutas de empresa. |
 | **admin_empresa** | Email + contraseña, o Google | Todo lo de su empresa: empleados, fichajes y correcciones, ausencias, control horario, nóminas, facturación. |
 | **empleado** | **DNI/NIE** + contraseña (o email si lo tiene) | Fichar, ver su historial, pedir ausencias, avisar de salidas, ver sus nóminas. En el kiosco ficha solo con PIN. |
 | **contable** (permiso) | Como un empleado | Un empleado con el permiso `gestiona_nominas` puede subir y gestionar las nóminas de toda la empresa sin ser admin. |
@@ -192,6 +192,7 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 | `legal_aceptaciones` | Qué versión de qué documento aceptó cada empresa, cuándo y desde qué IP. |
 | `audit_logs` | Registro de acciones sensibles. |
 | `tarifas` | Fila única con la tarifa global y los IDs de precios en Stripe. |
+| `licencias` | Códigos de licencia gratuita (duración, usos, caducidad del código). La empresa que canjea uno usa la app sin Stripe; se guarda en `empresas.licencia_id` y `licencia_hasta`. |
 | `subscriptions`, `subscription_items` | Suscripciones de Cashier (la clave foránea es `empresa_id`). |
 
 ## Instalación en local

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -27,6 +28,7 @@ class Empresa extends Model
     {
         return [
             'activa' => 'boolean',
+            'licencia_hasta' => 'date',
         ];
     }
 
@@ -40,6 +42,24 @@ class Empresa extends Model
     public function usuarios(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    public function licencia(): BelongsTo
+    {
+        return $this->belongsTo(Licencia::class);
+    }
+
+    /** Licencia gratuita canjeada y todavía vigente (sin fecha = sin caducidad). */
+    public function tieneLicenciaActiva(): bool
+    {
+        return $this->licencia_id !== null
+            && ($this->licencia_hasta === null || ! $this->licencia_hasta->endOfDay()->isPast());
+    }
+
+    /** Puede usar la app: licencia gratuita vigente o suscripción activa. */
+    public function tieneAcceso(): bool
+    {
+        return $this->tieneLicenciaActiva() || $this->subscribed('default');
     }
 
     public function kioskoUrl(): string

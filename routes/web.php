@@ -21,7 +21,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistroCompletarController;
 use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\SuperAdmin\EmpresaController;
+use App\Http\Controllers\SuperAdmin\LicenciaController as SuperAdminLicenciaController;
 use App\Http\Controllers\SuperAdmin\TarifaController;
+use App\Http\Controllers\Admin\LicenciaController as AdminLicenciaController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -146,6 +148,7 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
         // porque es desde donde se suscriben.
         Route::get('/facturacion', [FacturacionController::class, 'index'])->name('facturacion.index');
         Route::post('/facturacion/suscribir', [FacturacionController::class, 'suscribir'])->name('facturacion.suscribir');
+        Route::post('/facturacion/licencia', [AdminLicenciaController::class, 'canjear'])->name('facturacion.licencia');
         Route::get('/facturacion/portal', [FacturacionController::class, 'portal'])->name('facturacion.portal');
         Route::get('/facturacion/facturas/{factura}', [FacturacionController::class, 'descargarFactura'])->name('facturacion.facturas.descargar');
 
@@ -189,6 +192,11 @@ Route::middleware(['auth', 'role:super_admin'])
 
         Route::get('/tarifas', [TarifaController::class, 'edit'])->name('tarifas.edit');
         Route::patch('/tarifas', [TarifaController::class, 'update'])->name('tarifas.update');
+
+        Route::get('/licencias', [SuperAdminLicenciaController::class, 'index'])->name('licencias.index');
+        Route::post('/licencias', [SuperAdminLicenciaController::class, 'store'])->name('licencias.store');
+        Route::patch('/licencias/{licencia}', [SuperAdminLicenciaController::class, 'toggle'])->name('licencias.toggle');
+        Route::patch('/empresas/{empresa}/quitar-licencia', [SuperAdminLicenciaController::class, 'quitar'])->name('empresas.quitar-licencia');
     });
 
 require __DIR__.'/auth.php';

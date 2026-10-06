@@ -20,6 +20,21 @@
                 </x-badge>
             </p>
 
+            <p class="flex flex-wrap items-center gap-2">
+                <span class="text-slate-500">Licencia gratuita:</span>
+                @if ($empresa->tieneLicenciaActiva())
+                    <x-badge tone="success">{{ $empresa->licencia_hasta ? 'Hasta el '.$empresa->licencia_hasta->format('d/m/Y') : 'Sin caducidad' }}</x-badge>
+                    <span class="font-mono text-xs text-slate-400">{{ $empresa->licencia?->codigo }}</span>
+                    <form method="POST" action="{{ route('super-admin.empresas.quitar-licencia', $empresa) }}" onsubmit="return confirm('¿Retirar la licencia a esta empresa?')">
+                        @csrf
+                        @method('PATCH')
+                        <button class="text-xs font-medium text-rose-600 hover:text-rose-500">Retirar</button>
+                    </form>
+                @else
+                    <span class="text-slate-800">No</span>
+                @endif
+            </p>
+
             <div class="pt-2">
                 @if ($empresa->activa)
                     <form method="POST" action="{{ route('super-admin.empresas.desactivar', $empresa) }}">
