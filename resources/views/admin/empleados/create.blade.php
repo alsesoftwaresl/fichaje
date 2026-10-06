@@ -44,6 +44,8 @@
                     kiosco y no tendrá acceso a la web. Podrás añadírsela más adelante editando su ficha.
                 </p>
 
+                @include('admin.empleados._permisos-fields')
+
                 @include('admin.empleados._horario-fields')
 
                 <div class="flex justify-end gap-2 pt-2">

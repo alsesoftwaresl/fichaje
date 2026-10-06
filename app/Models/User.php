@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,10 +14,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-class User extends Authenticatable
+// MustVerifyEmail es a nivel de clase, pero NO todos los usuarios tienen que
+// verificar nada: el middleware "verificado" (RequireEmailVerificado) solo lo
+// exige a admin_empresa venidos del registro público. Empleados y admins
+// dados de alta a mano por super_admin quedan verificados automáticamente
+// (ver AltaEmpresaService) y nunca pasan por ese middleware.
+class User extends Authenticatable implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, MustVerifyEmail;
 
     // Nota: User NO usa el scope global de tenant (BelongsToTenant). super_admin
     // necesita poder crear/ver usuarios de cualquier empresa (p.ej. al dar de alta
@@ -33,13 +39,16 @@ class User extends Authenticatable
         'empresa_id',
         'name',
         'email',
+        'email_verified_at',
         'dni_nie',
         'rol',
         'activo',
+        'gestiona_nominas',
         'password',
         'hora_entrada_esperada',
         'hora_salida_esperada',
         'dias_laborables',
+        'horario_tramos',
     ];
 
     /**
@@ -63,7 +72,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'activo' => 'boolean',
+            'gestiona_nominas' => 'boolean',
             'dias_laborables' => 'array',
+            'horario_tramos' => 'array',
         ];
     }
 
@@ -143,11 +154,53 @@ class User extends Authenticatable
         return $this->hasMany(Ausencia::class);
     }
 
+    public function nominas(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Nomina::class);
+    }
+
+    /**
+     * Subir/gestionar nóminas: los admin_empresa siempre, y quien tenga el
+     * permiso de contable (users.gestiona_nominas) sin ser admin.
+     */
+    public function puedeGestionarNominas(): bool
+    {
+        return $this->empresa_id !== null
+            && ($this->esAdminEmpresa() || $this->gestiona_nominas);
+    }
+
+    public function citas():\Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Cita::class);
+    }
+
+    /**
+     * Tramos del horario esperado, p. ej. [['entrada' => '09:00', 'salida' => '14:00'], ...].
+     * Un turno partido tiene varios; el horario corrido es un único tramo
+     * (el de hora_entrada_esperada / hora_salida_esperada). Vacío si no hay
+     * horario configurado.
+     *
+     * @return list<array{entrada: string, salida: string}>
+     */
+    public function tramos(): array
+    {
+        if (! empty($this->horario_tramos)) {
+            return array_values($this->horario_tramos);
+        }
+
+        if ($this->hora_entrada_esperada !== null && $this->hora_salida_esperada !== null) {
+            return [[
+                'entrada' => substr($this->hora_entrada_esperada, 0, 5),
+                'salida' => substr($this->hora_salida_esperada, 0, 5),
+            ]];
+        }
+
+        return [];
+    }
+
     public function tieneHorario(): bool
     {
-        return $this->hora_entrada_esperada !== null
-            && $this->hora_salida_esperada !== null
-            && ! empty($this->dias_laborables);
+        return $this->tramos() !== [] && ! empty($this->dias_laborables);
     }
 
     public function trabajaEnDia(\Illuminate\Support\Carbon $fecha): bool

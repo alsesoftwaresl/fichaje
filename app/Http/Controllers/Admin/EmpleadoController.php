@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\EstadoEquipoCalculador;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Stripe\Exception\ApiErrorException;
 
@@ -30,7 +32,12 @@ class EmpleadoController extends Controller
 
         $empresa = Auth::user()->empresa;
 
-        return view('admin.empleados.index', compact('empleados', 'empresa'));
+        // Estado de hoy (trabajando / vacaciones / baja / fuera) por empleado,
+        // el mismo cálculo que el panel. Los desactivados no salen aquí.
+        $estados = EstadoEquipoCalculador::delDia($empresa->id)
+            ->keyBy(fn (array $item) => $item['empleado']->id);
+
+        return view('admin.empleados.index', compact('empleados', 'empresa', 'estados'));
     }
 
     public function create(): View
@@ -55,6 +62,7 @@ class EmpleadoController extends Controller
             'email' => $data['email'] ?? null,
             'rol' => 'empleado',
             'activo' => true,
+            'gestiona_nominas' => $request->boolean('gestiona_nominas'),
             // Sin contraseña no puede entrar a la web, pero sí fichar por
             // PIN en el kiosco — la mayoría del personal no necesita más.
             'password' => $data['password'] ?? Hash::make(Str::random(32)),
@@ -97,6 +105,7 @@ class EmpleadoController extends Controller
             'name' => $data['name'],
             'dni_nie' => $data['dni_nie'],
             'email' => $data['email'] ?? null,
+            'gestiona_nominas' => $request->boolean('gestiona_nominas'),
             ...(isset($data['password']) ? ['password' => $data['password']] : []),
             ...$this->datosHorario($data),
         ]);
@@ -152,26 +161,66 @@ class EmpleadoController extends Controller
     protected function reglasHorario(): array
     {
         return [
-            'hora_entrada_esperada' => ['nullable', 'date_format:H:i'],
-            'hora_salida_esperada' => ['nullable', 'date_format:H:i', 'after:hora_entrada_esperada'],
+            // Tramos del día (turno partido = 2 o 3). Las filas totalmente
+            // vacías se ignoran; el resto se valida en tramosNormalizados().
+            'tramos' => ['nullable', 'array', 'max:3'],
+            'tramos.*.entrada' => ['nullable', 'date_format:H:i'],
+            'tramos.*.salida' => ['nullable', 'date_format:H:i'],
             'dias_laborables' => ['nullable', 'array'],
             'dias_laborables.*' => ['integer', 'between:1,7'],
         ];
     }
 
+    /**
+     * Quita las filas vacías y comprueba que cada tramo tenga entrada y
+     * salida, que la salida sea posterior a la entrada y que los tramos
+     * vayan en orden sin solaparse.
+     *
+     * @return list<array{entrada: string, salida: string}>
+     */
+    protected function tramosNormalizados(array $data): array
+    {
+        $tramos = collect($data['tramos'] ?? [])
+            ->filter(fn ($t) => ! empty($t['entrada']) || ! empty($t['salida']))
+            ->values();
+
+        $anteriorSalida = null;
+
+        foreach ($tramos as $i => $tramo) {
+            $campo = 'tramos.'.$i;
+
+            if (empty($tramo['entrada']) || empty($tramo['salida'])) {
+                throw ValidationException::withMessages([$campo => 'Cada tramo necesita hora de entrada y de salida.']);
+            }
+
+            if ($tramo['salida'] <= $tramo['entrada']) {
+                throw ValidationException::withMessages([$campo => 'La salida tiene que ser posterior a la entrada.']);
+            }
+
+            if ($anteriorSalida !== null && $tramo['entrada'] < $anteriorSalida) {
+                throw ValidationException::withMessages([$campo => 'Los tramos tienen que ir en orden y sin solaparse.']);
+            }
+
+            $anteriorSalida = $tramo['salida'];
+        }
+
+        return $tramos->map(fn ($t) => ['entrada' => $t['entrada'], 'salida' => $t['salida']])->all();
+    }
+
     protected function datosHorario(array $data): array
     {
+        $tramos = $this->tramosNormalizados($data);
+
         return [
-            // El input type="time" manda "H:i" (sin segundos); se normaliza a
-            // "H:i:s" para que el formato guardado sea el mismo pase lo que
-            // pase por el motor de base de datos (SQLite no normaliza TIME
-            // como MySQL).
-            'hora_entrada_esperada' => isset($data['hora_entrada_esperada'])
-                ? $data['hora_entrada_esperada'].':00'
-                : null,
-            'hora_salida_esperada' => isset($data['hora_salida_esperada'])
-                ? $data['hora_salida_esperada'].':00'
-                : null,
+            // hora_entrada/salida_esperada guardan siempre la primera entrada
+            // y la última salida del día; el input type="time" manda "H:i" y
+            // se normaliza a "H:i:s" para que el formato guardado sea el
+            // mismo en cualquier motor de BD (SQLite no normaliza TIME como
+            // MySQL).
+            'hora_entrada_esperada' => $tramos !== [] ? $tramos[0]['entrada'].':00' : null,
+            'hora_salida_esperada' => $tramos !== [] ? end($tramos)['salida'].':00' : null,
+            // Solo se guardan los tramos aparte cuando es un turno partido.
+            'horario_tramos' => count($tramos) > 1 ? $tramos : null,
             // Los checkboxes llegan como strings ("1","2"...) — se guardan
             // como enteros para que la comparación estricta en
             // User::trabajaEnDia() funcione.

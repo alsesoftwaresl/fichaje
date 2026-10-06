@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => \App\Http\Middleware\IdentifyTenant::class,
             'role' => \App\Http\Middleware\EnsureRole::class,
             'suscripcion' => \App\Http\Middleware\RequireSuscripcion::class,
+            'verificado' => \App\Http\Middleware\RequireEmailVerificado::class,
+            'gestor.nominas' => \App\Http\Middleware\PuedeGestionarNominas::class,
         ]);
 
         // Stripe llama a este endpoint directamente, sin pasar por el

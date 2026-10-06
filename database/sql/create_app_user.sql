@@ -29,6 +29,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.tarifas TO 'fichaje_app'@'lo
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.subscriptions TO 'fichaje_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.subscription_items TO 'fichaje_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.ausencias TO 'fichaje_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.citas TO 'fichaje_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.nominas TO 'fichaje_app'@'localhost';
 
 -- Nota: no se concede NADA aquí sobre `fichajes` ni `fichaje_correcciones` ni
 -- sobre `migrations` (MySQL deniega por defecto lo que no se concede

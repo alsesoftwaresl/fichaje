@@ -41,6 +41,8 @@
                     <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" />
                 </div>
 
+                @include('admin.empleados._permisos-fields')
+
                 @include('admin.empleados._horario-fields')
 
                 <div class="flex justify-end gap-2 pt-2">

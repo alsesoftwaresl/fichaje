@@ -1,19 +1,29 @@
-<aside class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-slate-900">
-    <div class="flex items-center gap-2 px-5 h-16 shrink-0 border-b border-slate-800">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
-                    <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </span>
-            <span class="text-white font-semibold text-sm">{{ config('app.name') }}</span>
+<aside class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-indigo-950">
+    <div class="flex items-center gap-2 px-5 h-16 shrink-0 border-b border-indigo-900">
+        <a href="{{ route('dashboard') }}" class="flex items-center">
+            <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-6 w-auto">
         </a>
     </div>
 
     @php
         $ausenciasPendientesNav = Auth::user()->esAdminEmpresa()
             ? \App\Models\Ausencia::where('estado', 'pendiente')->count()
+            : 0;
+
+        // Aviso numérico de incidencias de hoy (retrasos, sin fichar, sin
+        // cerrar, horas de más). Cacheado 60 s: se muestra en todas las
+        // páginas y no hace falta recalcularlo en cada una.
+        // Nóminas nuevas (aún sin abrir) del propio usuario.
+        $nominasNuevasNav = Auth::user()->empresa_id
+            ? \App\Models\Nomina::where('user_id', Auth::id())->whereNull('descargada_en')->count()
+            : 0;
+
+        $incidenciasHoyNav = Auth::user()->esAdminEmpresa()
+            ? \Illuminate\Support\Facades\Cache::remember(
+                'incidencias-hoy-'.Auth::user()->empresa_id,
+                60,
+                fn () => \App\Services\IncidenciasCalculador::delDia(Auth::user()->empresa_id)->count()
+            )
             : 0;
     @endphp
 
@@ -41,6 +51,24 @@
                 </svg>
                 Mis ausencias
             </x-sidebar-link>
+            <x-sidebar-link :href="route('nominas.mis')" :active="request()->routeIs('nominas.mis')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                <span class="flex-1">Mis nóminas</span>
+                @if ($nominasNuevasNav > 0)
+                    <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-500 px-1 text-xs font-semibold text-indigo-950">{{ $nominasNuevasNav }}</span>
+                @endif
+            </x-sidebar-link>
+        @endif
+
+        @if (Auth::user()->puedeGestionarNominas())
+            <x-sidebar-link :href="route('nominas.gestion.index')" :active="request()->routeIs('nominas.gestion.*')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                </svg>
+                Nóminas empresa
+            </x-sidebar-link>
         @endif
 
         @if (Auth::user()->esAdminEmpresa())
@@ -49,6 +77,15 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 6h10M8 12h10M8 18h10M4 6h.01M4 12h.01M4 18h.01" />
                 </svg>
                 Fichajes empresa
+            </x-sidebar-link>
+            <x-sidebar-link :href="route('admin.incidencias.index')" :active="request()->routeIs('admin.incidencias.*')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <span class="flex-1">Control horario</span>
+                @if ($incidenciasHoyNav > 0)
+                    <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-xs font-semibold text-indigo-950">{{ $incidenciasHoyNav }}</span>
+                @endif
             </x-sidebar-link>
             <x-sidebar-link :href="route('admin.empleados.index')" :active="request()->routeIs('admin.empleados.*')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 shrink-0">
@@ -89,18 +126,18 @@
         @endif
     </nav>
 
-    <div class="border-t border-slate-800 p-3">
+    <div class="border-t border-indigo-900 p-3">
         <div class="flex items-center gap-3 rounded-lg px-3 py-2">
-            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-700 text-xs font-semibold text-white">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-500 text-xs font-bold text-indigo-950">
                 {{ Str::of(Auth::user()->name)->substr(0, 1)->upper() }}
             </span>
             <div class="min-w-0 flex-1">
                 <p class="truncate text-sm font-medium text-white">{{ Auth::user()->name }}</p>
-                <p class="truncate text-xs text-slate-400">{{ Auth::user()->email }}</p>
+                <p class="truncate text-xs text-indigo-300">{{ Auth::user()->email }}</p>
             </div>
         </div>
         <div class="mt-1 space-y-1">
-            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-slate-800/60 hover:text-white transition">
+            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-indigo-900/60 hover:text-white transition">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 shrink-0">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
@@ -108,7 +145,7 @@
             </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-slate-800/60 hover:text-white transition">
+                <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-indigo-900/60 hover:text-white transition">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 shrink-0">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
                     </svg>
@@ -120,15 +157,9 @@
 </aside>
 
 <!-- Navegación móvil -->
-<header x-data="{ open: false }" class="lg:hidden sticky top-0 z-40 flex items-center justify-between h-16 px-4 bg-slate-900 border-b border-slate-800">
-    <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
-                <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-        </span>
-        <span class="text-white font-semibold text-sm">{{ config('app.name') }}</span>
+<header x-data="{ open: false }" class="lg:hidden sticky top-0 z-40 flex items-center justify-between h-16 px-4 bg-indigo-950 border-b border-indigo-900">
+    <a href="{{ route('dashboard') }}" class="flex items-center">
+        <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-6 w-auto">
     </a>
     <button @click="open = ! open" class="text-slate-300 hover:text-white">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
@@ -137,16 +168,31 @@
         </svg>
     </button>
 
-    <div x-show="open" x-cloak class="absolute inset-x-0 top-16 bg-slate-900 border-b border-slate-800 px-3 py-3 space-y-1">
+    <div x-show="open" x-cloak class="absolute inset-x-0 top-16 bg-indigo-950 border-b border-indigo-900 px-3 py-3 space-y-1">
         @if (Auth::user()->esAdminEmpresa())
             <x-sidebar-link :href="route('admin.panel.index')" :active="request()->routeIs('admin.panel.*')">Panel</x-sidebar-link>
         @endif
         @if (Auth::user()->esEmpleado() || Auth::user()->esAdminEmpresa())
             <x-sidebar-link :href="route('fichajes.mis')" :active="request()->routeIs('fichajes.mis')">Mis fichajes</x-sidebar-link>
             <x-sidebar-link :href="route('ausencias.mis')" :active="request()->routeIs('ausencias.mis')">Mis ausencias</x-sidebar-link>
+            <x-sidebar-link :href="route('nominas.mis')" :active="request()->routeIs('nominas.mis')">
+                Mis nóminas
+                @if ($nominasNuevasNav > 0)
+                    <span class="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-500 px-1 text-xs font-semibold text-indigo-950">{{ $nominasNuevasNav }}</span>
+                @endif
+            </x-sidebar-link>
+        @endif
+        @if (Auth::user()->puedeGestionarNominas())
+            <x-sidebar-link :href="route('nominas.gestion.index')" :active="request()->routeIs('nominas.gestion.*')">Nóminas empresa</x-sidebar-link>
         @endif
         @if (Auth::user()->esAdminEmpresa())
             <x-sidebar-link :href="route('admin.fichajes.index')" :active="request()->routeIs('admin.fichajes.*')">Fichajes empresa</x-sidebar-link>
+            <x-sidebar-link :href="route('admin.incidencias.index')" :active="request()->routeIs('admin.incidencias.*')">
+                Control horario
+                @if ($incidenciasHoyNav > 0)
+                    <span class="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-xs font-semibold text-indigo-950">{{ $incidenciasHoyNav }}</span>
+                @endif
+            </x-sidebar-link>
             <x-sidebar-link :href="route('admin.empleados.index')" :active="request()->routeIs('admin.empleados.*')">Empleados</x-sidebar-link>
             <x-sidebar-link :href="route('admin.ausencias.index')" :active="request()->routeIs('admin.ausencias.*')">
                 Ausencias
@@ -163,7 +209,7 @@
         <x-sidebar-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">Perfil</x-sidebar-link>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800/60 hover:text-white transition">
+            <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-indigo-900/60 hover:text-white transition">
                 Cerrar sesión
             </button>
         </form>
