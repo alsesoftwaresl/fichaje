@@ -66,6 +66,17 @@ class Tarifa extends Model
     /**
      * Cuántos empleados superan los incluidos en la cuota base.
      */
+    /**
+     * Cuota base lista para mostrar: "29" si no tiene céntimos, "28,99" si los tiene
+     * (así la web nunca redondea un precio que luego no coincide con el cobro).
+     */
+    public function precioBaseTexto(): string
+    {
+        $texto = number_format((float) $this->precio_base_mensual, 2, ',', '.');
+
+        return str_ends_with($texto, ',00') ? substr($texto, 0, -3) : $texto;
+    }
+
     public function empleadosExtra(int $empleadosActivos): int
     {
         return max(0, $empleadosActivos - $this->empleados_incluidos);

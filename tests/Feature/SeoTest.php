@@ -29,6 +29,7 @@ class SeoTest extends TestCase
 
         $this->assertStringContainsString('<loc>'.route('home').'</loc>', $xml);
         $this->assertStringContainsString('<loc>'.route('guia.registro-jornada').'</loc>', $xml);
+        $this->assertStringContainsString('<loc>'.route('guia.registro-digital').'</loc>', $xml);
         $this->assertStringContainsString('<loc>'.route('registro.create').'</loc>', $xml);
         $this->assertStringNotContainsString('/login', $xml);
         $this->assertStringNotContainsString('/admin', $xml);
@@ -45,7 +46,7 @@ class SeoTest extends TestCase
 
     public function test_las_paginas_publicas_se_pueden_indexar_y_el_resto_lleva_noindex(): void
     {
-        foreach (['/', '/guia/registro-de-jornada', '/registro', '/sitemap.xml'] as $ruta) {
+        foreach (['/', '/guia/registro-de-jornada', '/guia/registro-horario-digital-obligatorio', '/registro', '/sitemap.xml'] as $ruta) {
             $this->get($ruta)->assertOk()->assertHeaderMissing('X-Robots-Tag');
         }
 
@@ -86,5 +87,56 @@ class SeoTest extends TestCase
         $this->assertStringContainsString('<title>Registro de jornada obligatorio en España', $html);
         $this->assertStringContainsString('rel="canonical" href="'.route('guia.registro-jornada').'"', $html);
         $this->assertStringContainsString('"@type":"Article"', $html);
+    }
+
+    public function test_la_portada_no_promete_lo_que_no_puede_garantizar_y_muestra_la_identidad(): void
+    {
+        config(['legal.titular.email' => 'hola@ejemplo.test']);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        // Nada de promesas absolutas de cumplimiento.
+        $this->assertStringNotContainsString('La ley, cumplida', $html);
+        $this->assertStringNotContainsString('imposible de manipular', $html);
+        $this->assertStringNotContainsString('aguanta una inspección', $html);
+
+        // Transparencia: la tarjeta de la prueba, las limitaciones y el titular.
+        $this->assertStringContainsString('Se pide tarjeta', $html);
+        $this->assertStringContainsString('Lo que no hace', $html);
+        $this->assertStringContainsString('ALSE SOFTWARE, S.R.L.', $html);
+        $this->assertStringContainsString('mailto:hola@ejemplo.test', $html);
+        $this->assertStringContainsString(route('legal.aviso-legal'), $html);
+    }
+
+    public function test_el_aviso_legal_solo_muestra_los_datos_configurados(): void
+    {
+        config(['legal.titular' => ['nombre' => 'Empresa Test, S.L.', 'nif' => 'B12345678', 'domicilio' => null, 'email' => 'legal@ejemplo.test', 'telefono' => null, 'registro_mercantil' => null]]);
+
+        $this->get('/legal/aviso-legal')
+            ->assertOk()
+            ->assertSee('Empresa Test, S.L.')
+            ->assertSee('B12345678')
+            ->assertSee('legal@ejemplo.test')
+            ->assertDontSee('Domicilio:')
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+    }
+
+    public function test_los_ejemplos_de_precio_usan_la_tarifa_real(): void
+    {
+        $tarifa = \App\Models\Tarifa::actual();
+        $esperado = number_format($tarifa->calcularPrecioMensual(20), 2, ',', '.');
+
+        $this->get('/')->assertOk()->assertSee('20 empleados')->assertSee($esperado.' €');
+    }
+
+    public function test_el_precio_base_se_muestra_exacto_sin_redondear(): void
+    {
+        $tarifa = \App\Models\Tarifa::actual();
+
+        $tarifa->precio_base_mensual = 29;
+        $this->assertSame('29', $tarifa->precioBaseTexto());
+
+        $tarifa->precio_base_mensual = 28.99;
+        $this->assertSame('28,99', $tarifa->precioBaseTexto());
     }
 }

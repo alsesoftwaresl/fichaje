@@ -36,6 +36,7 @@ Route::get('/', HomeController::class)->name('home');
 
 // Guía pública sobre el registro de jornada (contenido para buscadores e IAs).
 Route::view('/guia/registro-de-jornada', 'guia.registro-jornada')->name('guia.registro-jornada');
+Route::view('/guia/registro-horario-digital-obligatorio', 'guia.registro-digital')->name('guia.registro-digital');
 
 // Ficheros para buscadores e IAs (ver SeoController).
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
@@ -62,6 +63,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
     ->middleware('throttle:10,1')
     ->name('auth.google.callback');
 
+Route::view('/legal/aviso-legal', 'legal.aviso-legal')->name('legal.aviso-legal');
 Route::view('/legal/terminos', 'legal.terminos')->name('legal.terminos');
 Route::view('/legal/privacidad', 'legal.privacidad')->name('legal.privacidad');
 Route::view('/legal/encargo-tratamiento', 'legal.encargo-tratamiento')->name('legal.encargo-tratamiento');

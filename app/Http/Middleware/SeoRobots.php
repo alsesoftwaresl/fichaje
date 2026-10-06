@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SeoRobots
 {
     /** Rutas públicas que sí queremos en Google y en las IAs. */
-    protected const INDEXABLES = ['home', 'guia.registro-jornada', 'registro.create', 'sitemap', 'robots', 'llms'];
+    protected const INDEXABLES = ['home', 'guia.registro-jornada', 'guia.registro-digital', 'registro.create', 'sitemap', 'robots', 'llms'];
 
     /**
      * Añade noindex a la respuesta si la ruta no está en la lista de indexables.

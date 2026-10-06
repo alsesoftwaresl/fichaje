@@ -29,6 +29,7 @@ class SeoController extends Controller
     protected const PAGINAS = [
         'home' => '1.0',
         'guia.registro-jornada' => '0.9',
+        'guia.registro-digital' => '0.8',
         'registro.create' => '0.8',
     ];
 

@@ -120,6 +120,10 @@
                 <a href="{{ route('registro.create') }}" class="mt-4 inline-flex items-center rounded-lg bg-indigo-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-900 transition">Crear mi cuenta</a>
             </div>
 
+            <p class="text-sm">
+                ¿Has oído hablar de una reforma? Mira <a href="{{ route('guia.registro-digital') }}" class="font-medium text-indigo-600 hover:underline">en qué punto está el fichaje digital obligatorio</a>.
+            </p>
+
             <p class="text-sm text-slate-500">
                 Esta guía es informativa y no constituye asesoramiento jurídico. La normativa puede cambiar: para tu
                 caso concreto consulta con tu asesoría laboral o con un abogado.
@@ -130,6 +134,8 @@
     <footer class="bg-indigo-950">
         <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-indigo-300">
             <a href="{{ route('home') }}" class="hover:text-white hover:underline">Inicio</a>
+            <a href="{{ route('guia.registro-digital') }}" class="hover:text-white hover:underline">Registro horario digital</a>
+            <a href="{{ route('legal.aviso-legal') }}" class="hover:text-white hover:underline">Aviso legal</a>
             <a href="{{ route('legal.terminos') }}" class="hover:text-white hover:underline">Términos</a>
             <a href="{{ route('legal.privacidad') }}" class="hover:text-white hover:underline">Privacidad</a>
             <a href="{{ route('legal.cookies') }}" class="hover:text-white hover:underline">Cookies</a>

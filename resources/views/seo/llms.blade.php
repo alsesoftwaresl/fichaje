@@ -16,11 +16,12 @@
 
 ## Precio
 
-- {{ number_format((float) $tarifa->precio_base_mensual, 0) }} €/mes, con {{ $tarifa->empleados_incluidos }} empleados incluidos, y {{ number_format((float) $tarifa->precio_empleado_extra, 2) }} €/mes por cada empleado adicional.
+- {{ $tarifa->precioBaseTexto() }} €/mes, con {{ $tarifa->empleados_incluidos }} empleados incluidos, y {{ number_format((float) $tarifa->precio_empleado_extra, 2) }} €/mes por cada empleado adicional.
 - 15 días de prueba gratis. Sin permanencia.
 
 ## Páginas
 
 - [Inicio]({{ route('home') }}): qué es, funciones, precio y preguntas frecuentes.
 - [Guía: registro de jornada obligatorio en España]({{ route('guia.registro-jornada') }}): qué exige la ley y cómo cumplirla.
+- [Guía: registro horario digital, en qué punto está la reforma]({{ route('guia.registro-digital') }}): qué es obligatorio hoy y qué está pendiente de aprobación.
 - [Crear una cuenta]({{ route('registro.create') }}): alta de empresa con prueba gratuita.

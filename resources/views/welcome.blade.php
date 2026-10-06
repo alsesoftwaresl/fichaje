@@ -1,12 +1,16 @@
 @php
     $preguntas = [
         ['¿Es obligatorio el registro de jornada en España?', 'Sí. Desde el Real Decreto-ley 8/2019 (artículo 34.9 del Estatuto de los Trabajadores) las empresas deben garantizar el registro diario de la jornada de cada persona trabajadora, con la hora de inicio y de fin, y conservarlo cuatro años a disposición de los trabajadores, sus representantes y la Inspección de Trabajo.'],
-        ['¿Cuánto cuesta '.config('app.name').'?', number_format((float) $tarifa->precio_base_mensual, 0).' € al mes con '.$tarifa->empleados_incluidos.' empleados incluidos, más '.number_format((float) $tarifa->precio_empleado_extra, 2).' € al mes por cada empleado adicional. Tiene 15 días de prueba gratis y no hay permanencia.'],
+        ['¿Cuánto cuesta '.config('app.name').'?', $tarifa->precioBaseTexto().' € al mes con '.$tarifa->empleados_incluidos.' empleados incluidos, más '.number_format((float) $tarifa->precio_empleado_extra, 2).' € al mes por cada empleado adicional. Tiene 15 días de prueba gratis y no hay permanencia.'],
         ['¿Mis empleados tienen que instalar una aplicación?', 'No. Pueden fichar desde el navegador del móvil o del ordenador, o en un kiosco compartido (una tablet o un PC en la entrada) tecleando su PIN de 6 dígitos.'],
         ['¿Se pueden modificar o borrar los fichajes?', 'No. Los fichajes no se editan ni se borran. Si hay un error, el administrador registra una corrección con su motivo; queda guardado quién la hizo y el fichaje original se conserva.'],
         ['¿Pueden fichar empleados que no tienen correo electrónico?', 'Sí. Cada empleado se identifica con su DNI o NIE; el correo es opcional.'],
         ['¿Se pueden gestionar vacaciones, bajas y nóminas?', 'Sí. Los empleados solicitan vacaciones y bajas y el administrador las aprueba o rechaza. La empresa puede subir las nóminas en PDF y cada empleado las ve y descarga cuando quiera.'],
         ['¿Puedo exportar los fichajes?', 'Sí, a CSV, Excel y PDF, filtrando por empleado y por fechas.'],
+        ['¿Necesito tarjeta para la prueba gratis?', 'Sí. Se pide una tarjeta para activar la prueba de 15 días, pero no se cobra nada durante ese tiempo. Si cancelas antes de que acabe, no pagas.'],
+        ['¿Funciona sin conexión a internet?', 'No. '.config('app.name').' es una aplicación web y necesita conexión para registrar los fichajes. Si en tu centro la conexión es poco fiable, ten en cuenta este punto antes de empezar.'],
+        ['¿Tiene aplicación móvil?', 'No hay aplicación para instalar. Funciona desde el navegador del móvil, la tablet o el ordenador.'],
+        ['¿Quién está detrás de '.config('app.name').'?', config('app.name').' es un producto de '.config('legal.titular.nombre').'. Los datos del titular están en el aviso legal.'],
     ];
 @endphp
 <!DOCTYPE html>
@@ -14,14 +18,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name') }} — Control horario y fichaje de empleados online</title>
-    <meta name="description" content="{{ config('app.name') }} es el software de fichaje para empresas españolas: registro de jornada conforme al RD-ley 8/2019, kiosco con PIN, exportación de informes y gestión de ausencias. 15 días de prueba gratis.">
+    <title>Control horario y registro de jornada online — {{ config('app.name') }}</title>
+    <meta name="description" content="{{ config('app.name') }} es un software de control horario para pymes: tu equipo ficha desde el navegador o con un PIN en una tablet, y tú ves quién trabaja y exportas el registro de jornada. 15 días gratis, sin permanencia.">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="{{ route('home') }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ config('app.name') }} — Control horario y fichaje de empleados online">
-    <meta property="og:description" content="Registro de jornada conforme al RD-ley 8/2019, kiosco con PIN para fichar en equipo y facturación automática. 15 días de prueba gratis.">
+    <meta property="og:title" content="Control horario y registro de jornada online — {{ config('app.name') }}">
+    <meta property="og:description" content="Fichaje con PIN o desde el navegador, panel de quién trabaja, avisos de retrasos y exportación del registro. 15 días gratis, sin permanencia.">
     <meta property="og:url" content="{{ route('home') }}">
     <meta property="og:image" content="{{ asset('images/og-image.png') }}">
     <meta property="og:image:width" content="1200">
@@ -30,7 +34,7 @@
     <meta property="og:site_name" content="{{ config('app.name') }}">
     <meta property="og:locale" content="es_ES">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ config('app.name') }} — Control horario y fichaje de empleados online">
+    <meta name="twitter:title" content="Control horario y registro de jornada online — {{ config('app.name') }}">
     <meta name="twitter:image" content="{{ asset('images/og-image.png') }}">
 
     <script type="application/ld+json">
@@ -41,9 +45,10 @@
                 '@type' => 'Organization',
                 '@id' => route('home').'#organizacion',
                 'name' => config('app.name'),
+                'legalName' => config('legal.titular.nombre'),
                 'url' => route('home'),
                 'logo' => asset('images/logo.png'),
-            ],
+            ] + (config('legal.titular.email') ? ['email' => config('legal.titular.email')] : []),
             [
                 '@type' => 'WebSite',
                 '@id' => route('home').'#web',
@@ -115,16 +120,16 @@
             <div>
                 <span class="inline-flex items-center gap-2 rounded-full border border-accent-500/40 bg-accent-500/10 px-3 py-1 text-xs font-medium text-accent-300">
                     <span class="h-1.5 w-1.5 rounded-full bg-accent-400"></span>
-                    15 días de prueba gratis
+                    Pensado para el registro de jornada del RD-ley 8/2019
                 </span>
                 <h1 class="mt-6 font-display text-4xl sm:text-6xl font-bold leading-[1.05] tracking-tight">
-                    Tu equipo ficha.<br>
-                    <span class="text-accent-400">La ley, cumplida.</span>
+                    Control horario sencillo<br>
+                    <span class="text-accent-400">para tu empresa.</span>
                 </h1>
                 <p class="mt-6 text-base sm:text-lg text-indigo-100/90 max-w-lg">
-                    Una tablet en la entrada y un PIN para cada empleado. Registro de jornada
-                    conforme al RD-ley 8/2019, imposible de manipular y listo para enseñar a
-                    una inspección.
+                    Tu equipo ficha desde el navegador o con un PIN en una tablet. Tú ves quién
+                    está trabajando, quién llega tarde y exportas el registro de jornada cuando
+                    lo necesites. Sin papeles ni hojas de cálculo.
                 </p>
                 <div class="mt-9 flex flex-col sm:flex-row gap-3">
                     <a href="{{ route('registro.create') }}" class="inline-flex items-center justify-center rounded-lg bg-accent-500 px-7 py-3.5 font-semibold text-indigo-950 hover:bg-accent-400 transition">
@@ -134,7 +139,7 @@
                         Ver cómo funciona
                     </a>
                 </div>
-                <p class="mt-4 text-xs text-indigo-300">Cancela cuando quieras, sin permanencia.</p>
+                <p class="mt-4 text-xs text-indigo-300">15 días gratis · Se pide tarjeta, pero no se cobra nada hasta que acaben · Sin permanencia</p>
             </div>
 
             {{-- Mockup del kiosco --}}
@@ -184,16 +189,33 @@
     </div>
 
     <main>
+        {{-- ============ DATOS CONCRETOS (nada de cifras de relleno) ============ --}}
+        <section class="border-b border-slate-100 bg-white" aria-label="Datos clave">
+            <dl class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+                @foreach ([
+                    ['Fichajes que no se editan', 'Ni se borran desde la aplicación. Los errores se corrigen aparte, con motivo y autor.'],
+                    ['Datos aislados por empresa', 'Cada empresa solo ve lo suyo, y los PIN y contraseñas se guardan cifrados.'],
+                    ['Precio publicado', 'La tarifa completa está en esta página. Sin permanencia: cancelas cuando quieras.'],
+                    ['Titular identificado', config('legal.titular.nombre').', con sus datos en el aviso legal.'],
+                ] as [$titulo, $texto])
+                    <div>
+                        <dt class="font-semibold text-indigo-950">{{ $titulo }}</dt>
+                        <dd class="mt-1 text-slate-600">{{ $texto }}</dd>
+                    </div>
+                @endforeach
+            </dl>
+        </section>
+
         {{-- ============ CÓMO FUNCIONA ============ --}}
         <section id="como-funciona" class="scroll-mt-4 max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-28">
             <div class="max-w-xl">
                 <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Cómo funciona</p>
-                <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">Listo antes de terminar el café</h2>
+                <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">Empezar son tres pasos</h2>
             </div>
 
             <ol class="mt-14 grid gap-10 md:grid-cols-3">
                 @foreach ([
-                    ['Date de alta', 'Crea tu empresa en dos minutos. Pruebas 15 días gratis y decides después.'],
+                    ['Date de alta', 'Crea tu empresa con tu correo o con Google. Pruebas 15 días gratis y decides después.'],
                     ['Dale un PIN a cada empleado', 'Les das de alta con su DNI. Cada uno recibe un PIN de 6 dígitos para fichar, sin contraseñas que recordar.'],
                     ['Pon la tablet en la entrada', 'Abre el enlace del kiosco en cualquier tablet u ordenador fijo. Fichan con el PIN y tú lo ves en tiempo real.'],
                 ] as $i => [$titulo, $texto])
@@ -211,15 +233,15 @@
             <div class="pointer-events-none absolute -left-40 top-0 h-96 w-96 rounded-full bg-accent-500/15 blur-3xl"></div>
             <div class="relative max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-28 grid lg:grid-cols-2 gap-14 items-center">
                 <div>
-                    <p class="text-sm font-semibold uppercase tracking-wider text-accent-400">Registro inmutable</p>
-                    <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight">Un registro que aguanta una inspección</h2>
+                    <p class="text-sm font-semibold uppercase tracking-wider text-accent-400">Registro inalterable</p>
+                    <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight">Un registro que no se puede reescribir</h2>
                     <p class="mt-5 text-indigo-100/90 max-w-lg">
-                        Un fichaje, una vez guardado, no se edita ni se borra, ni siquiera por
-                        nosotros. Si hay un error, se añade una <strong class="text-white">corrección</strong>
+                        Un fichaje, una vez guardado, no se puede editar ni borrar desde la aplicación,
+                        tampoco por el administrador. Si hay un error, se añade una <strong class="text-white">corrección</strong>
                         al lado, con su motivo y su autor. El original siempre se conserva.
                     </p>
                     <p class="mt-4 text-indigo-100/90 max-w-lg">
-                        Conservación de 4 años y datos de cada empresa aislados del resto.
+                        La ley exige conservar el registro cuatro años: aquí los fichajes no se borran. Y los datos de cada empresa están aislados del resto.
                     </p>
                 </div>
 
@@ -303,6 +325,70 @@
             </div>
         </section>
 
+        {{-- ============ LA LEY, SIN EXAGERACIONES ============ --}}
+        <section id="ley" class="scroll-mt-4 max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-28">
+            <div class="max-w-2xl">
+                <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">La ley, sin exageraciones</p>
+                <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">Qué exige hoy y qué está por venir</h2>
+                <p class="mt-4 text-slate-600">
+                    Hay muchas webs que meten prisa con "la nueva ley". Esto es lo que hay, explicado sin
+                    alarmismo. Está actualizado a octubre de 2026.
+                </p>
+            </div>
+
+            <div class="mt-12 grid gap-6 lg:grid-cols-2">
+                <div class="rounded-2xl border border-slate-200 p-6 sm:p-8">
+                    <h3 class="font-display text-xl font-semibold text-indigo-950">Lo que exige la ley hoy</h3>
+                    <ul class="mt-4 space-y-3 text-sm text-slate-600">
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Registro diario de la jornada de cada persona trabajadora, con la hora de inicio y de fin (artículo 34.9 del Estatuto de los Trabajadores, desde 2019).</li>
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Conservarlo cuatro años, a disposición de los trabajadores, sus representantes y la Inspección de Trabajo.</li>
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>La ley no impone un formato: puede ser en papel o digital.</li>
+                    </ul>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
+                    <h3 class="font-display text-xl font-semibold text-indigo-950">Lo que está en preparación</h3>
+                    <p class="mt-4 text-sm text-slate-600">
+                        El Ministerio de Trabajo tramita un reglamento para que el registro sea digital, a prueba de
+                        manipulación y consultable a distancia por la Inspección. Según la información publicada, a
+                        principios de octubre de 2026 todavía no estaba aprobado ni publicado en el BOE.
+                    </p>
+                    <p class="mt-3 text-sm text-slate-600">
+                        {{ config('app.name') }} ya funciona así: registro digital, fichajes que no se editan y correcciones con
+                        su rastro. Si el reglamento cambia algo, lo adaptaremos.
+                    </p>
+                </div>
+            </div>
+
+            <p class="mt-6 text-sm text-slate-500">
+                Más detalle en la <a href="{{ route('guia.registro-jornada') }}" class="font-medium text-indigo-600 hover:underline">guía del registro de jornada</a>
+                y en <a href="{{ route('guia.registro-digital') }}" class="font-medium text-indigo-600 hover:underline">el punto de situación de la reforma</a>.
+            </p>
+        </section>
+
+        {{-- ============ PARA QUIÉN ES (Y PARA QUIÉN NO) ============ --}}
+        <section class="bg-slate-50 border-y border-slate-100">
+            <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-24 grid gap-10 lg:grid-cols-2">
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Para quién es</p>
+                    <h2 class="mt-3 font-display text-3xl font-bold tracking-tight text-indigo-950">Lo que sí hace bien</h2>
+                    <ul class="mt-5 space-y-3 text-sm text-slate-600">
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Pymes y autónomos con empleados que necesitan un registro de jornada claro, sin complicarse.</li>
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Centros donde se ficha en una tablet compartida (taller, tienda, oficina, almacén).</li>
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Empleados sin correo: entran con su DNI o NIE.</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-wider text-slate-500">Para quién no (todavía)</p>
+                    <h2 class="mt-3 font-display text-3xl font-bold tracking-tight text-indigo-950">Lo que no hace</h2>
+                    <ul class="mt-5 space-y-3 text-sm text-slate-600">
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400"></span>No es un ERP ni un programa de nóminas: las nóminas se suben en PDF, no se calculan.</li>
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400"></span>No tiene geolocalización, reconocimiento facial ni app nativa para el móvil.</li>
+                        <li class="flex gap-3"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400"></span>No funciona sin internet, y no gestiona cuadrantes de turnos rotativos.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         {{-- ============ PRECIO ============ --}}
         <section id="precio" class="scroll-mt-4 bg-slate-50 border-t border-slate-100">
             <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-28 grid lg:grid-cols-2 gap-12 items-center">
@@ -313,6 +399,18 @@
                         Pruebas 15 días gratis. Después pagas la cuota base y solo cobramos de
                         más si tu plantilla crece. Sin permanencia ni letra pequeña.
                     </p>
+
+                    <table class="mt-8 w-full max-w-md text-sm">
+                        <caption class="mb-2 text-left font-semibold text-indigo-950">Cuánto pagarías al mes</caption>
+                        <tbody class="divide-y divide-slate-200 border-y border-slate-200">
+                            @foreach ([$tarifa->empleados_incluidos, 10, 20, 50] as $n)
+                                <tr>
+                                    <td class="py-2.5 text-slate-600">{{ $n }} empleados</td>
+                                    <td class="py-2.5 text-right font-semibold text-indigo-950">{{ number_format($tarifa->calcularPrecioMensual($n), 2, ',', '.') }} €</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="relative overflow-hidden rounded-3xl bg-indigo-950 p-8 sm:p-10 text-white shadow-xl">
@@ -320,7 +418,7 @@
                     <div class="relative">
                         <span class="inline-flex rounded-full bg-accent-500 px-3 py-1 text-xs font-bold text-indigo-950">15 días gratis</span>
                         <p class="mt-5 flex items-baseline gap-1">
-                            <span class="font-display text-6xl font-extrabold tracking-tight">{{ number_format((float) $tarifa->precio_base_mensual, 0) }}€</span>
+                            <span class="font-display text-6xl font-extrabold tracking-tight">{{ $tarifa->precioBaseTexto() }}€</span>
                             <span class="text-indigo-300">/mes</span>
                         </p>
                         <p class="mt-1 text-sm text-indigo-300">+ {{ number_format((float) $tarifa->precio_empleado_extra, 2) }}€/mes por cada empleado adicional</p>
@@ -343,6 +441,7 @@
                         <a href="{{ route('registro.create') }}" class="mt-9 flex w-full items-center justify-center rounded-lg bg-accent-500 px-6 py-3.5 font-semibold text-indigo-950 hover:bg-accent-400 transition">
                             Empezar prueba gratis
                         </a>
+                        <p class="mt-3 text-center text-xs text-indigo-300">Se pide tarjeta; no se cobra nada durante los 15 días.</p>
                     </div>
                 </div>
             </div>
@@ -386,9 +485,18 @@
 
     <footer class="bg-indigo-950">
         <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-6 w-auto self-start">
+            <div class="self-start">
+                <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-6 w-auto">
+                <p class="mt-3 text-xs text-indigo-300">
+                    {{ config('app.name') }} es un producto de {{ config('legal.titular.nombre') }}
+                    @if (config('legal.titular.email'))
+                        · <a href="mailto:{{ config('legal.titular.email') }}" class="hover:text-white hover:underline">{{ config('legal.titular.email') }}</a>
+                    @endif
+                </p>
+            </div>
             <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-indigo-300">
                 <a href="{{ route('guia.registro-jornada') }}" class="hover:text-white hover:underline">Registro de jornada</a>
+                <a href="{{ route('legal.aviso-legal') }}" class="hover:text-white hover:underline">Aviso legal</a>
                 <a href="{{ route('legal.terminos') }}" class="hover:text-white hover:underline">Términos</a>
                 <a href="{{ route('legal.privacidad') }}" class="hover:text-white hover:underline">Privacidad</a>
                 <a href="{{ route('legal.encargo-tratamiento') }}" class="hover:text-white hover:underline">Encargo de tratamiento</a>
