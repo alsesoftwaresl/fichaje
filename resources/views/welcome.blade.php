@@ -194,10 +194,11 @@
             <dl class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-sm">
                 @foreach ([
                     ['Fichajes que no se editan', 'Ni se borran desde la aplicación. Los errores se corrigen aparte, con motivo y autor.'],
-                    ['Datos aislados por empresa', 'Cada empresa solo ve lo suyo, y los PIN y contraseñas se guardan cifrados.'],
+                    ['Datos aislados por empresa', 'Cada empresa solo ve lo suyo, y las contraseñas y los PIN no se guardan en claro.'],
                     ['Precio publicado', 'La tarifa completa está en esta página. Sin permanencia: cancelas cuando quieras.'],
-                    ['Titular identificado', config('legal.titular.nombre').', con sus datos en el aviso legal.'],
-                ] as [$titulo, $texto])
+                ] + (array_filter([config('legal.titular.nif'), config('legal.titular.domicilio'), config('legal.titular.email')])
+                    ? [3 => ['Titular identificado', config('legal.titular.nombre').', con sus datos en el aviso legal.']]
+                    : []) as [$titulo, $texto])
                     <div>
                         <dt class="font-semibold text-indigo-950">{{ $titulo }}</dt>
                         <dd class="mt-1 text-slate-600">{{ $texto }}</dd>
@@ -348,9 +349,9 @@
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
                     <h3 class="font-display text-xl font-semibold text-indigo-950">Lo que está en preparación</h3>
                     <p class="mt-4 text-sm text-slate-600">
-                        El Ministerio de Trabajo tramita un reglamento para que el registro sea digital, a prueba de
-                        manipulación y consultable a distancia por la Inspección. Según la información publicada, a
-                        principios de octubre de 2026 todavía no estaba aprobado ni publicado en el BOE.
+                        Según medios especializados, el Ministerio de Trabajo tramita un reglamento para que el registro
+                        sea digital, a prueba de manipulación y consultable a distancia por la Inspección. A principios de
+                        octubre de 2026 todavía no constaba aprobado ni publicado en el BOE (comprueba el BOE por tu cuenta).
                     </p>
                     <p class="mt-3 text-sm text-slate-600">
                         {{ config('app.name') }} ya funciona así: registro digital, fichajes que no se editan y correcciones con
