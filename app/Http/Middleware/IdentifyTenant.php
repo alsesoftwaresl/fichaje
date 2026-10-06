@@ -31,4 +31,16 @@ class IdentifyTenant
 
         return $next($request);
     }
+
+    /**
+     * Tenant es estado estático: en un proceso que atienda varias peticiones
+     * (tests, Octane...) la empresa de la petición anterior se quedaría
+     * puesta durante el route-model-binding de la siguiente — que corre ANTES
+     * de este middleware — y dejaría abrir registros de otra empresa. Se
+     * limpia al terminar cada petición.
+     */
+    public function terminate(Request $request, Response $response): void
+    {
+        Tenant::clear();
+    }
 }
