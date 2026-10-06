@@ -1,3 +1,14 @@
+@php
+    $preguntas = [
+        ['¿Es obligatorio el registro de jornada en España?', 'Sí. Desde el Real Decreto-ley 8/2019 (artículo 34.9 del Estatuto de los Trabajadores) las empresas deben garantizar el registro diario de la jornada de cada persona trabajadora, con la hora de inicio y de fin, y conservarlo cuatro años a disposición de los trabajadores, sus representantes y la Inspección de Trabajo.'],
+        ['¿Cuánto cuesta '.config('app.name').'?', number_format((float) $tarifa->precio_base_mensual, 0).' € al mes con '.$tarifa->empleados_incluidos.' empleados incluidos, más '.number_format((float) $tarifa->precio_empleado_extra, 2).' € al mes por cada empleado adicional. Tiene 15 días de prueba gratis y no hay permanencia.'],
+        ['¿Mis empleados tienen que instalar una aplicación?', 'No. Pueden fichar desde el navegador del móvil o del ordenador, o en un kiosco compartido (una tablet o un PC en la entrada) tecleando su PIN de 6 dígitos.'],
+        ['¿Se pueden modificar o borrar los fichajes?', 'No. Los fichajes no se editan ni se borran. Si hay un error, el administrador registra una corrección con su motivo; queda guardado quién la hizo y el fichaje original se conserva.'],
+        ['¿Pueden fichar empleados que no tienen correo electrónico?', 'Sí. Cada empleado se identifica con su DNI o NIE; el correo es opcional.'],
+        ['¿Se pueden gestionar vacaciones, bajas y nóminas?', 'Sí. Los empleados solicitan vacaciones y bajas y el administrador las aprueba o rechaza. La empresa puede subir las nóminas en PDF y cada empleado las ve y descarga cuando quiera.'],
+        ['¿Puedo exportar los fichajes?', 'Sí, a CSV, Excel y PDF, filtrando por empleado y por fechas.'],
+    ];
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,29 +16,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name') }} — Control horario y fichaje de empleados online</title>
     <meta name="description" content="{{ config('app.name') }} es el software de fichaje para empresas españolas: registro de jornada conforme al RD-ley 8/2019, kiosco con PIN, exportación de informes y gestión de ausencias. 15 días de prueba gratis.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="{{ route('home') }}">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ config('app.name') }} — Control horario y fichaje de empleados online">
     <meta property="og:description" content="Registro de jornada conforme al RD-ley 8/2019, kiosco con PIN para fichar en equipo y facturación automática. 15 días de prueba gratis.">
     <meta property="og:url" content="{{ route('home') }}">
-    <meta property="og:image" content="{{ asset('images/logo.png') }}">
+    <meta property="og:image" content="{{ asset('images/og-image.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ config('app.name') }} — control horario y fichaje de empleados">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
     <meta property="og:locale" content="es_ES">
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ config('app.name') }} — Control horario y fichaje de empleados online">
+    <meta name="twitter:image" content="{{ asset('images/og-image.png') }}">
 
     <script type="application/ld+json">
     {!! json_encode([
         '@context' => 'https://schema.org',
-        '@type' => 'SoftwareApplication',
-        'name' => config('app.name'),
-        'applicationCategory' => 'BusinessApplication',
-        'operatingSystem' => 'Web',
-        'offers' => [
-            '@type' => 'Offer',
-            'price' => (string) $tarifa->precio_base_mensual,
-            'priceCurrency' => 'EUR',
+        '@graph' => [
+            [
+                '@type' => 'Organization',
+                '@id' => route('home').'#organizacion',
+                'name' => config('app.name'),
+                'url' => route('home'),
+                'logo' => asset('images/logo.png'),
+            ],
+            [
+                '@type' => 'WebSite',
+                '@id' => route('home').'#web',
+                'url' => route('home'),
+                'name' => config('app.name'),
+                'inLanguage' => 'es-ES',
+                'publisher' => ['@id' => route('home').'#organizacion'],
+            ],
+            [
+                '@type' => 'SoftwareApplication',
+                'name' => config('app.name'),
+                'url' => route('home'),
+                'applicationCategory' => 'BusinessApplication',
+                'operatingSystem' => 'Web',
+                'inLanguage' => 'es-ES',
+                'description' => 'Software de fichaje y control horario para empresas españolas, conforme al RD-ley 8/2019.',
+                'offers' => [
+                    '@type' => 'Offer',
+                    'price' => number_format((float) $tarifa->precio_base_mensual, 2, '.', ''),
+                    'priceCurrency' => 'EUR',
+                    'availability' => 'https://schema.org/InStock',
+                    'url' => route('registro.create'),
+                ],
+            ],
+            [
+                '@type' => 'FAQPage',
+                'mainEntity' => collect($preguntas)->map(fn ($p) => [
+                    '@type' => 'Question',
+                    'name' => $p[0],
+                    'acceptedAnswer' => ['@type' => 'Answer', 'text' => $p[1]],
+                ])->all(),
+            ],
         ],
-        'description' => 'Software de fichaje y control horario para empresas españolas, conforme al RD-ley 8/2019.',
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
 
@@ -51,6 +100,7 @@
                 <nav class="flex items-center gap-3 sm:gap-5 text-sm">
                     <a href="#como-funciona" class="hidden md:inline text-indigo-200 hover:text-white">Cómo funciona</a>
                     <a href="#precio" class="hidden md:inline text-indigo-200 hover:text-white">Precio</a>
+                    <a href="{{ route('guia.registro-jornada') }}" class="hidden lg:inline text-indigo-200 hover:text-white">Guía de registro de jornada</a>
                     @auth
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center rounded-lg bg-accent-500 px-4 py-2 font-semibold text-indigo-950 hover:bg-accent-400 transition">Ir al panel</a>
                     @else
@@ -298,6 +348,29 @@
             </div>
         </section>
 
+        {{-- ============ PREGUNTAS FRECUENTES ============ --}}
+        <section id="preguntas" class="scroll-mt-4 max-w-3xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-24">
+            <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Preguntas frecuentes</p>
+            <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">Lo que suelen preguntar antes de empezar</h2>
+
+            <div class="mt-8 divide-y divide-slate-200 border-y border-slate-200">
+                @foreach ($preguntas as [$pregunta, $respuesta])
+                    <details class="group py-4">
+                        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-indigo-950">
+                            {{ $pregunta }}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 shrink-0 text-slate-400 transition group-open:rotate-180"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+                        </summary>
+                        <p class="mt-3 text-slate-600 leading-relaxed">{{ $respuesta }}</p>
+                    </details>
+                @endforeach
+            </div>
+
+            <p class="mt-6 text-sm text-slate-500">
+                ¿Quieres saber qué exige exactamente la ley?
+                <a href="{{ route('guia.registro-jornada') }}" class="font-medium text-indigo-600 hover:underline">Lee la guía del registro de jornada</a>.
+            </p>
+        </section>
+
         {{-- ============ CTA FINAL ============ --}}
         <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-20">
             <div class="relative overflow-hidden rounded-3xl bg-indigo-950 px-6 py-16 text-center text-white sm:px-12">
@@ -315,6 +388,7 @@
         <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-6 w-auto self-start">
             <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-indigo-300">
+                <a href="{{ route('guia.registro-jornada') }}" class="hover:text-white hover:underline">Registro de jornada</a>
                 <a href="{{ route('legal.terminos') }}" class="hover:text-white hover:underline">Términos</a>
                 <a href="{{ route('legal.privacidad') }}" class="hover:text-white hover:underline">Privacidad</a>
                 <a href="{{ route('legal.encargo-tratamiento') }}" class="hover:text-white hover:underline">Encargo de tratamiento</a>

@@ -21,6 +21,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistroCompletarController;
 use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\SuperAdmin\EmpresaController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SuperAdmin\LicenciaController as SuperAdminLicenciaController;
 use App\Http\Controllers\SuperAdmin\TarifaController;
 use App\Http\Controllers\Admin\LicenciaController as AdminLicenciaController;
@@ -32,6 +33,14 @@ use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 // petición, no una vez al cachear rutas ("php artisan route:cache"), que
 // dejaría el precio mostrado congelado si luego cambia desde super_admin.
 Route::get('/', HomeController::class)->name('home');
+
+// Guía pública sobre el registro de jornada (contenido para buscadores e IAs).
+Route::view('/guia/registro-de-jornada', 'guia.registro-jornada')->name('guia.registro-jornada');
+
+// Ficheros para buscadores e IAs (ver SeoController).
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
 
 Route::get('/registro', [RegistroController::class, 'create'])->name('registro.create');
 Route::post('/registro', [RegistroController::class, 'store'])

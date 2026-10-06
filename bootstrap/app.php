@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // hasta elegir la suya.
         $middleware->web(append: [
             \App\Http\Middleware\ForzarCambioPassword::class,
+            \App\Http\Middleware\SeoRobots::class,
         ]);
 
         // Stripe llama a este endpoint directamente, sin pasar por el
