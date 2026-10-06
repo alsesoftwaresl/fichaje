@@ -31,11 +31,20 @@ class AuditLog extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public static function registrar(string $accion, Model $objeto, ?array $detalles = null): self
+    /**
+     * $usuario es opcional: por defecto se usa quien tenga la sesión
+     * iniciada (Auth::user()). Hace falta pasarlo explícito en flujos sin
+     * nadie autenticado todavía — p. ej. el registro público de empresa,
+     * donde el admin_empresa que hay que registrar como autor es justo el
+     * que se acaba de crear en la misma operación.
+     */
+    public static function registrar(string $accion, Model $objeto, ?array $detalles = null, ?User $usuario = null): self
     {
+        $usuario ??= Auth::user();
+
         return static::create([
-            'empresa_id' => Auth::user()?->empresa_id,
-            'user_id' => Auth::id(),
+            'empresa_id' => $usuario?->empresa_id,
+            'user_id' => $usuario?->id,
             'accion' => $accion,
             'objeto_tipo' => $objeto::class,
             'objeto_id' => $objeto->getKey(),

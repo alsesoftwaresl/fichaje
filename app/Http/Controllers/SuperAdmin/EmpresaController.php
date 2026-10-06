@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
 use App\Models\Empresa;
-use App\Models\LegalAceptacion;
 use App\Models\Tarifa;
-use App\Models\User;
+use App\Services\AltaEmpresaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
@@ -49,38 +46,7 @@ class EmpresaController extends Controller
             'acepta_encargo' => ['accepted'],
         ]);
 
-        $empresa = DB::transaction(function () use ($data, $request) {
-            $empresa = Empresa::create([
-                'nombre' => $data['nombre'],
-                'nif' => $data['nif'] ?? null,
-                'email_contacto' => $data['email_contacto'],
-                'activa' => true,
-            ]);
-
-            $admin = User::create([
-                'empresa_id' => $empresa->id,
-                'name' => $data['admin_name'],
-                'email' => $data['admin_email'],
-                'rol' => 'admin_empresa',
-                'activo' => true,
-                'password' => $data['admin_password'],
-            ]);
-
-            foreach (['terminos_condiciones' => 'version_terminos', 'encargo_tratamiento' => 'version_encargo'] as $documento => $configKey) {
-                LegalAceptacion::create([
-                    'empresa_id' => $empresa->id,
-                    'user_id' => $admin->id,
-                    'documento' => $documento,
-                    'version' => config('legal.'.$configKey),
-                    'aceptado_at' => now(),
-                    'ip_address' => $request->ip(),
-                ]);
-            }
-
-            AuditLog::registrar('empresa_creada', $empresa, ['admin_email' => $admin->email]);
-
-            return $empresa;
-        });
+        ['empresa' => $empresa] = AltaEmpresaService::crear($data, $request->ip());
 
         return redirect()->route('super-admin.empresas.show', $empresa)->with('status', 'Empresa dada de alta.');
     }

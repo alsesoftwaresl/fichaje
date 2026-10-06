@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
+
+/**
+ * "Continuar con Google" — solo para admin_empresa (login y alta), nunca
+ * para empleados (fichan por DNI o, si tienen email, por contraseña normal).
+ *
+ * No hay columna "google_id": basta con el email, que Google ya nos
+ * garantiza verificado — es justo lo que hace falta para emparejar con una
+ * cuenta existente o para saltarse nuestra propia verificación de email al
+ * crear una nueva (ver RegistroCompletarController).
+ */
+class GoogleAuthController extends Controller
+{
+    public function redirect(): RedirectResponse
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function callback(): RedirectResponse
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+        } catch (\Throwable $e) {
+            Log::warning('Fallo en el callback de Google OAuth: '.$e->getMessage());
+
+            return redirect()->route('login')
+                ->with('status', 'No se pudo completar el inicio de sesión con Google. Inténtalo de nuevo.');
+        }
+
+        $admin = User::where('email', $googleUser->getEmail())
+            ->where('rol', 'admin_empresa')
+            ->first();
+
+        if ($admin) {
+            Auth::login($admin);
+
+            return redirect()->route('dashboard');
+        }
+
+        // No existe todavía una empresa con este email: guardamos lo que
+        // Google nos ha dado (ya verificado por ellos) y le pedimos solo los
+        // datos que faltan — nombre de empresa, NIF, legales — en
+        // RegistroCompletarController.
+        session(['registro_google' => [
+            'nombre' => $googleUser->getName(),
+            'email' => $googleUser->getEmail(),
+        ]]);
+
+        return redirect()->route('registro.completar');
+    }
+}
