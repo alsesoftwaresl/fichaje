@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Ausencia;
+use App\Models\Cita;
 use App\Models\Fichaje;
 use App\Models\User;
 use App\Support\Tenant;
@@ -45,7 +46,15 @@ class EstadoEquipoCalculador
             ->groupBy('user_id')
             ->map(fn (Collection $fichajesDelDia) => $fichajesDelDia->last());
 
-        return $empleados->map(function (User $empleado) use ($ausenciaPorUsuario, $ultimoFichajeHoyPorUsuario) {
+        // Citas (médico...) avisadas para hoy que cubren este instante.
+        $citaAhoraPorUsuario = Cita::vigentes()
+            ->whereIn('user_id', $empleados->pluck('id'))
+            ->whereDate('fecha', $fecha)
+            ->get()
+            ->filter(fn (Cita $c) => $c->desde()->lte($fecha) && $c->hasta()->gt($fecha))
+            ->keyBy('user_id');
+
+        return $empleados->map(function (User $empleado) use ($ausenciaPorUsuario, $ultimoFichajeHoyPorUsuario, $citaAhoraPorUsuario) {
             $ausencia = $ausenciaPorUsuario->get($empleado->id);
 
             if ($ausencia) {
@@ -57,6 +66,16 @@ class EstadoEquipoCalculador
                         'baja_medica' => 'Baja médica',
                         default => 'Ausencia',
                     },
+                ];
+            }
+
+            $cita = $citaAhoraPorUsuario->get($empleado->id);
+
+            if ($cita) {
+                return [
+                    'empleado' => $empleado,
+                    'estado' => 'cita',
+                    'detalle' => $cita->descripcion().' — vuelve a las '.substr($cita->hora_fin, 0, 5),
                 ];
             }
 

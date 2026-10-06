@@ -38,7 +38,7 @@
         </x-card>
 
         <x-card class="overflow-hidden">
-            <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <div class="overflow-x-auto"><table class="tabla-apilada min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Nombre</th>
@@ -53,9 +53,25 @@
                             <td class="px-4 py-3 text-slate-700">{{ $empleado->name }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $empleado->email }}</td>
                             <td class="px-4 py-3">
-                                <x-badge :tone="$empleado->activo ? 'success' : 'neutral'">
-                                    {{ $empleado->activo ? 'Activo' : 'Inactivo' }}
-                                </x-badge>
+                                @php $estado = $estados[$empleado->id] ?? null; @endphp
+                                @if (! $empleado->activo)
+                                    <x-badge tone="neutral">Inactivo</x-badge>
+                                @else
+                                    <x-badge :tone="match($estado['estado'] ?? null) {
+                                        'trabajando' => 'success',
+                                        'vacaciones', 'baja' => 'indigo',
+                                        'cita' => 'warning',
+                                        default => 'neutral',
+                                    }">
+                                        {{ match($estado['estado'] ?? null) {
+                                            'trabajando' => 'Trabajando',
+                                            'vacaciones' => 'Vacaciones',
+                                            'baja' => $estado['detalle'] ?? 'Baja',
+                                            'cita' => 'Salida avisada',
+                                            default => 'Fuera',
+                                        } }}
+                                    </x-badge>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-right space-x-3">
                                 <a href="{{ route('admin.empleados.edit', $empleado) }}" class="text-xs font-medium text-slate-600 hover:text-slate-500">Editar</a>
@@ -87,7 +103,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </table></div>
         </x-card>
 
         {{ $empleados->links() }}

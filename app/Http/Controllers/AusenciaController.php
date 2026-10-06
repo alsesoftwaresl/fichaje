@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\Ausencia;
+use App\Models\Cita;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,15 @@ class AusenciaController extends Controller
             ->orderByDesc('fecha_inicio')
             ->paginate(20);
 
-        return view('ausencias.mis-ausencias', compact('ausencias'));
+        // Próximas citas avisadas (de hoy en adelante, sin anular).
+        $citas = Cita::where('user_id', Auth::id())
+            ->vigentes()
+            ->whereDate('fecha', '>=', today())
+            ->orderBy('fecha')
+            ->orderBy('hora_inicio')
+            ->get();
+
+        return view('ausencias.mis-ausencias', compact('ausencias', 'citas'));
     }
 
     public function store(Request $request): RedirectResponse

@@ -22,8 +22,7 @@ class HorarioEmpleadoTest extends TestCase
             'email' => 'conhorario@example.com',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
-            'hora_entrada_esperada' => '09:00',
-            'hora_salida_esperada' => '17:00',
+            'tramos' => [['entrada' => '09:00', 'salida' => '17:00']],
             // Strings a propósito: así es como llegan de verdad los
             // checkboxes de un formulario HTML real, no como enteros PHP.
             'dias_laborables' => ['1', '2', '3', '4', '5'],
@@ -55,8 +54,7 @@ class HorarioEmpleadoTest extends TestCase
                 'name' => 'Juan',
                 'dni_nie' => $empleado->dni_nie,
                 'email' => $empleado->email,
-                'hora_entrada_esperada' => '08:00',
-                'hora_salida_esperada' => '16:00',
+                'tramos' => [['entrada' => '08:00', 'salida' => '16:00']],
                 'dias_laborables' => [1, 2, 3],
             ])
             ->assertRedirect(route('admin.empleados.index'));

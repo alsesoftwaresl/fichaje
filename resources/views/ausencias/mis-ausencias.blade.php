@@ -5,6 +5,65 @@
 
     <div class="space-y-6">
         <x-card class="p-6">
+            <h3 class="font-medium text-slate-900">Avisar de una salida durante tu horario</h3>
+            <p class="mt-1 mb-4 text-sm text-slate-500">
+                Si tienes que salir un rato dentro de tu horario (médico, una gestión, lo que sea), explícalo
+                aquí y di a qué hora vuelves. No necesita aprobación: tu empresa lo verá en el panel y no te
+                saldrá como retraso ni como fichaje sin cerrar.
+            </p>
+            <form method="POST" action="{{ route('citas.store') }}" class="space-y-4">
+                @csrf
+
+                <div>
+                    <x-input-label value="¿Por qué sales?" />
+                    <x-text-input name="motivo" type="text" class="mt-1 block w-full" :value="old('motivo')" maxlength="500" placeholder="Ej.: Cita con el médico, trámite en el banco…" required />
+                    <x-input-error class="mt-2" :messages="$errors->get('motivo')" />
+                </div>
+
+                <div class="grid sm:grid-cols-3 gap-4">
+                    <div>
+                        <x-input-label value="Día" />
+                        <x-text-input name="fecha" type="date" class="mt-1 block w-full" :value="old('fecha', today()->toDateString())" :min="today()->toDateString()" required />
+                        <x-input-error class="mt-2" :messages="$errors->get('fecha')" />
+                    </div>
+                    <div>
+                        <x-input-label value="Salgo a las" />
+                        <x-text-input name="hora_inicio" type="time" class="mt-1 block w-full" :value="old('hora_inicio')" required />
+                        <x-input-error class="mt-2" :messages="$errors->get('hora_inicio')" />
+                    </div>
+                    <div>
+                        <x-input-label value="Vuelvo a las" />
+                        <x-text-input name="hora_fin" type="time" class="mt-1 block w-full" :value="old('hora_fin')" required />
+                        <x-input-error class="mt-2" :messages="$errors->get('hora_fin')" />
+                    </div>
+                </div>
+
+                <x-primary-button type="submit">Avisar</x-primary-button>
+            </form>
+
+            @if ($citas->isNotEmpty())
+                <div class="mt-6 border-t border-slate-200 pt-4">
+                    <p class="mb-2 text-sm font-medium text-slate-700">Tus próximos avisos</p>
+                    <ul class="divide-y divide-slate-100 text-sm">
+                        @foreach ($citas as $cita)
+                            <li class="flex flex-wrap items-center justify-between gap-2 py-2">
+                                <span class="text-slate-700">
+                                    <strong>{{ $cita->fecha->format('d/m/Y') }}</strong> · {{ $cita->rango() }}
+                                    <span class="text-slate-500">— {{ $cita->motivo }}</span>
+                                </span>
+                                <form method="POST" action="{{ route('citas.anular', $cita) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button class="text-xs font-medium text-rose-600 hover:text-rose-500">Anular</button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+        </x-card>
+
+        <x-card class="p-6">
             <h3 class="font-medium text-slate-900 mb-4">Solicitar vacaciones o baja</h3>
             <form method="POST" action="{{ route('ausencias.store') }}" class="space-y-4">
                 @csrf
@@ -42,7 +101,7 @@
         </x-card>
 
         <x-card class="overflow-hidden">
-            <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <div class="overflow-x-auto"><table class="tabla-apilada min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Tipo</th>
@@ -73,7 +132,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </table></div>
         </x-card>
 
         {{ $ausencias->links() }}
