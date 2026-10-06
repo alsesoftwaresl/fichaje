@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Billable;
+use Stripe\Exception\ApiErrorException;
 
 class Empresa extends Model
 {
@@ -53,6 +56,69 @@ class Empresa extends Model
     public function stripeEmail(): ?string
     {
         return $this->email_contacto;
+    }
+
+    /**
+     * Copia a la base de datos local las suscripciones que Stripe tiene para
+     * esta empresa, igual que haría el webhook de Cashier. Hace falta porque
+     * al volver del pago el usuario llega antes que el webhook (o el webhook
+     * no llega nunca, p. ej. en local sin "stripe listen"), y sin esta copia
+     * la app lo trataría como no suscrito y le bloquearía todo.
+     *
+     * Si Stripe no responde no pasa nada: se queda como estaba y el webhook,
+     * cuando llegue, lo arregla.
+     */
+    public function sincronizarSuscripcionesDesdeStripe(): void
+    {
+        if (! $this->stripe_id) {
+            return;
+        }
+
+        try {
+            $suscripciones = $this->stripe()->subscriptions->all([
+                'customer' => $this->stripe_id,
+                'status' => 'all',
+                'limit' => 10,
+            ]);
+        } catch (ApiErrorException $e) {
+            Log::warning('No se pudo sincronizar la suscripción desde Stripe: '.$e->getMessage());
+
+            return;
+        }
+
+        foreach ($suscripciones->data as $remota) {
+            $items = $remota->items->data;
+            $unSoloPrecio = count($items) === 1;
+
+            $finaliza = match (true) {
+                (bool) $remota->ended_at => $remota->ended_at,
+                (bool) $remota->cancel_at => $remota->cancel_at,
+                default => null,
+            };
+
+            $local = $this->subscriptions()->updateOrCreate(
+                ['stripe_id' => $remota->id],
+                [
+                    'type' => 'default',
+                    'stripe_status' => $remota->status,
+                    'stripe_price' => $unSoloPrecio ? $items[0]->price->id : null,
+                    'quantity' => $unSoloPrecio ? ($items[0]->quantity ?? null) : null,
+                    'trial_ends_at' => $remota->trial_end ? Carbon::createFromTimestamp($remota->trial_end) : null,
+                    'ends_at' => $finaliza ? Carbon::createFromTimestamp($finaliza) : null,
+                ]
+            );
+
+            foreach ($items as $item) {
+                $local->items()->updateOrCreate(
+                    ['stripe_id' => $item->id],
+                    [
+                        'stripe_product' => $item->price->product,
+                        'stripe_price' => $item->price->id,
+                        'quantity' => $item->quantity ?? null,
+                    ]
+                );
+            }
+        }
     }
 
     /**

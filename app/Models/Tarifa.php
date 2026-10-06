@@ -76,7 +76,7 @@ class Tarifa extends Model
 
         if (! $this->stripe_product_id) {
             $this->stripe_product_id = $stripe->products->create([
-                'name' => 'Fichaje App — Suscripción',
+                'name' => 'Achrono — Suscripción',
             ])->id;
         }
 

@@ -12,9 +12,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FacturacionController extends Controller
 {
+    const DIAS_PRUEBA_GRATIS = 15;
+
+
     public function index(): View
     {
         $empresa = Auth::user()->empresa;
+
+        // Al volver del Checkout de Stripe puede que el webhook aún no haya
+        // llegado: se copia la suscripción desde Stripe para no mostrar
+        // "sin suscripción" a quien acaba de contratar.
+        if (! $empresa->subscribed('default')) {
+            $empresa->sincronizarSuscripcionesDesdeStripe();
+            $empresa->unsetRelation('subscriptions');
+        }
+
         $tarifa = Tarifa::actual();
         $empleadosActivos = $empresa->usuarios()->where('activo', true)->count();
 
@@ -25,6 +37,7 @@ class FacturacionController extends Controller
             'precioMensual' => $tarifa->calcularPrecioMensual($empleadosActivos),
             'empleadosExtra' => $tarifa->empleadosExtra($empleadosActivos),
             'suscripcion' => $empresa->subscription('default'),
+            'diasPrueba' => self::DIAS_PRUEBA_GRATIS,
             // Historial de facturas (una por mes mientras la suscripción esté
             // activa). Vacío si la empresa nunca ha llegado a ser cliente en Stripe.
             'facturas' => $empresa->stripe_id ? $empresa->invoices() : collect(),
@@ -45,7 +58,8 @@ class FacturacionController extends Controller
         $extra = $tarifa->empleadosExtra($empleadosActivos);
 
         $builder = $empresa->newSubscription('default')
-            ->price($tarifa->stripe_price_base_id, 1);
+            ->price($tarifa->stripe_price_base_id, 1)
+            ->trialDays(self::DIAS_PRUEBA_GRATIS);
 
         if ($extra > 0) {
             $builder->price($tarifa->stripe_price_extra_id, $extra);
@@ -68,7 +82,7 @@ class FacturacionController extends Controller
         $nombreArchivo = 'factura-'.$empresa->findInvoiceOrFail($factura)->date()->format('Y-m');
 
         return $empresa->downloadInvoice($factura, [
-            'vendor' => 'Fichaje App',
+            'vendor' => 'Achrono',
             'product' => 'Suscripcion',
         ], $nombreArchivo);
     }

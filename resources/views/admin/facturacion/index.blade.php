@@ -27,6 +27,8 @@
                 <div class="flex items-center gap-2 mb-4">
                     @if ($suscripcion->onGracePeriod())
                         <x-badge tone="indigo">Cancelada — activa hasta el {{ $suscripcion->ends_at->format('d/m/Y') }}</x-badge>
+                    @elseif ($suscripcion->onTrial())
+                        <x-badge tone="indigo">Prueba gratis — hasta el {{ $suscripcion->trial_ends_at->format('d/m/Y') }}</x-badge>
                     @else
                         <x-badge tone="success">Suscripción activa</x-badge>
                     @endif
@@ -37,6 +39,13 @@
                         Has cancelado la suscripción — seguirás teniendo acceso hasta el final del
                         periodo ya pagado ({{ $suscripcion->ends_at->format('d/m/Y') }}). No se te
                         volverá a cobrar después, a menos que te vuelvas a suscribir.
+                    </p>
+                @elseif ($suscripcion->onTrial())
+                    <p class="text-sm text-slate-600 mb-4">
+                        Estás en tu periodo de prueba gratis hasta el
+                        {{ $suscripcion->trial_ends_at->format('d/m/Y') }}. A partir de entonces se te
+                        cobrará {{ number_format($precioMensual, 2) }}€/mes — puedes cancelar antes desde
+                        el portal sin que se te cobre nada.
                     </p>
                 @else
                     <p class="text-sm text-slate-600 mb-4">
@@ -50,12 +59,15 @@
                 </a>
             @else
                 <p class="text-sm text-slate-600 mb-4">
-                    Todavía no tienes una suscripción activa. Se te cobrará
+                    Todavía no tienes una suscripción activa.
+                    {{ $diasPrueba }} días gratis al suscribirte — después se te cobrará
                     {{ number_format($precioMensual, 2) }}€/mes según el número de empleados activos.
+                    Puedes cancelar en cualquier momento antes de que acabe la prueba sin que se te
+                    cobre nada.
                 </p>
                 <form method="POST" action="{{ route('admin.facturacion.suscribir') }}">
                     @csrf
-                    <x-primary-button type="submit">Suscribirse</x-primary-button>
+                    <x-primary-button type="submit">Empezar prueba gratis de {{ $diasPrueba }} días</x-primary-button>
                 </form>
             @endif
         </x-card>
@@ -63,7 +75,7 @@
         @if ($facturas->isNotEmpty())
             <x-card class="overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-200 font-medium text-slate-700 text-sm">Facturas</div>
-                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <div class="overflow-x-auto"><table class="tabla-apilada min-w-full divide-y divide-slate-200 text-sm">
                     <thead class="bg-slate-50">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Fecha</th>
@@ -84,7 +96,7 @@
                             </tr>
                         @endforeach
                     </tbody>
-                </table>
+                </table></div>
             </x-card>
         @endif
     </div>

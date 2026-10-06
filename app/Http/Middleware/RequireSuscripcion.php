@@ -18,9 +18,22 @@ class RequireSuscripcion
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
+        $empresa = $user->empresa;
 
-        if ($user->empresa->subscribed('default')) {
+        if ($empresa->subscribed('default')) {
             return $next($request);
+        }
+
+        // Puede que Stripe ya la dé por suscrita y solo falte copiarlo aquí
+        // (el usuario vuelve del pago antes que el webhook, o el webhook no
+        // llegó): se consulta a Stripe antes de bloquear.
+        if ($empresa->stripe_id) {
+            $empresa->sincronizarSuscripcionesDesdeStripe();
+            $empresa->unsetRelation('subscriptions');
+
+            if ($empresa->subscribed('default')) {
+                return $next($request);
+            }
         }
 
         if ($user->esAdminEmpresa()) {

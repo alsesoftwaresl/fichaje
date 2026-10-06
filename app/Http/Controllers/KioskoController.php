@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\Tenant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class KioskoController extends Controller
@@ -16,7 +17,7 @@ class KioskoController extends Controller
     {
         $empresa = $this->empresaDelToken($token);
 
-        if (! $empresa->subscribed('default')) {
+        if (! $this->estaSuscrita($empresa)) {
             return view('kiosko.bloqueado', compact('empresa'));
         }
 
@@ -27,7 +28,7 @@ class KioskoController extends Controller
     {
         $empresa = $this->empresaDelToken($token);
 
-        if (! $empresa->subscribed('default')) {
+        if (! $this->estaSuscrita($empresa)) {
             return redirect()->route('kiosko.show', $token);
         }
 
@@ -66,6 +67,25 @@ class KioskoController extends Controller
             'nombre' => $empleado->name,
             'tipo' => $tipo,
         ]);
+    }
+
+    /**
+     * Si la copia local dice que no, se pregunta a Stripe (como mucho una vez
+     * cada 30 s por empresa — esta página es pública y no debe poder martillear
+     * la API): el webhook puede no haber llegado todavía.
+     */
+    protected function estaSuscrita(Empresa $empresa): bool
+    {
+        if ($empresa->subscribed('default')) {
+            return true;
+        }
+
+        if ($empresa->stripe_id && Cache::add('kiosko-sync-'.$empresa->id, 1, 30)) {
+            $empresa->sincronizarSuscripcionesDesdeStripe();
+            $empresa->unsetRelation('subscriptions');
+        }
+
+        return $empresa->subscribed('default');
     }
 
     protected function empresaDelToken(string $token): Empresa
