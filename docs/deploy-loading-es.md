@@ -118,6 +118,43 @@ STRIPE_WEBHOOK_SECRET=whsec_...   # lo da Stripe al crear el webhook, ver abajo
 DEPLOY_TOKEN=                 # solo si usas la Opción B; una cadena larga y aleatoria
 ```
 
+## Subir en modo mantenimiento para hacer pruebas
+
+Sirve para tener la web ya en el servidor y probarla tú **sin que nadie más
+entre**: los visitantes ven una página "Volvemos muy pronto" (con código 503,
+así Google no la indexa) y tú entras con una clave secreta.
+
+1. Sube y configura todo como arriba (código, `.env`, migraciones). Mientras
+   pruebas, deja las **claves de Stripe en modo test** y `APP_DEBUG=false`.
+2. Activa el mantenimiento desde el navegador (elige una clave secreta de 12 a
+   64 caracteres: letras, números, `-` o `_`; no la compartas):
+   ```
+   https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=down&secreto=TU_CLAVE_SECRETA
+   ```
+   La respuesta te recuerda la dirección de acceso.
+3. Para entrar **tú**, abre una sola vez en tu navegador:
+   ```
+   https://achrono.es/TU_CLAVE_SECRETA
+   ```
+   Te deja una cookie y a partir de ahí ves la web normal en ese navegador. Para
+   comprobar lo que ve un visitante, abre la web en una ventana privada.
+4. Para **abrir la web al público**, con la cookie ya puesta:
+   ```
+   https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=up
+   ```
+   Si por lo que sea no puedes, borra por FTP o desde el Administrador de
+   archivos el fichero `achrono/storage/framework/down`: es lo que activa el
+   mantenimiento.
+
+Detalles:
+- El webhook de Stripe **sigue funcionando** en mantenimiento (no recibe el 503),
+  así puedes probar suscripciones de test completas.
+- Si usas el inicio de sesión con Google, añade también la URL de producción
+  (`https://achrono.es/auth/google/callback`) a los *Authorized redirect URIs*
+  del cliente OAuth.
+- Para probar pagos de test en producción, crea el webhook de **modo test** en
+  Stripe apuntando a `https://achrono.es/stripe/webhook`.
+
 ## Stripe en real
 
 1. En el [Dashboard de Stripe](https://dashboard.stripe.com), cambia a modo

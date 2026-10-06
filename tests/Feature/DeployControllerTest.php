@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class DeployControllerTest extends TestCase
@@ -29,6 +30,32 @@ class DeployControllerTest extends TestCase
 
         $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=db:wipe')
             ->assertStatus(422);
+    }
+
+    public function test_el_modo_mantenimiento_exige_un_secreto_valido(): void
+    {
+        config(['deploy.token' => 'el-token-correcto']);
+
+        $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=down')->assertStatus(422);
+        $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=down&secreto=corto')->assertStatus(422);
+        $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=down&secreto=con%20espacios%20y/rutas')->assertStatus(422);
+    }
+
+    public function test_activa_y_desactiva_el_mantenimiento_con_el_secreto(): void
+    {
+        config(['deploy.token' => 'el-token-correcto']);
+
+        // Se simula Artisan: el real escribiría storage/framework/down y
+        // dejaría en mantenimiento el servidor local mientras corren las pruebas.
+        Artisan::shouldReceive('call')->once()->with('down', ['--secret' => 'clave-segura-123'])->andReturn(0);
+        Artisan::shouldReceive('call')->once()->with('up', [])->andReturn(0);
+        Artisan::shouldReceive('output')->twice()->andReturn('ok');
+
+        $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=down&secreto=clave-segura-123')
+            ->assertOk()
+            ->assertSee('/clave-segura-123');
+
+        $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=up')->assertOk();
     }
 
     public function test_ejecuta_un_comando_permitido_con_el_token_correcto(): void

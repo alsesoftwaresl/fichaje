@@ -28,6 +28,10 @@ class DeployController extends Controller
         'view:clear',
         'cache:clear',
         'optimize:clear',
+        // Modo mantenimiento: "down" exige una clave secreta (parametro
+        // "secreto") para poder seguir entrando tu mientras el resto ve el 503.
+        'down',
+        'up',
     ];
 
     public function ejecutar(Request $request): Response
@@ -41,10 +45,34 @@ class DeployController extends Controller
 
         abort_unless(in_array($comando, self::COMANDOS_PERMITIDOS, true), 422, 'Comando no permitido.');
 
-        $opciones = $comando === 'migrate' ? ['--force' => true] : [];
+        $opciones = match ($comando) {
+            'migrate' => ['--force' => true],
+            'down' => ['--secret' => $this->secretoDeMantenimiento($request)],
+            default => [],
+        };
 
         Artisan::call($comando, $opciones);
 
-        return response(Artisan::output(), 200)->header('Content-Type', 'text/plain');
+        $salida = Artisan::output();
+
+        if ($comando === 'down') {
+            $salida .= "\nWeb en mantenimiento. Para entrar tú y probar, abre UNA vez en tu navegador:\n"
+                .url($opciones['--secret'])."\n\n"
+                ."Para reabrirla (con esa cookie ya puesta en tu navegador):\n"
+                .url('/deploy/ejecutar').'?token=TU_TOKEN&cmd=up'."\n";
+        }
+
+        return response($salida, 200)->header('Content-Type', 'text/plain');
+    }
+
+    protected function secretoDeMantenimiento(Request $request): string
+    {
+        $secreto = (string) $request->query('secreto');
+
+        // Va en la URL de acceso: solo caracteres seguros y lo bastante largo
+        // para que no se pueda adivinar.
+        abort_unless(preg_match('/^[A-Za-z0-9_-]{12,64}$/', $secreto) === 1, 422, 'Falta "secreto" (12-64 letras, numeros, - o _).');
+
+        return $secreto;
     }
 }

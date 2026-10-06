@@ -19,6 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'gestor.nominas' => \App\Http\Middleware\PuedeGestionarNominas::class,
         ]);
 
+        // En modo mantenimiento solo pasa quien tenga la clave secreta, salvo el
+        // webhook de Stripe: no es una persona, y si recibiera un 503 Stripe
+        // acumularía reintentos fallidos (y se perderían avisos de pago).
+        $middleware->preventRequestsDuringMaintenance(except: [
+            'stripe/webhook',
+        ]);
+
         // Quien entra con una contraseña temporal no puede hacer nada más
         // hasta elegir la suya.
         $middleware->web(append: [
