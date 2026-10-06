@@ -31,6 +31,7 @@ class SeoController extends Controller
         'guia.registro-jornada' => '0.9',
         'guia.registro-digital' => '0.8',
         'registro.create' => '0.8',
+        'contacto.create' => '0.6',
     ];
 
     public function robots(): Response

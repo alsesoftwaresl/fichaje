@@ -20,6 +20,10 @@
     <p><strong>Tus derechos</strong> (acceso, rectificación, oposición, etc.) debes ejercerlos ante
     tu empresa como responsable del tratamiento.</p>
 
+    <p><strong>Formulario de contacto:</strong> si nos escribes desde la web, tratamos tu nombre, correo,
+    empresa y mensaje únicamente para responderte. {{ config('legal.titular.nombre') }} es la responsable de
+    estos datos y puedes ejercer tus derechos escribiendo a {{ config('legal.titular.email') }}.</p>
+
     <p>[Pendiente de completar con los datos de contacto reales del Encargado y, en su caso, del
     Delegado de Protección de Datos.]</p>
 </x-legal.layout>

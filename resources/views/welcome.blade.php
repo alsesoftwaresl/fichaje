@@ -10,6 +10,7 @@
         ['¿Necesito tarjeta para la prueba gratis?', 'Sí. Se pide una tarjeta para activar la prueba de 15 días, pero no se cobra nada durante ese tiempo. Si cancelas antes de que acabe, no pagas.'],
         ['¿Funciona sin conexión a internet?', 'No. '.config('app.name').' es una aplicación web y necesita conexión para registrar los fichajes. Si en tu centro la conexión es poco fiable, ten en cuenta este punto antes de empezar.'],
         ['¿Tiene aplicación móvil?', 'No hay aplicación para instalar. Funciona desde el navegador del móvil, la tablet o el ordenador.'],
+        ['¿Hay atención al cliente y cómo puedo contactar?', 'Sí. Ofrecemos atención al cliente en español, con atención personal. Puedes escribirnos a '.config('legal.titular.email').' o usar el formulario de contacto; si es una incidencia urgente, indícalo y la atendemos con prioridad.'],
         ['¿Quién está detrás de '.config('app.name').'?', config('app.name').' es un producto de '.config('legal.titular.nombre').'. Los datos del titular están en el aviso legal.'],
     ];
 @endphp
@@ -48,7 +49,16 @@
                 'legalName' => config('legal.titular.nombre'),
                 'url' => route('home'),
                 'logo' => asset('images/logo.png'),
-            ] + (config('legal.titular.email') ? ['email' => config('legal.titular.email')] : []),
+            ] + (config('legal.titular.email') ? [
+                'email' => config('legal.titular.email'),
+                'contactPoint' => [
+                    '@type' => 'ContactPoint',
+                    'contactType' => 'customer support',
+                    'email' => config('legal.titular.email'),
+                    'availableLanguage' => 'Spanish',
+                    'url' => route('contacto.create'),
+                ],
+            ] : []),
             [
                 '@type' => 'WebSite',
                 '@id' => route('home').'#web',
@@ -105,6 +115,7 @@
                 <nav class="flex items-center gap-3 sm:gap-5 text-sm">
                     <a href="#como-funciona" class="hidden md:inline text-indigo-200 hover:text-white">Cómo funciona</a>
                     <a href="#precio" class="hidden md:inline text-indigo-200 hover:text-white">Precio</a>
+                    <a href="{{ route('contacto.create') }}" class="hidden md:inline text-indigo-200 hover:text-white">Contacto</a>
                     <a href="{{ route('guia.registro-jornada') }}" class="hidden lg:inline text-indigo-200 hover:text-white">Guía de registro de jornada</a>
                     @auth
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center rounded-lg bg-accent-500 px-4 py-2 font-semibold text-indigo-950 hover:bg-accent-400 transition">Ir al panel</a>
@@ -448,6 +459,29 @@
             </div>
         </section>
 
+        {{-- ============ ATENCIÓN AL CLIENTE ============ --}}
+        <section id="atencion" class="scroll-mt-4 bg-indigo-950 text-white">
+            <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-16 sm:py-20 grid gap-8 lg:grid-cols-5 lg:items-center">
+                <div class="lg:col-span-3">
+                    <p class="text-sm font-semibold uppercase tracking-wider text-accent-400">Atención al cliente</p>
+                    <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight">Atención personal, en español</h2>
+                    <p class="mt-4 max-w-xl text-indigo-100/90">
+                        Detrás de {{ config('app.name') }} hay un equipo que te atiende en persona y en español. Si tienes
+                        una duda antes de empezar o una incidencia con tu cuenta, escríbenos. Si es una emergencia
+                        (por ejemplo, tu equipo no puede fichar), indícalo y la atendemos con prioridad.
+                    </p>
+                </div>
+                <div class="lg:col-span-2 flex flex-col gap-3">
+                    <a href="{{ route('contacto.create') }}" class="inline-flex items-center justify-center rounded-lg bg-accent-500 px-6 py-3.5 font-semibold text-indigo-950 hover:bg-accent-400 transition">
+                        Escribir al equipo
+                    </a>
+                    <a href="mailto:{{ config('legal.titular.email') }}" class="inline-flex items-center justify-center rounded-lg border border-indigo-400/40 px-6 py-3.5 font-medium text-white hover:bg-white/5 transition break-all">
+                        {{ config('legal.titular.email') }}
+                    </a>
+                </div>
+            </div>
+        </section>
+
         {{-- ============ PREGUNTAS FRECUENTES ============ --}}
         <section id="preguntas" class="scroll-mt-4 max-w-3xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-24">
             <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Preguntas frecuentes</p>
@@ -497,6 +531,7 @@
             </div>
             <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-indigo-300">
                 <a href="{{ route('guia.registro-jornada') }}" class="hover:text-white hover:underline">Registro de jornada</a>
+                <a href="{{ route('contacto.create') }}" class="hover:text-white hover:underline">Contacto</a>
                 <a href="{{ route('legal.aviso-legal') }}" class="hover:text-white hover:underline">Aviso legal</a>
                 <a href="{{ route('legal.terminos') }}" class="hover:text-white hover:underline">Términos</a>
                 <a href="{{ route('legal.privacidad') }}" class="hover:text-white hover:underline">Privacidad</a>

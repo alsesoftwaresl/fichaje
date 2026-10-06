@@ -129,6 +129,12 @@
                 </svg>
                 Licencias
             </x-sidebar-link>
+            <x-sidebar-link :href="route('super-admin.mensajes.index')" :active="request()->routeIs('super-admin.mensajes.*')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                </svg>
+                Mensajes
+            </x-sidebar-link>
         @endif
     </nav>
 
@@ -212,6 +218,7 @@
             <x-sidebar-link :href="route('super-admin.empresas.index')" :active="request()->routeIs('super-admin.empresas.*')">Empresas</x-sidebar-link>
             <x-sidebar-link :href="route('super-admin.tarifas.edit')" :active="request()->routeIs('super-admin.tarifas.*')">Tarifas</x-sidebar-link>
             <x-sidebar-link :href="route('super-admin.licencias.index')" :active="request()->routeIs('super-admin.licencias.*')">Licencias</x-sidebar-link>
+            <x-sidebar-link :href="route('super-admin.mensajes.index')" :active="request()->routeIs('super-admin.mensajes.*')">Mensajes</x-sidebar-link>
         @endif
         <x-sidebar-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">Perfil</x-sidebar-link>
         <form method="POST" action="{{ route('logout') }}">

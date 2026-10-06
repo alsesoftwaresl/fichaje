@@ -27,6 +27,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.job_batches TO 'fichaje_app'
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.failed_jobs TO 'fichaje_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.tarifas TO 'fichaje_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.licencias TO 'fichaje_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.contactos TO 'fichaje_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.subscriptions TO 'fichaje_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.subscription_items TO 'fichaje_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON fichaje_app.ausencias TO 'fichaje_app'@'localhost';

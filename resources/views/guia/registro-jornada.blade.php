@@ -135,6 +135,7 @@
         <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-indigo-300">
             <a href="{{ route('home') }}" class="hover:text-white hover:underline">Inicio</a>
             <a href="{{ route('guia.registro-digital') }}" class="hover:text-white hover:underline">Registro horario digital</a>
+            <a href="{{ route('contacto.create') }}" class="hover:text-white hover:underline">Contacto</a>
             <a href="{{ route('legal.aviso-legal') }}" class="hover:text-white hover:underline">Aviso legal</a>
             <a href="{{ route('legal.terminos') }}" class="hover:text-white hover:underline">Términos</a>
             <a href="{{ route('legal.privacidad') }}" class="hover:text-white hover:underline">Privacidad</a>

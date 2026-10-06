@@ -21,7 +21,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistroCompletarController;
 use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\SuperAdmin\EmpresaController;
+use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\SuperAdmin\MensajeController;
 use App\Http\Controllers\SuperAdmin\LicenciaController as SuperAdminLicenciaController;
 use App\Http\Controllers\SuperAdmin\TarifaController;
 use App\Http\Controllers\Admin\LicenciaController as AdminLicenciaController;
@@ -37,6 +39,10 @@ Route::get('/', HomeController::class)->name('home');
 // Guía pública sobre el registro de jornada (contenido para buscadores e IAs).
 Route::view('/guia/registro-de-jornada', 'guia.registro-jornada')->name('guia.registro-jornada');
 Route::view('/guia/registro-horario-digital-obligatorio', 'guia.registro-digital')->name('guia.registro-digital');
+
+// Contacto y atención al cliente. El POST va limitado para frenar el spam.
+Route::get('/contacto', [ContactoController::class, 'create'])->name('contacto.create');
+Route::post('/contacto', [ContactoController::class, 'store'])->middleware('throttle:5,10')->name('contacto.store');
 
 // Ficheros para buscadores e IAs (ver SeoController).
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
@@ -203,6 +209,9 @@ Route::middleware(['auth', 'role:super_admin'])
 
         Route::get('/tarifas', [TarifaController::class, 'edit'])->name('tarifas.edit');
         Route::patch('/tarifas', [TarifaController::class, 'update'])->name('tarifas.update');
+
+        Route::get('/mensajes', [MensajeController::class, 'index'])->name('mensajes.index');
+        Route::patch('/mensajes/{contacto}', [MensajeController::class, 'toggle'])->name('mensajes.toggle');
 
         Route::get('/licencias', [SuperAdminLicenciaController::class, 'index'])->name('licencias.index');
         Route::post('/licencias', [SuperAdminLicenciaController::class, 'store'])->name('licencias.store');
