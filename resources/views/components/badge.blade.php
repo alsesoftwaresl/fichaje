@@ -6,6 +6,7 @@ $toneClasses = [
     'danger' => 'bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20',
     'neutral' => 'bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/10',
     'indigo' => 'bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-600/20',
+    'warning' => 'bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/20',
 ];
 $classes = $toneClasses[$tone] ?? $toneClasses['neutral'];
 @endphp

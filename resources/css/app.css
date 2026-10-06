@@ -5,3 +5,63 @@
 [x-cloak] {
     display: none !important;
 }
+
+/*
+ * Tablas que en móvil (< 768px) se muestran como tarjetas apiladas: cada fila
+ * es una tarjeta y cada celda lleva su etiqueta (la rellena resources/js/app.js
+ * a partir de la cabecera). En tablet y escritorio son tablas normales.
+ */
+@media (max-width: 767px) {
+    .tabla-apilada,
+    .tabla-apilada tbody,
+    .tabla-apilada tr,
+    .tabla-apilada td {
+        display: block;
+        width: 100%;
+    }
+
+    .tabla-apilada thead {
+        display: none;
+    }
+
+    .tabla-apilada tr {
+        padding: 0.75rem 1rem;
+    }
+
+    .tabla-apilada td {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.25rem 1rem;
+        padding: 0.25rem 0 !important;
+        text-align: right !important;
+    }
+
+    .tabla-apilada td[data-label]::before {
+        content: attr(data-label);
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #64748b;
+        text-align: left;
+    }
+
+    .tabla-apilada td[data-label=""]::before {
+        content: none;
+    }
+
+    /* Celda de acciones (cabecera vacía): botones a la izquierda, con salto de línea. */
+    .tabla-apilada td[data-label=""] {
+        justify-content: flex-start;
+        padding-top: 0.5rem !important;
+        row-gap: 0.5rem;
+    }
+
+    /* Filas de "no hay datos" (colspan): sin etiqueta y centradas. */
+    .tabla-apilada td[colspan] {
+        justify-content: center;
+        text-align: center !important;
+    }
+}

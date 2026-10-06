@@ -65,7 +65,7 @@ return [
     |
     */
 
-    // Fichaje App es para empresas españolas — el registro de jornada (RD-ley
+    // Achrono es para empresas españolas — el registro de jornada (RD-ley
     // 8/2019) tiene que guardar la hora local real, no UTC.
     'timezone' => env('APP_TIMEZONE', 'Europe/Madrid'),
 

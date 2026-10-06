@@ -15,7 +15,7 @@
 
     <div class="space-y-6">
         <x-card class="overflow-hidden">
-            <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <div class="overflow-x-auto"><table class="tabla-apilada min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Nombre</th>
@@ -62,7 +62,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </table></div>
         </x-card>
 
         {{ $empresas->links() }}
