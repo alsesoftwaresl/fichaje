@@ -459,29 +459,39 @@
             </div>
         </section>
 
-        {{-- ============ ATENCIÓN AL CLIENTE ============ --}}
+        {{-- ============ ATENCIÓN AL CLIENTE Y CONTACTO ============ --}}
         <section id="atencion" class="scroll-mt-4 bg-indigo-950 text-white">
-            <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-16 sm:py-20 grid gap-8 lg:grid-cols-5 lg:items-center">
-                <div class="lg:col-span-3">
+            <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-16 sm:py-24 grid gap-10 lg:grid-cols-5 lg:items-start">
+                <div class="lg:col-span-2">
                     <p class="text-sm font-semibold uppercase tracking-wider text-accent-400">Atención al cliente</p>
                     <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight">Atención personal, en español</h2>
-                    <p class="mt-4 max-w-xl text-indigo-100/90">
+                    <p class="mt-4 text-indigo-100/90">
                         Detrás de {{ config('app.name') }} hay un equipo que te atiende en persona y en español. Si tienes
-                        una duda antes de empezar o una incidencia con tu cuenta, escríbenos. Si es una emergencia
-                        (por ejemplo, tu equipo no puede fichar), indícalo y la atendemos con prioridad.
+                        una duda antes de empezar o una incidencia con tu cuenta, escríbenos.
                     </p>
+
+                    <div class="mt-8 space-y-5 text-sm">
+                        <div>
+                            <p class="text-indigo-300">Correo de atención al cliente</p>
+                            <a href="mailto:{{ config('legal.titular.email') }}" class="mt-1 block break-all text-lg font-semibold text-white hover:underline">{{ config('legal.titular.email') }}</a>
+                        </div>
+                        <div class="rounded-xl border border-amber-300/30 bg-amber-300/10 p-4">
+                            <p class="font-semibold text-amber-200">¿Es una emergencia?</p>
+                            <p class="mt-1 text-indigo-100/90">
+                                Si tu equipo no puede fichar o has perdido el acceso a tu cuenta, elige «Incidencia urgente»
+                                en el formulario o escríbenos con «URGENTE» en el asunto. Las incidencias críticas se atienden con prioridad.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div class="lg:col-span-2 flex flex-col gap-3">
-                    <a href="{{ route('contacto.create') }}" class="inline-flex items-center justify-center rounded-lg bg-accent-500 px-6 py-3.5 font-semibold text-indigo-950 hover:bg-accent-400 transition">
-                        Escribir al equipo
-                    </a>
-                    <a href="mailto:{{ config('legal.titular.email') }}" class="inline-flex items-center justify-center rounded-lg border border-indigo-400/40 px-6 py-3.5 font-medium text-white hover:bg-white/5 transition break-all">
-                        {{ config('legal.titular.email') }}
-                    </a>
+
+                <div class="lg:col-span-3 rounded-2xl bg-white p-6 sm:p-8 text-slate-900 shadow-2xl shadow-black/30">
+                    <h3 class="font-display text-xl font-semibold text-indigo-950">Escríbenos</h3>
+                    <p class="mt-1 mb-6 text-sm text-slate-500">Te responde una persona del equipo, por correo electrónico.</p>
+                    @include('partials.formulario-contacto', ['origen' => 'home'])
                 </div>
             </div>
         </section>
-
         {{-- ============ PREGUNTAS FRECUENTES ============ --}}
         <section id="preguntas" class="scroll-mt-4 max-w-3xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-24">
             <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Preguntas frecuentes</p>

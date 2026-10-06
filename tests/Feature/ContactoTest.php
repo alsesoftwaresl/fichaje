@@ -128,4 +128,25 @@ class ContactoTest extends TestCase
             ->assertSee('mailto:info@alsesoftware.com', false)
             ->assertSee('"contactPoint"', false);
     }
+
+    public function test_el_formulario_esta_en_la_portada_y_vuelve_a_ella_al_enviar(): void
+    {
+        Notification::fake();
+
+        $this->get('/')->assertOk()->assertSee('action="'.route('contacto.store').'"', false)->assertSee('name="origen" value="home"', false);
+
+        $this->post('/contacto', $this->datos(['origen' => 'home']))
+            ->assertRedirect(route('home').'#atencion')
+            ->assertSessionHas('enviado');
+
+        $this->assertSame(1, Contacto::count());
+    }
+
+    public function test_si_falla_la_validacion_desde_la_portada_se_vuelve_a_su_seccion(): void
+    {
+        $this->post('/contacto', $this->datos(['origen' => 'home', 'email' => 'mal']))
+            ->assertRedirect(route('home').'#atencion')
+            ->assertSessionHasErrors('email');
+    }
 }
+

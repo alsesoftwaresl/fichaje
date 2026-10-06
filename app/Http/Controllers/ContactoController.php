@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
@@ -33,20 +34,27 @@ class ContactoController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'nombre' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:255'],
-            'empresa' => ['nullable', 'string', 'max:160'],
-            'asunto' => ['required', 'in:'.implode(',', array_keys(Contacto::ASUNTOS))],
-            'mensaje' => ['required', 'string', 'min:10', 'max:4000'],
-            'acepta_privacidad' => ['accepted'],
-        ], [
-            'acepta_privacidad.accepted' => 'Tienes que aceptar el tratamiento de tus datos para poder contestarte.',
-            'mensaje.min' => 'Cuéntanos un poco más (al menos 10 caracteres).',
-        ]);
+        // El formulario también está en la portada: se vuelve allí, a su sección.
+        $destino = $request->input('origen') === 'home' ? route('home').'#atencion' : route('contacto.create');
+
+        try {
+            $data = $request->validate([
+                'nombre' => ['required', 'string', 'max:120'],
+                'email' => ['required', 'email', 'max:255'],
+                'empresa' => ['nullable', 'string', 'max:160'],
+                'asunto' => ['required', 'in:'.implode(',', array_keys(Contacto::ASUNTOS))],
+                'mensaje' => ['required', 'string', 'min:10', 'max:4000'],
+                'acepta_privacidad' => ['accepted'],
+            ], [
+                'acepta_privacidad.accepted' => 'Tienes que aceptar el tratamiento de tus datos para poder contestarte.',
+                'mensaje.min' => 'Cuéntanos un poco más (al menos 10 caracteres).',
+            ]);
+        } catch (ValidationException $e) {
+            throw $e->redirectTo($destino);
+        }
 
         if ($request->filled('web')) {
-            return redirect()->route('contacto.create')->with('enviado', true);
+            return redirect($destino)->with('enviado', true);
         }
 
         $contacto = Contacto::create([
@@ -65,6 +73,6 @@ class ContactoController extends Controller
             Log::warning('No se pudo enviar el aviso de contacto '.$contacto->id.': '.$e->getMessage());
         }
 
-        return redirect()->route('contacto.create')->with('enviado', true);
+        return redirect($destino)->with('enviado', true);
     }
 }
