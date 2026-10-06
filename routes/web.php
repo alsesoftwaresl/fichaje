@@ -167,6 +167,7 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
             Route::patch('/empleados/{empleado}/activar', [EmpleadoController::class, 'activar'])->name('empleados.activar');
             Route::patch('/empleados/{empleado}/desactivar', [EmpleadoController::class, 'desactivar'])->name('empleados.desactivar');
             Route::patch('/empleados/{empleado}/regenerar-pin', [EmpleadoController::class, 'regenerarPin'])->name('empleados.regenerar-pin');
+            Route::patch('/empleados/{empleado}/generar-acceso', [EmpleadoController::class, 'generarAcceso'])->name('empleados.generar-acceso');
 
             Route::get('/ausencias', [AdminAusenciaController::class, 'index'])->name('ausencias.index');
             Route::patch('/ausencias/{ausencia}/aprobar', [AdminAusenciaController::class, 'aprobar'])->name('ausencias.aprobar');

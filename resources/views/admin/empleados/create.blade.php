@@ -39,10 +39,20 @@
                     <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" />
                 </div>
 
-                <p class="text-xs text-slate-500">
-                    Si dejas la contraseña en blanco, el empleado solo podrá fichar por PIN en el
-                    kiosco y no tendrá acceso a la web. Podrás añadírsela más adelante editando su ficha.
-                </p>
+                <label class="flex items-start gap-2 text-sm text-slate-700">
+                    <input type="hidden" name="dar_acceso" value="0">
+                    <input type="checkbox" name="dar_acceso" value="1"
+                           class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                           @checked(old('dar_acceso', '1') == '1')>
+                    <span>
+                        <span class="font-medium text-slate-900">Dar acceso a la web (si no escribes contraseña)</span>
+                        <span class="block text-xs text-slate-500">
+                            Genera una contraseña temporal que verás una sola vez, junto al PIN. El empleado entra con
+                            su DNI y esa contraseña, y elige la suya la primera vez. Desde la web pide vacaciones, ve
+                            sus fichajes y sus nóminas. Si lo desmarcas, solo podrá fichar por PIN en el kiosco.
+                        </span>
+                    </span>
+                </label>
 
                 @include('admin.empleados._permisos-fields')
 

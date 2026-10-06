@@ -23,6 +23,21 @@
             </div>
         @endif
 
+        @if (session('acceso_generado'))
+            @php $acceso = session('acceso_generado'); @endphp
+            <div class="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-900">
+                Acceso a la web para <strong>{{ $acceso['nombre'] }}</strong>:
+                <div class="mt-1 flex flex-wrap items-center gap-x-6 gap-y-1">
+                    <span>Usuario (DNI/NIE): <span class="font-mono font-semibold">{{ $acceso['dni'] }}</span></span>
+                    <span>Contraseña temporal: <span class="font-mono text-lg font-semibold tracking-wider">{{ $acceso['password'] }}</span></span>
+                </div>
+                <p class="mt-1 text-emerald-700">
+                    Pásasela ahora — no podrás volver a verla. Entrará en la pantalla de inicio de sesión y
+                    tendrá que elegir su propia contraseña. Si la pierde, genera otra desde su fila.
+                </p>
+            </div>
+        @endif
+
         <x-card class="p-4">
             <p class="text-sm font-medium text-slate-700 mb-1">Enlace del kiosco</p>
             <p class="text-xs text-slate-500 mb-2">
@@ -82,6 +97,14 @@
                                         {{ $empleado->pin_hash ? 'Regenerar PIN' : 'Generar PIN' }}
                                     </button>
                                 </form>
+                                @if ($empleado->activo && $empleado->dni_nie)
+                                    <form method="POST" action="{{ route('admin.empleados.generar-acceso', $empleado) }}" class="inline"
+                                          onsubmit="return confirm('Se generará una contraseña temporal nueva y la anterior dejará de valer. ¿Continuar?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="text-xs font-medium text-indigo-600 hover:text-indigo-500">Acceso web</button>
+                                    </form>
+                                @endif
                                 @if ($empleado->activo)
                                     <form method="POST" action="{{ route('admin.empleados.desactivar', $empleado) }}" class="inline">
                                         @csrf

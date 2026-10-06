@@ -19,6 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'gestor.nominas' => \App\Http\Middleware\PuedeGestionarNominas::class,
         ]);
 
+        // Quien entra con una contraseña temporal no puede hacer nada más
+        // hasta elegir la suya.
+        $middleware->web(append: [
+            \App\Http\Middleware\ForzarCambioPassword::class,
+        ]);
+
         // Stripe llama a este endpoint directamente, sin pasar por el
         // navegador ni tener un token CSRF de sesión — la autenticidad la
         // garantiza la firma que comprueba VerifyWebhookSignature.

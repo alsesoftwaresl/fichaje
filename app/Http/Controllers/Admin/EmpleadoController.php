@@ -55,6 +55,20 @@ class EmpleadoController extends Controller
             ...$this->reglasHorario(),
         ]);
 
+        // Acceso a la web: contraseña que escribe el admin, una temporal
+        // generada (marcando "dar acceso") o ninguna — en ese caso solo ficha
+        // por PIN en el kiosco. En los dos primeros el empleado tendrá que
+        // elegir la suya al entrar por primera vez.
+        $passwordTemporal = null;
+
+        if (! empty($data['password'])) {
+            $password = $data['password'];
+        } elseif ($request->boolean('dar_acceso')) {
+            $password = $passwordTemporal = User::generarPasswordTemporal();
+        } else {
+            $password = Hash::make(Str::random(32));
+        }
+
         $empleado = User::create([
             'empresa_id' => Auth::user()->empresa_id,
             'name' => $data['name'],
@@ -63,9 +77,8 @@ class EmpleadoController extends Controller
             'rol' => 'empleado',
             'activo' => true,
             'gestiona_nominas' => $request->boolean('gestiona_nominas'),
-            // Sin contraseña no puede entrar a la web, pero sí fichar por
-            // PIN en el kiosco — la mayoría del personal no necesita más.
-            'password' => $data['password'] ?? Hash::make(Str::random(32)),
+            'password' => $password,
+            'debe_cambiar_password' => ! empty($data['password']) || $passwordTemporal !== null,
             ...$this->datosHorario($data),
         ]);
 
@@ -74,9 +87,37 @@ class EmpleadoController extends Controller
         AuditLog::registrar('empleado_creado', $empleado);
         $this->sincronizarFacturacion();
 
-        return redirect()->route('admin.empleados.index')
+        $respuesta = redirect()->route('admin.empleados.index')
             ->with('status', 'Empleado dado de alta.')
             ->with('pin_generado', ['nombre' => $empleado->name, 'pin' => $pin]);
+
+        if ($passwordTemporal !== null) {
+            $respuesta->with('acceso_generado', $this->datosAcceso($empleado, $passwordTemporal));
+        }
+
+        return $respuesta;
+    }
+
+    /**
+     * Genera una contraseña temporal nueva (o la primera, si solo tenía PIN)
+     * para que el empleado entre a la web y la cambie al primer acceso.
+     */
+    public function generarAcceso(User $empleado): RedirectResponse
+    {
+        $this->autorizarMismaEmpresa($empleado);
+
+        $password = User::generarPasswordTemporal();
+        $empleado->update(['password' => $password, 'debe_cambiar_password' => true]);
+
+        AuditLog::registrar('acceso_web_generado', $empleado);
+
+        return redirect()->route('admin.empleados.index')
+            ->with('acceso_generado', $this->datosAcceso($empleado, $password));
+    }
+
+    protected function datosAcceso(User $empleado, string $password): array
+    {
+        return ['nombre' => $empleado->name, 'dni' => $empleado->dni_nie, 'password' => $password];
     }
 
     public function edit(User $empleado): View
@@ -106,7 +147,9 @@ class EmpleadoController extends Controller
             'dni_nie' => $data['dni_nie'],
             'email' => $data['email'] ?? null,
             'gestiona_nominas' => $request->boolean('gestiona_nominas'),
-            ...(isset($data['password']) ? ['password' => $data['password']] : []),
+            // Si el admin le cambia la contraseña, el empleado elegirá la suya
+            // al volver a entrar.
+            ...(isset($data['password']) ? ['password' => $data['password'], 'debe_cambiar_password' => true] : []),
             ...$this->datosHorario($data),
         ]);
 

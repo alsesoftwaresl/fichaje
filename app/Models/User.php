@@ -45,6 +45,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'activo',
         'gestiona_nominas',
         'password',
+        'debe_cambiar_password',
         'hora_entrada_esperada',
         'hora_salida_esperada',
         'dias_laborables',
@@ -73,6 +74,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
             'password' => 'hashed',
             'activo' => 'boolean',
             'gestiona_nominas' => 'boolean',
+            'debe_cambiar_password' => 'boolean',
             'dias_laborables' => 'array',
             'horario_tramos' => 'array',
         ];
@@ -134,6 +136,22 @@ class User extends Authenticatable implements MustVerifyEmailContract
         $this->save();
 
         return $pin;
+    }
+
+    /**
+     * Contraseña temporal legible (sin 0/O/1/l/I, que se confunden al
+     * dictarlas). Se muestra una sola vez al admin y obliga a cambiarla.
+     */
+    public static function generarPasswordTemporal(int $longitud = 10): string
+    {
+        $alfabeto = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        $password = '';
+
+        for ($i = 0; $i < $longitud; $i++) {
+            $password .= $alfabeto[random_int(0, strlen($alfabeto) - 1)];
+        }
+
+        return $password;
     }
 
     public static function hashPin(string $pin): string

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\ForzarCambioPasswordController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -41,6 +42,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    // Primer acceso con contraseña temporal: hay que elegir la propia
+    // (ForzarCambioPassword manda aquí a quien tenga el aviso pendiente).
+    Route::get('elegir-password', [ForzarCambioPasswordController::class, 'create'])->name('password.forzar');
+    Route::post('elegir-password', [ForzarCambioPasswordController::class, 'store'])->name('password.forzar.store');
 
     // Solo admin_empresa del registro público pasa realmente por aquí — ver
     // RequireEmailVerificado. El resto de usuarios nace ya verificado.
