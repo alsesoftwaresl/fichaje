@@ -22,6 +22,9 @@ class DeployController extends Controller
 {
     protected const COMANDOS_PERMITIDOS = [
         'migrate',
+        // Crea el super_admin inicial (SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWORD
+        // del .env del servidor); es idempotente, se puede repetir sin duplicar.
+        'db:seed',
         'storage:link',
         'config:clear',
         'route:clear',
@@ -46,7 +49,7 @@ class DeployController extends Controller
         abort_unless(in_array($comando, self::COMANDOS_PERMITIDOS, true), 422, 'Comando no permitido.');
 
         $opciones = match ($comando) {
-            'migrate' => ['--force' => true],
+            'migrate', 'db:seed' => ['--force' => true],
             'down' => ['--secret' => $this->secretoDeMantenimiento($request)],
             default => [],
         };

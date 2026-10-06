@@ -90,8 +90,18 @@ navegador:
 ```
 https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=migrate
 ```
-Comandos disponibles (cambia `cmd=`): `storage:link`, `config:clear`,
-`route:clear`, `view:clear`, `cache:clear`, `optimize:clear`. La ruta da 404
+Después crea el **super admin** inicial (con `SUPER_ADMIN_EMAIL` y
+`SUPER_ADMIN_PASSWORD` del `.env` del servidor; se puede repetir sin duplicarlo):
+```
+https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=db:seed
+https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=storage:link
+```
+Sin super admin nadie puede guardar las tarifas (que es lo que crea los
+precios en Stripe) ni dar de alta empresas a mano.
+
+Comandos disponibles (cambia `cmd=`): `migrate`, `db:seed`, `storage:link`,
+`config:clear`, `route:clear`, `view:clear`, `cache:clear`,
+`optimize:clear`, `down` y `up` (mantenimiento). La ruta da 404
 siempre si `DEPLOY_TOKEN` está vacío, así que no pasa nada por dejarla en el
 código — solo no compartas el token.
 

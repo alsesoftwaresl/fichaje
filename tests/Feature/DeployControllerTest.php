@@ -58,6 +58,16 @@ class DeployControllerTest extends TestCase
         $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=up')->assertOk();
     }
 
+    public function test_db_seed_crea_el_super_admin_inicial_sin_duplicarlo(): void
+    {
+        config(['deploy.token' => 'el-token-correcto']);
+
+        $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=db:seed')->assertOk();
+        $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=db:seed')->assertOk();
+
+        $this->assertSame(1, \App\Models\User::where('rol', 'super_admin')->count());
+    }
+
     public function test_ejecuta_un_comando_permitido_con_el_token_correcto(): void
     {
         config(['deploy.token' => 'el-token-correcto']);
