@@ -6,8 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Cashier\Cashier;
 
+/**
+ * Tarifa global de la plataforma (una sola fila): cuota base, empleados incluidos y precio
+ * por empleado extra, más los ids de producto y precios de Stripe. La edita el super
+ * admin.
+ */
 class Tarifa extends Model
 {
+    /**
+     * Campos que se pueden rellenar.
+     */
     protected $fillable = [
         'precio_base_mensual',
         'empleados_incluidos',
@@ -18,6 +26,9 @@ class Tarifa extends Model
         'stripe_price_extra_id',
     ];
 
+    /**
+     * Importes con 2 decimales y número entero de empleados.
+     */
     protected function casts(): array
     {
         return [
@@ -41,6 +52,10 @@ class Tarifa extends Model
         ]);
     }
 
+    /**
+     * Precio mensual para un número de empleados activos: cuota base + extras × precio
+     * por extra.
+     */
     public function calcularPrecioMensual(int $empleadosActivos): float
     {
         $extra = $this->empleadosExtra($empleadosActivos);
@@ -48,11 +63,17 @@ class Tarifa extends Model
         return round((float) $this->precio_base_mensual + $extra * (float) $this->precio_empleado_extra, 2);
     }
 
+    /**
+     * Cuántos empleados superan los incluidos en la cuota base.
+     */
     public function empleadosExtra(int $empleadosActivos): int
     {
         return max(0, $empleadosActivos - $this->empleados_incluidos);
     }
 
+    /**
+     * Super admin que editó la tarifa por última vez.
+     */
     public function actualizadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'actualizado_por');

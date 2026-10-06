@@ -11,8 +11,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Stripe\Exception\ApiErrorException;
 
+/**
+ * El super admin edita la tarifa global (cuota base, empleados incluidos, precio por
+ * extra) y la sincroniza con Stripe.
+ */
 class TarifaController extends Controller
 {
+    /**
+     * Formulario con la tarifa actual.
+     */
     public function edit(): View
     {
         return view('super-admin.tarifas.edit', [
@@ -20,6 +27,10 @@ class TarifaController extends Controller
         ]);
     }
 
+    /**
+     * Guarda la tarifa, anota el cambio en auditoría y crea los precios nuevos en Stripe.
+     * Si Stripe falla, la tarifa queda guardada y se avisa.
+     */
     public function update(Request $request): RedirectResponse
     {
         $data = $request->validate([

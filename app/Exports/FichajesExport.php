@@ -10,20 +10,36 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
+/**
+ * Exportación de fichajes a Excel (.xlsx): una fila por jornada, con cabecera en negrita
+ * y columnas ajustadas.
+ */
 class FichajesExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
 {
+    /**
+     * Recibe las jornadas ya agrupadas y filtradas.
+     */
     public function __construct(protected Collection $jornadas) {}
 
+    /**
+     * Filas a exportar.
+     */
     public function collection(): Collection
     {
         return $this->jornadas;
     }
 
+    /**
+     * Cabecera de las columnas.
+     */
     public function headings(): array
     {
         return ['Empleado', 'DNI/NIE', 'Fecha', 'Entrada', 'Salida', 'Horas', 'Correcciones'];
     }
 
+    /**
+     * Convierte una jornada en una fila de Excel.
+     */
     public function map($jornada): array
     {
         $fichajeRef = $jornada['entrada'] ?? $jornada['salida'];
@@ -39,6 +55,9 @@ class FichajesExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
         ];
     }
 
+    /**
+     * Pone la primera fila (cabecera) en negrita.
+     */
     public function styles(Worksheet $sheet): array
     {
         return [

@@ -19,6 +19,10 @@ use Illuminate\View\View;
  */
 class GestionNominaController extends Controller
 {
+    /**
+     * Lista las nóminas de la empresa (30 por página), con filtro opcional por empleado
+     * y por mes.
+     */
     public function index(Request $request): View
     {
         $filtros = $request->validate([
@@ -41,6 +45,11 @@ class GestionNominaController extends Controller
         ]);
     }
 
+    /**
+     * Sube una nómina en PDF (máx. 5 MB) para un empleado de la empresa. El archivo se
+     * guarda en un disco privado con nombre aleatorio y se deja constancia en el registro
+     * de auditoría.
+     */
     public function store(Request $request): RedirectResponse
     {
         $empresaId = Auth::user()->empresa_id;
@@ -84,6 +93,9 @@ class GestionNominaController extends Controller
         return redirect()->route('nominas.gestion.index')->with('status', 'Nómina subida.');
     }
 
+    /**
+     * Borra una nómina: el PDF del disco y su registro. Queda anotado en la auditoría.
+     */
     public function destroy(Nomina $nomina): RedirectResponse
     {
         $nomina->borrarArchivo();
@@ -97,6 +109,10 @@ class GestionNominaController extends Controller
         return back()->with('status', 'Nómina eliminada.');
     }
 
+    /**
+     * Empleados activos de la empresa (sin el super admin), para el desplegable de subida
+     * y de filtro.
+     */
     protected function empleadosDeLaEmpresa()
     {
         return User::deEmpresa(Auth::user()->empresa_id)

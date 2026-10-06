@@ -80,6 +80,9 @@ class User extends Authenticatable implements MustVerifyEmailContract
         ];
     }
 
+    /**
+     * Empresa a la que pertenece (null para el super admin).
+     */
     public function empresa(): BelongsTo
     {
         return $this->belongsTo(Empresa::class);
@@ -98,21 +101,33 @@ class User extends Authenticatable implements MustVerifyEmailContract
         );
     }
 
+    /**
+     * true si es el administrador de la plataforma.
+     */
     public function esSuperAdmin(): bool
     {
         return $this->rol === 'super_admin';
     }
 
+    /**
+     * true si es el administrador de una empresa cliente.
+     */
     public function esAdminEmpresa(): bool
     {
         return $this->rol === 'admin_empresa';
     }
 
+    /**
+     * true si es un empleado normal.
+     */
     public function esEmpleado(): bool
     {
         return $this->rol === 'empleado';
     }
 
+    /**
+     * Filtra los usuarios de una empresa: User::deEmpresa($id).
+     */
     public function scopeDeEmpresa(Builder $query, int $empresaId): Builder
     {
         return $query->where('empresa_id', $empresaId);
@@ -154,11 +169,18 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $password;
     }
 
+    /**
+     * Huella irreversible del PIN (HMAC con la clave de la app). El PIN en claro nunca se
+     * guarda.
+     */
     public static function hashPin(string $pin): string
     {
         return hash_hmac('sha256', $pin, config('app.key'));
     }
 
+    /**
+     * Busca al empleado activo de la empresa cuyo PIN coincide (lo usa el kiosco).
+     */
     public static function buscarPorPin(int $empresaId, string $pin): ?self
     {
         return static::where('empresa_id', $empresaId)
@@ -167,11 +189,17 @@ class User extends Authenticatable implements MustVerifyEmailContract
             ->first();
     }
 
+    /**
+     * Solicitudes de ausencia del usuario.
+     */
     public function ausencias(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Ausencia::class);
     }
 
+    /**
+     * Nóminas del usuario.
+     */
     public function nominas(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Nomina::class);
@@ -187,6 +215,9 @@ class User extends Authenticatable implements MustVerifyEmailContract
             && ($this->esAdminEmpresa() || $this->gestiona_nominas);
     }
 
+    /**
+     * Avisos de cita del usuario.
+     */
     public function citas():\Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Cita::class);
@@ -216,11 +247,17 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return [];
     }
 
+    /**
+     * true si tiene tramos de horario y al menos un día laborable.
+     */
     public function tieneHorario(): bool
     {
         return $this->tramos() !== [] && ! empty($this->dias_laborables);
     }
 
+    /**
+     * true si tiene horario y el día dado de la semana es laborable para él.
+     */
     public function trabajaEnDia(\Illuminate\Support\Carbon $fecha): bool
     {
         return $this->tieneHorario() && in_array($fecha->dayOfWeekIso, $this->dias_laborables ?? [], true);

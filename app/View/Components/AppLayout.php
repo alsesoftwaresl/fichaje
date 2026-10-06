@@ -5,6 +5,10 @@ namespace App\View\Components;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * Plantilla <x-app-layout> de las pantallas con sesión iniciada (menú lateral +
+ * contenido).
+ */
 class AppLayout extends Component
 {
     /**

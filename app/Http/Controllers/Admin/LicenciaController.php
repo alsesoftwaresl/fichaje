@@ -9,8 +9,15 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * El admin de empresa canjea un código de licencia gratuita desde Facturación.
+ */
 class LicenciaController extends Controller
 {
+    /**
+     * Valida el código y activa la licencia. No deja canjear con una suscripción de pago
+     * activa ni teniendo ya una licencia vigente.
+     */
     public function canjear(Request $request): RedirectResponse
     {
         $data = $request->validate([

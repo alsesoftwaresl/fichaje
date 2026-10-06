@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
+/**
+ * Perfil del usuario: editar sus datos, cambiar la contraseña y eliminar la cuenta.
+ */
 class ProfileController extends Controller
 {
     /**

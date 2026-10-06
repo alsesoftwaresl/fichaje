@@ -19,6 +19,9 @@ use Illuminate\View\View;
  */
 class RegistroController extends Controller
 {
+    /**
+     * Formulario público de registro de empresa.
+     */
     public function create(): View
     {
         return view('registro.create', [
@@ -28,6 +31,10 @@ class RegistroController extends Controller
         ]);
     }
 
+    /**
+     * Crea empresa + admin (con la aceptación legal), inicia sesión y envía el correo
+     * de verificación.
+     */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([

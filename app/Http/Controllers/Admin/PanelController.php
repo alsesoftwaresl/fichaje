@@ -10,8 +10,15 @@ use App\Services\IncidenciasCalculador;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+/**
+ * Panel de inicio del admin de empresa: quién está trabajando, de vacaciones o fuera,
+ * incidencias de hoy, solicitudes pendientes y avisos de cita.
+ */
 class PanelController extends Controller
 {
+    /**
+     * Reúne los datos del día para la vista del panel.
+     */
     public function index(): View
     {
         $empresaId = Auth::user()->empresa_id;

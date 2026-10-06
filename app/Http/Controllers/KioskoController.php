@@ -11,8 +11,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
+/**
+ * Kiosco de fichaje: pantalla pública (sin login) que cada empresa abre en una tablet o
+ * PC compartido. Se accede por una URL con token secreto y el empleado ficha tecleando su
+ * PIN de 6 dígitos.
+ */
 class KioskoController extends Controller
 {
+    /**
+     * Muestra el teclado del kiosco, o la pantalla de "bloqueado" si la empresa no tiene
+     * suscripción ni licencia.
+     */
     public function show(string $token): View
     {
         $empresa = $this->empresaDelToken($token);
@@ -24,6 +33,10 @@ class KioskoController extends Controller
         return view('kiosko.show', compact('empresa'));
     }
 
+    /**
+     * Registra un fichaje a partir del PIN. Alterna entrada/salida según el último
+     * fichaje del empleado y guarda origen "kiosco", IP y navegador.
+     */
     public function fichar(Request $request, string $token): RedirectResponse
     {
         $empresa = $this->empresaDelToken($token);
@@ -88,6 +101,9 @@ class KioskoController extends Controller
         return $empresa->tieneAcceso();
     }
 
+    /**
+     * Busca la empresa por el token de la URL; da 404 si no existe o está desactivada.
+     */
     protected function empresaDelToken(string $token): Empresa
     {
         $empresa = Empresa::where('kiosko_token', $token)->first();

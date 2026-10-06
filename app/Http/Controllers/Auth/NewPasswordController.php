@@ -14,6 +14,9 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Pantalla y proceso para poner una contraseña nueva desde el enlace de recuperación.
+ */
 class NewPasswordController extends Controller
 {
     /**

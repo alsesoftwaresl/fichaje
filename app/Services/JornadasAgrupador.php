@@ -28,6 +28,10 @@ class JornadasAgrupador
             ->values();
     }
 
+    /**
+     * Empareja las entradas y salidas de un usuario en jornadas, respetando el orden. Una
+     * entrada sin salida queda como jornada en curso.
+     */
     protected static function agruparDeUnUsuario(Collection $fichajesOrdenados): Collection
     {
         $jornadas = collect();
@@ -58,6 +62,10 @@ class JornadasAgrupador
         return $jornadas;
     }
 
+    /**
+     * Construye una jornada (entrada, salida, horas trabajadas y correcciones) usando la
+     * hora corregida cuando existe.
+     */
     protected static function jornada(?Fichaje $entrada, ?Fichaje $salida): array
     {
         // Las horas trabajadas se calculan con la hora corregida cuando

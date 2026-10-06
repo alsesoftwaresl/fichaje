@@ -6,6 +6,9 @@ use App\Models\Empresa;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 
+/**
+ * Configuración de arranque de la aplicación (servicios y ajustes globales).
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**

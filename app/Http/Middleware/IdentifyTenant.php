@@ -8,8 +8,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware "tenant": fija la empresa de la petición a partir del usuario con sesión.
+ * Al terminar la petición la olvida para que no se mezclen datos entre peticiones.
+ */
 class IdentifyTenant
 {
+    /**
+     * Fija la empresa del usuario como tenant actual.
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();

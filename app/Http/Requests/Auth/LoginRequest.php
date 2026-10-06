@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Validación y autenticación del login con límite de intentos (5 fallos bloquean un
+ * rato). El campo "login" acepta email o DNI/NIE.
+ */
 class LoginRequest extends FormRequest
 {
     /**

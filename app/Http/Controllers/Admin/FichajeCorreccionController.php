@@ -10,8 +10,16 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Correcciones de fichajes por el admin. Un fichaje nunca se modifica: la corrección se
+ * guarda aparte con el motivo y quién la hizo, y se muestra la hora corregida.
+ */
 class FichajeCorreccionController extends Controller
 {
+    /**
+     * Registra una corrección (nueva hora + motivo obligatorio) sobre un fichaje de la
+     * empresa y la anota en la auditoría.
+     */
     public function store(Request $request, Fichaje $fichaje): RedirectResponse
     {
         // $fichaje ya viene filtrado por el scope de tenant en el route-model-binding:

@@ -37,6 +37,10 @@ class DeployController extends Controller
         'up',
     ];
 
+    /**
+     * Ejecuta uno de los comandos permitidos si el token es correcto (404 en caso
+     * contrario) y devuelve la salida como texto plano.
+     */
     public function ejecutar(Request $request): Response
     {
         $token = config('deploy.token');
@@ -68,6 +72,10 @@ class DeployController extends Controller
         return response($salida, 200)->header('Content-Type', 'text/plain');
     }
 
+    /**
+     * Valida la clave secreta del modo mantenimiento: 12-64 caracteres seguros para ir en
+     * una URL.
+     */
     protected function secretoDeMantenimiento(Request $request): string
     {
         $secreto = (string) $request->query('secreto');

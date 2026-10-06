@@ -18,10 +18,17 @@ use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * Vista del admin de empresa sobre los fichajes de toda la plantilla: listado agrupado por
+ * jornadas y exportación a CSV, Excel o PDF.
+ */
 class AdminFichajeController extends Controller
 {
     use PaginaColecciones;
 
+    /**
+     * Listado de jornadas (entrada + salida) con filtros por empleado y rango de fechas.
+     */
     public function index(Request $request): View
     {
         $jornadas = $this->paginar(JornadasAgrupador::agrupar($this->fichajesFiltrados($request)->get()));
@@ -37,6 +44,10 @@ class AdminFichajeController extends Controller
         ]);
     }
 
+    /**
+     * Descarga los mismos datos filtrados del listado en el formato pedido: excel, pdf o
+     * csv (por defecto).
+     */
     public function exportar(Request $request, string $formato): Response
     {
         $jornadas = JornadasAgrupador::agrupar($this->fichajesFiltrados($request)->get());
@@ -53,6 +64,10 @@ class AdminFichajeController extends Controller
         };
     }
 
+    /**
+     * Genera el CSV en streaming (sin cargarlo entero en memoria): una fila por jornada
+     * con sus correcciones.
+     */
     protected function exportarCsv(Collection $jornadas, string $nombreArchivo): StreamedResponse
     {
         $callback = function () use ($jornadas) {
@@ -82,6 +97,10 @@ class AdminFichajeController extends Controller
         ]);
     }
 
+    /**
+     * Consulta base de fichajes con los filtros del formulario (empleado, desde, hasta),
+     * ordenada por fecha. El aislamiento por empresa lo aplica el global scope del modelo.
+     */
     protected function fichajesFiltrados(Request $request)
     {
         return Fichaje::query()

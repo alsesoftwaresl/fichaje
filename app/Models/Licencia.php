@@ -16,6 +16,9 @@ class Licencia extends Model
 {
     protected $fillable = ['codigo', 'nota', 'meses', 'max_usos', 'canjeable_hasta', 'activa'];
 
+    /**
+     * Tipos de cada columna.
+     */
     protected function casts(): array
     {
         return [
@@ -27,6 +30,9 @@ class Licencia extends Model
         ];
     }
 
+    /**
+     * Empresas que han canjeado este código.
+     */
     public function empresas(): HasMany
     {
         return $this->hasMany(Empresa::class);
@@ -50,6 +56,9 @@ class Licencia extends Model
         return $codigo;
     }
 
+    /**
+     * Quita espacios y pasa a mayúsculas el código tecleado.
+     */
     public static function normalizar(string $codigo): string
     {
         return Str::upper(trim($codigo));

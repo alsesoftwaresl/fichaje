@@ -10,8 +10,15 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * El super admin crea y gestiona los códigos de licencia gratuita (qué duración,
+ * cuántos usos, hasta cuándo se pueden canjear).
+ */
 class LicenciaController extends Controller
 {
+    /**
+     * Lista todos los códigos con sus usos y las empresas que los canjearon.
+     */
     public function index(): View
     {
         return view('super-admin.licencias.index', [
@@ -19,6 +26,9 @@ class LicenciaController extends Controller
         ]);
     }
 
+    /**
+     * Genera un código nuevo con el formato ACH-XXXX-XXXX.
+     */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -36,6 +46,10 @@ class LicenciaController extends Controller
             ->with('status', 'Código creado: '.$licencia->codigo);
     }
 
+    /**
+     * Activa o desactiva un código (desactivado no se puede canjear; las licencias ya
+     * canjeadas siguen).
+     */
     public function toggle(Licencia $licencia): RedirectResponse
     {
         $licencia->update(['activa' => ! $licencia->activa]);

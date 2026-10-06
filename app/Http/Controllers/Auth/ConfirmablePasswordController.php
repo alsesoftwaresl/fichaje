@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Pide la contraseña de nuevo antes de acciones sensibles.
+ */
 class ConfirmablePasswordController extends Controller
 {
     /**

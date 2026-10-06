@@ -9,10 +9,17 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+/**
+ * Fichaje del propio empleado desde la web (el botón Entrada/Salida de "Mis fichajes").
+ */
 class FichajeController extends Controller
 {
     use PaginaColecciones;
 
+    /**
+     * Historial propio agrupado por jornadas, y qué botón toca (entrada o salida) según
+     * el último fichaje.
+     */
     public function misFichajes(): View
     {
         $fichajes = Fichaje::with(['correcciones', 'usuario'])
@@ -27,6 +34,10 @@ class FichajeController extends Controller
         return view('fichajes.mis-fichajes', compact('jornadas', 'siguienteTipo'));
     }
 
+    /**
+     * Registra un fichaje web: alterna entrada/salida y guarda la hora del servidor, IP y
+     * navegador. Los fichajes no se pueden editar ni borrar después.
+     */
     public function store(): RedirectResponse
     {
         $ultimoFichaje = Fichaje::where('user_id', Auth::id())

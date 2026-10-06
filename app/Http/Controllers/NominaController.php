@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class NominaController extends Controller
 {
+    /**
+     * Lista las nóminas propias, de más reciente a más antigua.
+     */
     public function mis(): View
     {
         $nominas = Nomina::where('user_id', Auth::id())
@@ -25,6 +28,10 @@ class NominaController extends Controller
         return view('nominas.mis-nominas', compact('nominas'));
     }
 
+    /**
+     * Descarga una nómina en PDF: el empleado solo la suya, y quien gestiona nóminas las
+     * de su empresa. Sin caché del navegador.
+     */
     public function descargar(Nomina $nomina): StreamedResponse
     {
         $usuario = Auth::user();

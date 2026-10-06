@@ -132,6 +132,11 @@ class IncidenciasCalculador
         return $incidencias->values();
     }
 
+    /**
+     * Calcula las incidencias de un empleado en un día: compara su horario (por tramos)
+     * con sus fichajes, teniendo en cuenta citas avisadas y, para días pasados, la
+     * primera marca del día siguiente.
+     */
     protected static function incidenciasDeEmpleado(User $empleado, Collection $fichajesDelDia, Carbon $fecha, ?Fichaje $primeraMarcaDelDiaSiguiente, Collection $citas): array
     {
         $incidencias = [];
@@ -289,11 +294,19 @@ class IncidenciasCalculador
         return $efectiva;
     }
 
+    /**
+     * Instante a mitad de camino entre dos fechas (sirve para repartir los fichajes entre
+     * los tramos del turno partido).
+     */
     protected static function puntoMedio(Carbon $a, Carbon $b): Carbon
     {
         return $a->copy()->addSeconds((int) ($a->diffInSeconds($b) / 2));
     }
 
+    /**
+     * Construye el registro de una incidencia (tipo, empleado, detalle, minutos u horas
+     * extra).
+     */
     protected static function incidencia(string $tipo, User $empleado, Carbon $fecha, string $detalle, ?int $minutos = null, ?float $horasExtra = null): array
     {
         return [

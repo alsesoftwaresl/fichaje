@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Auth;
  */
 class CitaController extends Controller
 {
+    /**
+     * El empleado avisa de una salida: día (hoy o futuro), hora de salida, hora de vuelta
+     * y el motivo con sus palabras.
+     */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -37,6 +41,10 @@ class CitaController extends Controller
             ->with('status', 'Aviso registrado. Tu empresa lo verá en el panel.');
     }
 
+    /**
+     * Anula un aviso (no lo borra: queda marcado con quién y cuándo). Solo el propio
+     * empleado o un admin.
+     */
     public function anular(Cita $cita): RedirectResponse
     {
         $usuario = Auth::user();

@@ -5,8 +5,16 @@ namespace App\Models\Concerns;
 use App\Models\Scopes\EmpresaScope;
 use App\Support\Tenant;
 
+/**
+ * Aísla los datos por empresa (multi-tenant): añade el filtro automático por empresa_id
+ * a toda consulta del modelo y fija empresa_id al crear. Lo usan los modelos con datos de
+ * empresa (fichajes, ausencias, nóminas...).
+ */
 trait BelongsToTenant
 {
+    /**
+     * Se ejecuta solo al arrancar el modelo: registra el scope y el relleno de empresa_id.
+     */
     public static function bootBelongsToTenant(): void
     {
         static::addGlobalScope(new EmpresaScope);

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Solicitud del enlace para recuperar la contraseña.
+ */
 class PasswordResetLinkController extends Controller
 {
     /**

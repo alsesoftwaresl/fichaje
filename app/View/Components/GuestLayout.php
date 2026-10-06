@@ -5,6 +5,9 @@ namespace App\View\Components;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * Plantilla <x-guest-layout> de las pantallas públicas (login, registro).
+ */
 class GuestLayout extends Component
 {
     /**

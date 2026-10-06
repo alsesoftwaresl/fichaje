@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware "suscripcion": deja usar la app a las empresas con suscripción activa o
+ * licencia gratuita vigente.
+ */
 class RequireSuscripcion
 {
     /**

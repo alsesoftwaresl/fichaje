@@ -19,6 +19,9 @@ use Illuminate\View\View;
  */
 class RegistroCompletarController extends Controller
 {
+    /**
+     * Formulario del segundo paso (datos de la empresa) tras entrar con Google.
+     */
     public function create(Request $request): View|RedirectResponse
     {
         $datosGoogle = $request->session()->get('registro_google');
@@ -36,6 +39,10 @@ class RegistroCompletarController extends Controller
         ]);
     }
 
+    /**
+     * Crea la empresa con los datos de Google (email ya verificado y sin contraseña),
+     * inicia sesión y lleva a Facturación.
+     */
     public function store(Request $request): RedirectResponse
     {
         $datosGoogle = $request->session()->get('registro_google');

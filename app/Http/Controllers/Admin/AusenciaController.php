@@ -10,8 +10,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+/**
+ * Lado del admin de empresa de las ausencias: ver todas las solicitudes del equipo y
+ * aprobarlas o rechazarlas. Cada decisión queda en la auditoría.
+ */
 class AusenciaController extends Controller
 {
+    /**
+     * Listado de ausencias (20 por página) con filtro por estado; las pendientes salen
+     * primero.
+     */
     public function index(Request $request): View
     {
         $ausencias = Ausencia::with('usuario')
@@ -27,6 +35,10 @@ class AusenciaController extends Controller
         ]);
     }
 
+    /**
+     * Aprueba una solicitud: guarda quién y cuándo la resolvió. Desde ese momento el
+     * empleado cuenta como de vacaciones/baja en el estado del equipo.
+     */
     public function aprobar(Ausencia $ausencia): RedirectResponse
     {
         $ausencia->update([
@@ -41,6 +53,9 @@ class AusenciaController extends Controller
         return back()->with('status', 'Ausencia aprobada.');
     }
 
+    /**
+     * Rechaza una solicitud con un motivo opcional que verá el empleado.
+     */
     public function rechazar(Request $request, Ausencia $ausencia): RedirectResponse
     {
         $data = $request->validate([

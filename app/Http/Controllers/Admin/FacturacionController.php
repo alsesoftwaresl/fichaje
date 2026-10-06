@@ -10,11 +10,23 @@ use Illuminate\View\View;
 use Laravel\Cashier\Checkout;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Facturación de la empresa con Stripe (vía Laravel Cashier): ver el plan y el precio,
+ * suscribirse con prueba gratis, abrir el portal de Stripe y descargar facturas. Queda
+ * fuera del middleware de suscripción para que se pueda contratar estando bloqueado.
+ */
 class FacturacionController extends Controller
 {
+    /**
+     * Días de prueba gratis (con tarjeta) al contratar.
+     */
     const DIAS_PRUEBA_GRATIS = 15;
 
 
+    /**
+     * Pantalla de Facturación: plan actual, precio estimado según empleados activos,
+     * estado de la suscripción o licencia, y facturas.
+     */
     public function index(): View
     {
         $empresa = Auth::user()->empresa;
@@ -44,6 +56,10 @@ class FacturacionController extends Controller
         ]);
     }
 
+    /**
+     * Crea la sesión de Stripe Checkout con la cuota base y los empleados extra, con 15
+     * días de prueba. Falla con mensaje si las tarifas no se han sincronizado con Stripe.
+     */
     public function suscribir(): Checkout|RedirectResponse
     {
         $empresa = Auth::user()->empresa;
@@ -71,11 +87,17 @@ class FacturacionController extends Controller
         ]);
     }
 
+    /**
+     * Redirige al portal de Stripe para cambiar la tarjeta o cancelar.
+     */
     public function portal(): RedirectResponse
     {
         return Auth::user()->empresa->redirectToBillingPortal(route('admin.facturacion.index'));
     }
 
+    /**
+     * Descarga en PDF una factura de la empresa (falla si no es suya).
+     */
     public function descargarFactura(string $factura): Response
     {
         $empresa = Auth::user()->empresa;

@@ -20,11 +20,19 @@ use Laravel\Socialite\Facades\Socialite;
  */
 class GoogleAuthController extends Controller
 {
+    /**
+     * Envía al usuario a la pantalla de acceso de Google.
+     */
     public function redirect(): RedirectResponse
     {
         return Socialite::driver('google')->redirect();
     }
 
+    /**
+     * Vuelta de Google: si el email es de un admin de empresa existente, inicia sesión;
+     * si es de otra cuenta, lo rechaza; si es nuevo, pasa a completar el registro con los
+     * datos de la empresa.
+     */
     public function callback(): RedirectResponse
     {
         try {

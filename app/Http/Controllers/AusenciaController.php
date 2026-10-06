@@ -10,8 +10,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+/**
+ * Lado del empleado: pedir vacaciones, baja u otra ausencia y ver el estado de sus
+ * solicitudes y sus próximos avisos de cita.
+ */
 class AusenciaController extends Controller
 {
+    /**
+     * Lista las ausencias propias y los avisos de cita vigentes de hoy en adelante.
+     */
     public function misAusencias(): View
     {
         $ausencias = Ausencia::where('user_id', Auth::id())
@@ -29,6 +36,9 @@ class AusenciaController extends Controller
         return view('ausencias.mis-ausencias', compact('ausencias', 'citas'));
     }
 
+    /**
+     * Crea una solicitud en estado "pendiente" que debe aprobar el admin.
+     */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([

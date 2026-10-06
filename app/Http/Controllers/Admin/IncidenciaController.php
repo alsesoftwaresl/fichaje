@@ -10,8 +10,17 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+/**
+ * Página de Incidencias del admin: retrasos, faltas de fichaje, jornadas sin cerrar y
+ * horas de más de un periodo, calculadas al vuelo con IncidenciasCalculador (no se
+ * guardan en base de datos).
+ */
 class IncidenciaController extends Controller
 {
+    /**
+     * Calcula las incidencias del periodo (por defecto, del 1 del mes a hoy), las filtra
+     * por empleado si se pide y prepara el resumen por empleado y el detalle por día.
+     */
     public function index(Request $request): View
     {
         $filtros = $request->validate([

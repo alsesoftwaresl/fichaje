@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class RequireEmailVerificado
 {
+    /**
+     * Bloquea a los admin registrados por la web que aún no han verificado su email (los
+     * empleados y las altas hechas por el super admin no pasan por esto).
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();

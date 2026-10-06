@@ -11,8 +11,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-// Sin auto-registro: los usuarios los crea super_admin (alta de empresa)
-// o admin_empresa (alta de empleados).
+// Rutas de acceso (login, recuperar contraseña, verificar email). El alta de
+// empresas es pública (ver /registro en web.php); los empleados los crea su admin.
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

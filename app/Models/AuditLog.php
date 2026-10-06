@@ -6,10 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Registro de auditoría: quién hizo qué sobre qué objeto y cuándo (correcciones,
+ * aprobaciones, altas, nóminas...). Solo se inserta, nunca se edita.
+ */
 class AuditLog extends Model
 {
+    /**
+     * Solo-inserción: sin updated_at.
+     */
     const UPDATED_AT = null;
 
+    /**
+     * Campos que se pueden rellenar.
+     */
     protected $fillable = [
         'empresa_id',
         'user_id',
@@ -19,6 +29,9 @@ class AuditLog extends Model
         'detalles',
     ];
 
+    /**
+     * Los detalles se guardan como JSON y se leen como array.
+     */
     protected function casts(): array
     {
         return [
@@ -26,6 +39,9 @@ class AuditLog extends Model
         ];
     }
 
+    /**
+     * Usuario que realizó la acción.
+     */
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

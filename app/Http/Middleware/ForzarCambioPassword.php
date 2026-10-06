@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ForzarCambioPassword
 {
+    /**
+     * Si hay un cambio de contraseña pendiente, solo deja ver la pantalla de cambio o
+     * cerrar sesión.
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();

@@ -17,6 +17,12 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Stripe\Exception\ApiErrorException;
 
+/**
+ * Gestión de empleados por el admin de empresa: alta, edición, horario esperado, acceso
+ * a la web (contraseña temporal), PIN del kiosco, permiso de contable y
+ * activar/desactivar. Al cambiar el número de empleados activos se ajusta la
+ * facturación.
+ */
 class EmpleadoController extends Controller
 {
     // DNI: 8 dígitos + letra. NIE: X/Y/Z + 7 dígitos + letra. No se valida la
@@ -24,6 +30,10 @@ class EmpleadoController extends Controller
     // para detectar errores de tecleo obvios.
     protected const REGEX_DNI_NIE = '/^(\d{8}|[XYZxyz]\d{7})[A-Za-z]$/';
 
+    /**
+     * Lista de empleados (30 por página) con su estado de hoy: trabajando, vacaciones,
+     * baja o fuera.
+     */
     public function index(): View
     {
         $empleados = User::deEmpresa(Auth::user()->empresa_id)
@@ -40,11 +50,19 @@ class EmpleadoController extends Controller
         return view('admin.empleados.index', compact('empleados', 'empresa', 'estados'));
     }
 
+    /**
+     * Formulario de alta de empleado.
+     */
     public function create(): View
     {
         return view('admin.empleados.create');
     }
 
+    /**
+     * Da de alta un empleado con DNI/NIE, email opcional, horario opcional y acceso web
+     * opcional (contraseña propia o temporal). Genera su PIN para el kiosco y lo deja en
+     * auditoría.
+     */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -115,11 +133,18 @@ class EmpleadoController extends Controller
             ->with('acceso_generado', $this->datosAcceso($empleado, $password));
     }
 
+    /**
+     * Datos que se enseñan una sola vez al admin tras generar un acceso: nombre, DNI y
+     * contraseña temporal.
+     */
     protected function datosAcceso(User $empleado, string $password): array
     {
         return ['nombre' => $empleado->name, 'dni' => $empleado->dni_nie, 'password' => $password];
     }
 
+    /**
+     * Formulario de edición (solo de empleados de la propia empresa).
+     */
     public function edit(User $empleado): View
     {
         $this->autorizarMismaEmpresa($empleado);
@@ -127,6 +152,10 @@ class EmpleadoController extends Controller
         return view('admin.empleados.edit', compact('empleado'));
     }
 
+    /**
+     * Guarda los cambios del empleado. Si el admin cambia la contraseña, el empleado
+     * tendrá que elegir la suya al volver a entrar.
+     */
     public function update(Request $request, User $empleado): RedirectResponse
     {
         $this->autorizarMismaEmpresa($empleado);
@@ -158,6 +187,9 @@ class EmpleadoController extends Controller
         return redirect()->route('admin.empleados.index')->with('status', 'Empleado actualizado.');
     }
 
+    /**
+     * Genera un PIN nuevo de 6 dígitos para el kiosco y lo muestra una sola vez.
+     */
     public function regenerarPin(User $empleado): RedirectResponse
     {
         $this->autorizarMismaEmpresa($empleado);
@@ -169,6 +201,9 @@ class EmpleadoController extends Controller
             ->with('pin_generado', ['nombre' => $empleado->name, 'pin' => $pin]);
     }
 
+    /**
+     * Reactiva a un empleado y reajusta la facturación (empleados activos).
+     */
     public function activar(User $empleado): RedirectResponse
     {
         $this->autorizarMismaEmpresa($empleado);
@@ -180,6 +215,10 @@ class EmpleadoController extends Controller
         return back()->with('status', 'Empleado activado.');
     }
 
+    /**
+     * Da de baja a un empleado sin borrar sus fichajes: deja de poder entrar y de contar
+     * para el precio.
+     */
     public function desactivar(User $empleado): RedirectResponse
     {
         $this->autorizarMismaEmpresa($empleado);
@@ -191,6 +230,9 @@ class EmpleadoController extends Controller
         return back()->with('status', 'Empleado desactivado.');
     }
 
+    /**
+     * Da 404 si el empleado no es de la empresa del admin que hace la petición.
+     */
     protected function autorizarMismaEmpresa(User $empleado): void
     {
         abort_unless($empleado->empresa_id === Auth::user()->empresa_id, 404);
@@ -250,6 +292,11 @@ class EmpleadoController extends Controller
         return $tramos->map(fn ($t) => ['entrada' => $t['entrada'], 'salida' => $t['salida']])->all();
     }
 
+    /**
+     * Convierte los tramos validados del formulario en las columnas del horario del
+     * empleado (primera entrada y última salida, tramos y días laborables). Sin horario
+     * deja todo vacío.
+     */
     protected function datosHorario(array $data): array
     {
         $tramos = $this->tramosNormalizados($data);

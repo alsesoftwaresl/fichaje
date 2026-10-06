@@ -13,6 +13,11 @@ use Illuminate\Support\Str;
 use Laravel\Cashier\Billable;
 use Stripe\Exception\ApiErrorException;
 
+/**
+ * Empresa cliente (tenant). Es también el "cliente" de Stripe (Cashier) al que cuelgan
+ * las suscripciones. Puede usar la app con una suscripción activa o con una licencia
+ * gratuita vigente.
+ */
 class Empresa extends Model
 {
     use Billable, HasFactory, SoftDeletes;
@@ -24,6 +29,9 @@ class Empresa extends Model
         'activa',
     ];
 
+    /**
+     * La marca de activa es booleana y la fecha de fin de licencia es Carbon.
+     */
     protected function casts(): array
     {
         return [
@@ -32,6 +40,9 @@ class Empresa extends Model
         ];
     }
 
+    /**
+     * Al crear una empresa genera el token secreto de su URL de kiosco.
+     */
     protected static function booted(): void
     {
         static::creating(function (self $empresa) {
@@ -39,11 +50,17 @@ class Empresa extends Model
         });
     }
 
+    /**
+     * Usuarios (admin y empleados) de la empresa.
+     */
     public function usuarios(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
+    /**
+     * Licencia gratuita canjeada, si la hay.
+     */
     public function licencia(): BelongsTo
     {
         return $this->belongsTo(Licencia::class);
@@ -62,6 +79,9 @@ class Empresa extends Model
         return $this->tieneLicenciaActiva() || $this->subscribed('default');
     }
 
+    /**
+     * URL pública del kiosco de fichaje de esta empresa.
+     */
     public function kioskoUrl(): string
     {
         return route('kiosko.show', $this->kiosko_token);
@@ -73,6 +93,9 @@ class Empresa extends Model
         return $this->nombre;
     }
 
+    /**
+     * Email con el que se da de alta como cliente en Stripe.
+     */
     public function stripeEmail(): ?string
     {
         return $this->email_contacto;
