@@ -36,14 +36,19 @@ class GoogleAuthController extends Controller
                 ->with('status', 'No se pudo completar el inicio de sesión con Google. Inténtalo de nuevo.');
         }
 
-        $admin = User::where('email', $googleUser->getEmail())
-            ->where('rol', 'admin_empresa')
-            ->first();
+        $existente = User::where('email', $googleUser->getEmail())->first();
 
-        if ($admin) {
-            Auth::login($admin);
+        if ($existente?->rol === 'admin_empresa') {
+            Auth::login($existente);
 
             return redirect()->route('dashboard');
+        }
+
+        // El email ya es de otra cuenta (empleado, super admin...): no se
+        // puede crear una empresa con él ni entrar por Google.
+        if ($existente) {
+            return redirect()->route('login')
+                ->with('status', 'Esta cuenta no puede usar Google. Inicia sesión con tu email y contraseña.');
         }
 
         // No existe todavía una empresa con este email: guardamos lo que

@@ -52,6 +52,20 @@ class GoogleAuthTest extends TestCase
         );
     }
 
+    public function test_un_email_que_ya_es_de_otra_cuenta_no_intenta_crear_empresa(): void
+    {
+        User::factory()->create(['rol' => 'super_admin', 'empresa_id' => null, 'email' => 'super@achrono.test']);
+
+        $this->simularGoogle('super@achrono.test');
+
+        $this->get(route('auth.google.callback'))
+            ->assertRedirect(route('login'))
+            ->assertSessionHas('status');
+
+        $this->assertGuest();
+        $this->assertNull(session('registro_google'));
+    }
+
     public function test_completar_registro_sin_haber_pasado_por_google_redirige_al_registro_normal(): void
     {
         $this->get(route('registro.completar'))->assertRedirect(route('registro.create'));
