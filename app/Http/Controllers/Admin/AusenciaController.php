@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Ausencia;
+use App\Notifications\AusenciaResuelta;
+use App\Support\Avisos;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +51,7 @@ class AusenciaController extends Controller
         ]);
 
         AuditLog::registrar('ausencia_aprobada', $ausencia);
+        Avisos::enviar([$ausencia->usuario], new AusenciaResuelta($ausencia));
 
         return back()->with('status', 'Ausencia aprobada.');
     }
@@ -70,6 +73,7 @@ class AusenciaController extends Controller
         ]);
 
         AuditLog::registrar('ausencia_rechazada', $ausencia);
+        Avisos::enviar([$ausencia->usuario], new AusenciaResuelta($ausencia));
 
         return back()->with('status', 'Ausencia rechazada.');
     }

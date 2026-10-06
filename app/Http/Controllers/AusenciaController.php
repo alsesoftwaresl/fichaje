@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\Ausencia;
 use App\Models\Cita;
+use App\Notifications\AusenciaSolicitada;
+use App\Support\Avisos;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +56,12 @@ class AusenciaController extends Controller
         ]);
 
         AuditLog::registrar('ausencia_solicitada', $ausencia);
+
+        // Aviso por correo a los admins (menos a quien la pide, si es admin).
+        Avisos::enviar(
+            Avisos::adminsDeEmpresa($ausencia->empresa_id)->reject(fn ($admin) => $admin->id === Auth::id()),
+            new AusenciaSolicitada($ausencia)
+        );
 
         return redirect()->route('ausencias.mis')->with('status', 'Solicitud enviada. Tu admin la revisará.');
     }

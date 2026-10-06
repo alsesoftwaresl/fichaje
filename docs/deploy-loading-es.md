@@ -101,10 +101,45 @@ precios en Stripe) ni dar de alta empresas a mano.
 
 Comandos disponibles (cambia `cmd=`): `migrate`, `db:seed`, `storage:link`,
 `config:clear`, `route:clear`, `view:clear`, `cache:clear`,
-`optimize:clear`, `down` y `up` (mantenimiento). La ruta da 404
+`optimize:clear`, `schedule:run` (tareas programadas), `down` y `up` (mantenimiento). La ruta da 404
 siempre si `DEPLOY_TOKEN` está vacío, así que no pasa nada por dejarla en el
 código — solo no compartas el token.
 
+## Correo y avisos
+
+La app envía correos reales (verificación de email, recuperar contraseña) y
+avisos: solicitud de ausencia al admin, aprobación/rechazo al empleado, nómina
+nueva y un **resumen diario de incidencias** (laborables a las 11:00) a los
+admins. Los empleados que entran solo con DNI (sin email) no reciben correos.
+
+1. **Crea un buzón** en Plesk → *Correo* → *Crear dirección de correo*, por
+   ejemplo `no-reply@achrono.es`. Apunta su contraseña.
+2. **Edita el `.env` del servidor** (Administrador de archivos):
+   ```
+   MAIL_MAILER=smtp
+   MAIL_HOST=<servidor SMTP que indica Plesk para el buzón>
+   MAIL_PORT=465
+   MAIL_SCHEME=smtps
+   MAIL_USERNAME=no-reply@achrono.es
+   MAIL_PASSWORD=<contraseña del buzón>
+   MAIL_FROM_ADDRESS="no-reply@achrono.es"
+   MAIL_FROM_NAME="Achrono"
+   ```
+   Después limpia la configuración: `cmd=config:clear`.
+3. **Para que no caigan en spam**, comprueba en el DNS de `achrono.es` que
+   existen los registros SPF y DKIM del dominio (Plesk los crea al activar el
+   correo del dominio).
+4. **Resumen diario**: crea una *Tarea programada* en Plesk (Herramientas y
+   configuración → *Tareas programadas* o la del dominio), cada minuto, de tipo
+   *Obtener una URL*:
+   ```
+   https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=schedule:run
+   ```
+   Laravel decide por sí solo qué toca ejecutar cada minuto. Con la web en
+   mantenimiento no se ejecuta; ábrela al público antes.
+
+Si el correo falla, no se rompe nada: el aviso se anota en
+`storage/logs/laravel.log` y la acción (aprobar, subir nómina…) continúa.
 ## Variables de entorno (tanto si usas el toolkit como si editas `.env` a mano)
 
 ```

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\Nomina;
 use App\Models\User;
+use App\Notifications\NominaDisponible;
+use App\Support\Avisos;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -89,6 +91,8 @@ class GestionNominaController extends Controller
             'empleado_id' => $nomina->user_id,
             'periodo' => $nomina->periodo->format('Y-m'),
         ]);
+
+        Avisos::enviar([$nomina->empleado], new NominaDisponible($nomina));
 
         return redirect()->route('nominas.gestion.index')->with('status', 'Nómina subida.');
     }

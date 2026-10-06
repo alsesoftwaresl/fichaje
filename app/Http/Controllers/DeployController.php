@@ -35,6 +35,9 @@ class DeployController extends Controller
         // "secreto") para poder seguir entrando tu mientras el resto ve el 503.
         'down',
         'up',
+        // Para la tarea programada de Plesk: ejecuta lo que toque (p. ej. el
+        // resumen diario de incidencias). Se llama cada minuto.
+        'schedule:run',
     ];
 
     /**
