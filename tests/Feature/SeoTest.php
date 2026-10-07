@@ -103,7 +103,7 @@ class SeoTest extends TestCase
         // Transparencia: la tarjeta de la prueba, las limitaciones y el titular.
         $this->assertStringContainsString('Se pide tarjeta', $html);
         $this->assertStringContainsString('Lo que no hace', $html);
-        $this->assertStringContainsString('ALSE SOFTWARE, S.R.L.', $html);
+        $this->assertStringContainsString('ALSE SOFTWARE, S.L.', $html);
         $this->assertStringContainsString('mailto:hola@ejemplo.test', $html);
         $this->assertStringContainsString(route('legal.aviso-legal'), $html);
     }

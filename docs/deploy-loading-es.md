@@ -167,7 +167,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...   # lo da Stripe al crear el webhook, ver abajo
 DEPLOY_TOKEN=                 # solo si usas la Opción B; una cadena larga y aleatoria
 
 # Titular de la web (aviso legal y pie de página; lo vacío no se muestra)
-LEGAL_NOMBRE="ALSE SOFTWARE, S.R.L."
+LEGAL_NOMBRE="ALSE SOFTWARE, S.L."
 LEGAL_NIF=
 LEGAL_DOMICILIO=
 LEGAL_EMAIL=

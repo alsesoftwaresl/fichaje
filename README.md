@@ -49,7 +49,7 @@ Achrono es una aplicación web **SaaS multiempresa** para llevar el registro de 
 
 Está pensada para el mercado español: el registro de jornada es **inalterable** (las correcciones se guardan aparte, con motivo y autor), se conserva el histórico y se puede **exportar** para nóminas o para una inspección de trabajo. Además incluye gestión de ausencias, horarios con avisos de retrasos y horas extra, nóminas descargables por cada empleado y cobro por suscripción.
 
-El proyecto lo desarrolla **ALSE SOFTWARE, S.R.L.**
+El proyecto lo desarrolla **ALSE SOFTWARE, S.L.**
 
 ## Funcionalidades
 
@@ -346,4 +346,4 @@ public/images/           # Logo y favicon
 
 ## Licencia
 
-Código de **ALSE SOFTWARE, S.R.L.** Licencia pendiente de definir; hasta entonces, todos los derechos reservados.
+Código de **ALSE SOFTWARE, S.L.** Licencia pendiente de definir; hasta entonces, todos los derechos reservados.
