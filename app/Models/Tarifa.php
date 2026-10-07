@@ -25,6 +25,8 @@ class Tarifa extends Model
         'partner_precio_empleado_extra',
         'partner_licencias_minimas',
         'partner_pvp_recomendado',
+        'iva_porcentaje',
+        'stripe_tax_rate_id',
         'actualizado_por',
         'stripe_product_id',
         'stripe_price_base_id',
@@ -45,6 +47,7 @@ class Tarifa extends Model
             'partner_precio_empleado_extra' => 'decimal:2',
             'partner_licencias_minimas' => 'integer',
             'partner_pvp_recomendado' => 'decimal:2',
+            'iva_porcentaje' => 'decimal:2',
         ];
     }
 
@@ -97,6 +100,24 @@ class Tarifa extends Model
     public function partnerMargenPorLicencia(): float
     {
         return round((float) $this->partner_pvp_recomendado - (float) $this->partner_precio_licencia, 2);
+    }
+
+    /** Porcentaje de IVA sin ceros de sobra: "21" o "10,5". */
+    public function ivaTexto(): string
+    {
+        return rtrim(rtrim(number_format((float) $this->iva_porcentaje, 2, ',', ''), '0'), ',');
+    }
+
+    /** Base imponible de un importe que ya lleva el IVA incluido. */
+    public function baseImponible(float $conIva): float
+    {
+        return round($conIva / (1 + (float) $this->iva_porcentaje / 100), 2);
+    }
+
+    /** Parte de un importe con IVA incluido que corresponde al IVA. */
+    public function ivaIncluido(float $conIva): float
+    {
+        return round($conIva - $this->baseImponible($conIva), 2);
     }
 
     public function empleadosExtra(int $empleadosActivos): int
@@ -154,6 +175,44 @@ class Tarifa extends Model
             'nickname' => 'Empleado extra',
         ])->id;
 
+        $this->sincronizarIvaConStripe($stripe);
+
         $this->save();
+    }
+
+    /**
+     * Crea en Stripe el tipo de IVA (incluido en el precio) que se aplica a las
+     * suscripciones. Si el porcentaje cambia, archiva el anterior y crea uno nuevo; las
+     * suscripciones ya hechas conservan el suyo.
+     */
+    protected function sincronizarIvaConStripe($stripe): void
+    {
+        $porcentaje = (float) $this->iva_porcentaje;
+
+        if ($porcentaje <= 0) {
+            $this->stripe_tax_rate_id = null;
+
+            return;
+        }
+
+        if ($this->stripe_tax_rate_id) {
+            $actual = $stripe->taxRates->retrieve($this->stripe_tax_rate_id);
+
+            if ($actual->active && $actual->inclusive && abs((float) $actual->percentage - $porcentaje) < 0.001) {
+                return;
+            }
+
+            $stripe->taxRates->update($this->stripe_tax_rate_id, ['active' => false]);
+        }
+
+        $this->stripe_tax_rate_id = $stripe->taxRates->create([
+            'display_name' => 'IVA',
+            'description' => 'IVA incluido en el precio',
+            'percentage' => $porcentaje,
+            'inclusive' => true,
+            'country' => 'ES',
+            'jurisdiction' => 'ES',
+            'tax_type' => 'vat',
+        ])->id;
     }
 }

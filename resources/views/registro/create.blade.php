@@ -30,7 +30,7 @@
                     <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Crea tu cuenta en {{ config('app.name') }}</h1>
                     <p class="mt-2 text-slate-600">
                         Dos minutos y tu equipo ya puede empezar a fichar. Después de registrarte eliges
-                        tu plan — 15 días de prueba gratis, luego desde {{ $tarifa->precioBaseTexto() }}€/mes, incluye {{ $tarifa->empleados_incluidos }} empleados.
+                        tu plan — 15 días de prueba gratis, luego desde {{ $tarifa->precioBaseTexto() }}€/mes (IVA incluido), incluye {{ $tarifa->empleados_incluidos }} empleados.
                     </p>
                 </div>
 

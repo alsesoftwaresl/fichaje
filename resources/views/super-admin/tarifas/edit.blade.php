@@ -15,7 +15,7 @@
                 @method('PATCH')
 
                 <div>
-                    <x-input-label for="precio_base_mensual" value="Cuota base mensual (€)" />
+                    <x-input-label for="precio_base_mensual" value="Cuota base mensual (€, IVA incluido)" />
                     <x-text-input id="precio_base_mensual" name="precio_base_mensual" type="number" step="0.01" min="0"
                         class="mt-1 block w-full" :value="old('precio_base_mensual', $tarifa->precio_base_mensual)" required />
                     <x-input-error class="mt-2" :messages="$errors->get('precio_base_mensual')" />
@@ -29,10 +29,22 @@
                 </div>
 
                 <div>
-                    <x-input-label for="precio_empleado_extra" value="Precio por empleado adicional (€/mes)" />
+                    <x-input-label for="precio_empleado_extra" value="Precio por empleado adicional (€/mes, IVA incluido)" />
                     <x-text-input id="precio_empleado_extra" name="precio_empleado_extra" type="number" step="0.01" min="0"
                         class="mt-1 block w-full" :value="old('precio_empleado_extra', $tarifa->precio_empleado_extra)" required />
                     <x-input-error class="mt-2" :messages="$errors->get('precio_empleado_extra')" />
+                </div>
+
+                <div>
+                    <x-input-label for="iva_porcentaje" value="IVA incluido en todos los precios (%)" />
+                    <x-text-input id="iva_porcentaje" name="iva_porcentaje" type="number" step="0.01" min="0" max="100"
+                        class="mt-1 block w-full" :value="old('iva_porcentaje', $tarifa->iva_porcentaje)" required />
+                    <x-input-error class="mt-2" :messages="$errors->get('iva_porcentaje')" />
+                    <p class="mt-2 text-xs text-slate-500">
+                        Los precios que escribes ya llevan el IVA. Con {{ $tarifa->ivaTexto() }} %, los {{ number_format((float) $tarifa->precio_base_mensual, 2, ',', '.') }} € de la cuota base son
+                        {{ number_format($tarifa->baseImponible((float) $tarifa->precio_base_mensual), 2, ',', '.') }} € de base + {{ number_format($tarifa->ivaIncluido((float) $tarifa->precio_base_mensual), 2, ',', '.') }} € de IVA.
+                        Al guardar se crea el IVA en Stripe, y las facturas lo desglosan.
+                    </p>
                 </div>
 
                 <div class="border-t border-slate-200 pt-6 space-y-4">
@@ -45,7 +57,7 @@
                     </div>
 
                     <div>
-                        <x-input-label for="partner_precio_licencia" value="Precio por licencia (€/mes, lo que paga la asesoría)" />
+                        <x-input-label for="partner_precio_licencia" value="Precio por licencia (€/mes, IVA incluido, lo que paga la asesoría)" />
                         <x-text-input id="partner_precio_licencia" name="partner_precio_licencia" type="number" step="0.01" min="0"
                             class="mt-1 block w-full" :value="old('partner_precio_licencia', $tarifa->partner_precio_licencia)" required />
                         <x-input-error class="mt-2" :messages="$errors->get('partner_precio_licencia')" />
@@ -59,7 +71,7 @@
                     </div>
 
                     <div>
-                        <x-input-label for="partner_precio_empleado_extra" value="Precio por empleado adicional en una licencia (€/mes)" />
+                        <x-input-label for="partner_precio_empleado_extra" value="Precio por empleado adicional en una licencia (€/mes, IVA incluido)" />
                         <x-text-input id="partner_precio_empleado_extra" name="partner_precio_empleado_extra" type="number" step="0.01" min="0"
                             class="mt-1 block w-full" :value="old('partner_precio_empleado_extra', $tarifa->partner_precio_empleado_extra)" required />
                         <x-input-error class="mt-2" :messages="$errors->get('partner_precio_empleado_extra')" />
@@ -73,7 +85,7 @@
                     </div>
 
                     <div>
-                        <x-input-label for="partner_pvp_recomendado" value="Precio recomendado al cliente final (€/mes, solo informativo)" />
+                        <x-input-label for="partner_pvp_recomendado" value="Precio recomendado al cliente final (€/mes, IVA incluido, solo informativo)" />
                         <x-text-input id="partner_pvp_recomendado" name="partner_pvp_recomendado" type="number" step="0.01" min="0"
                             class="mt-1 block w-full" :value="old('partner_pvp_recomendado', $tarifa->partner_pvp_recomendado)" required />
                         <x-input-error class="mt-2" :messages="$errors->get('partner_pvp_recomendado')" />

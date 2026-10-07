@@ -1,7 +1,7 @@
 @php
     $preguntas = [
         ['¿Es obligatorio el registro de jornada en España?', 'Sí. Desde el Real Decreto-ley 8/2019 (artículo 34.9 del Estatuto de los Trabajadores) las empresas deben garantizar el registro diario de la jornada de cada persona trabajadora, con la hora de inicio y de fin, y conservarlo cuatro años a disposición de los trabajadores, sus representantes y la Inspección de Trabajo.'],
-        ['¿Cuánto cuesta '.config('app.name').'?', $tarifa->precioBaseTexto().' € al mes con '.$tarifa->empleados_incluidos.' empleados incluidos, más '.number_format((float) $tarifa->precio_empleado_extra, 2).' € al mes por cada empleado adicional. Tiene 15 días de prueba gratis y no hay permanencia.'],
+        ['¿Cuánto cuesta '.config('app.name').'?', $tarifa->precioBaseTexto().' € al mes, IVA incluido, con '.$tarifa->empleados_incluidos.' empleados incluidos, más '.number_format((float) $tarifa->precio_empleado_extra, 2).' € al mes por cada empleado adicional (también con IVA incluido). Tiene 15 días de prueba gratis y no hay permanencia.'],
         ['¿Mis empleados tienen que instalar una aplicación?', 'No. Pueden fichar desde el navegador del móvil o del ordenador, o en un kiosco compartido (una tablet o un PC en la entrada) tecleando su PIN de 6 dígitos.'],
         ['¿Se pueden modificar o borrar los fichajes?', 'No. Los fichajes no se editan ni se borran. Si hay un error, el administrador registra una corrección con su motivo; queda guardado quién la hizo y el fichaje original se conserva.'],
         ['¿Pueden fichar empleados que no tienen correo electrónico?', 'Sí. Cada empleado se identifica con su DNI o NIE; el correo es opcional.'],
@@ -79,6 +79,12 @@
                     '@type' => 'Offer',
                     'price' => number_format((float) $tarifa->precio_base_mensual, 2, '.', ''),
                     'priceCurrency' => 'EUR',
+                    'priceSpecification' => [
+                        '@type' => 'PriceSpecification',
+                        'price' => number_format((float) $tarifa->precio_base_mensual, 2, '.', ''),
+                        'priceCurrency' => 'EUR',
+                        'valueAddedTaxIncluded' => true,
+                    ],
                     'availability' => 'https://schema.org/InStock',
                     'url' => route('registro.create'),
                 ],
@@ -413,7 +419,7 @@
                     </p>
 
                     <table class="mt-8 w-full max-w-md text-sm">
-                        <caption class="mb-2 text-left font-semibold text-indigo-950">Cuánto pagarías al mes</caption>
+                        <caption class="mb-2 text-left font-semibold text-indigo-950">Cuánto pagarías al mes (IVA incluido)</caption>
                         <tbody class="divide-y divide-slate-200 border-y border-slate-200">
                             @foreach ([$tarifa->empleados_incluidos, 10, 20, 50] as $n)
                                 <tr>
@@ -433,7 +439,10 @@
                             <span class="font-display text-6xl font-extrabold tracking-tight">{{ $tarifa->precioBaseTexto() }}€</span>
                             <span class="text-indigo-300">/mes</span>
                         </p>
-                        <p class="mt-1 text-sm text-indigo-300">+ {{ number_format((float) $tarifa->precio_empleado_extra, 2) }}€/mes por cada empleado adicional</p>
+                        <p class="mt-1 text-sm text-indigo-300">IVA incluido · + {{ number_format((float) $tarifa->precio_empleado_extra, 2) }}€/mes por cada empleado adicional</p>
+                        @if ((float) $tarifa->iva_porcentaje > 0)
+                            <p class="mt-1 text-xs text-indigo-300/80">{{ number_format($tarifa->baseImponible((float) $tarifa->precio_base_mensual), 2, ',', '.') }} € + {{ number_format($tarifa->ivaIncluido((float) $tarifa->precio_base_mensual), 2, ',', '.') }} € de IVA ({{ $tarifa->ivaTexto() }} %)</p>
+                        @endif
 
                         <ul class="mt-7 space-y-3 text-sm text-indigo-50">
                             @foreach ([

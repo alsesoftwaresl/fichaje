@@ -16,10 +16,15 @@
 
         <x-card class="p-6 space-y-3 text-sm">
             <h3 class="font-medium text-slate-900">Tu plan actual</h3>
-            <p><span class="text-slate-500">Cuota base:</span> <span class="text-slate-800">{{ number_format($tarifa->precio_base_mensual, 2) }}€/mes (incluye {{ $tarifa->empleados_incluidos }} empleados)</span></p>
+            <p><span class="text-slate-500">Cuota base:</span> <span class="text-slate-800">{{ number_format($tarifa->precio_base_mensual, 2) }}€/mes, IVA incluido (incluye {{ $tarifa->empleados_incluidos }} empleados)</span></p>
             <p><span class="text-slate-500">Empleados activos:</span> <span class="text-slate-800">{{ $empleadosActivos }}</span></p>
             <p><span class="text-slate-500">Empleados extra:</span> <span class="text-slate-800">{{ $empleadosExtra }} × {{ number_format($tarifa->precio_empleado_extra, 2) }}€</span></p>
-            <p class="pt-2 border-t border-slate-100"><span class="text-slate-500">Total estimado:</span> <span class="text-lg font-semibold text-slate-900">{{ number_format($precioMensual, 2) }}€/mes</span></p>
+            <p class="pt-2 border-t border-slate-100"><span class="text-slate-500">Total estimado:</span> <span class="text-lg font-semibold text-slate-900">{{ number_format($precioMensual, 2) }}€/mes</span> <span class="text-slate-500">IVA incluido</span></p>
+            @if ((float) $tarifa->iva_porcentaje > 0)
+                <p class="text-xs text-slate-500">
+                    {{ number_format($tarifa->baseImponible($precioMensual), 2, ',', '.') }} € de base + {{ number_format($tarifa->ivaIncluido($precioMensual), 2, ',', '.') }} € de IVA ({{ $tarifa->ivaTexto() }} %).
+                </p>
+            @endif
         </x-card>
 
         @if ($empresa->tieneLicenciaActiva())
@@ -57,7 +62,7 @@
                     <p class="text-sm text-slate-600 mb-4">
                         Estás en tu periodo de prueba gratis hasta el
                         {{ $suscripcion->trial_ends_at->format('d/m/Y') }}. A partir de entonces se te
-                        cobrará {{ number_format($precioMensual, 2) }}€/mes — puedes cancelar antes desde
+                        cobrará {{ number_format($precioMensual, 2) }}€/mes (IVA incluido) — puedes cancelar antes desde
                         el portal sin que se te cobre nada.
                     </p>
                 @else
@@ -74,7 +79,7 @@
                 <p class="text-sm text-slate-600 mb-4">
                     Todavía no tienes una suscripción activa.
                     {{ $diasPrueba }} días gratis al suscribirte — después se te cobrará
-                    {{ number_format($precioMensual, 2) }}€/mes según el número de empleados activos.
+                    {{ number_format($precioMensual, 2) }}€/mes (IVA incluido) según el número de empleados activos.
                     Puedes cancelar en cualquier momento antes de que acabe la prueba sin que se te
                     cobre nada.
                 </p>

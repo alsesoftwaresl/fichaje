@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Tarifa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Laravel\Cashier\Checkout;
+use Stripe\Exception\ApiErrorException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -65,7 +67,10 @@ class FacturacionController extends Controller
         $empresa = Auth::user()->empresa;
         $tarifa = Tarifa::actual();
 
-        if (! $tarifa->stripe_price_base_id || ! $tarifa->stripe_price_extra_id) {
+        // Sin el tipo de IVA creado en Stripe no se desglosaría el IVA en la factura.
+        $ivaPendiente = (float) $tarifa->iva_porcentaje > 0 && ! $tarifa->stripe_tax_rate_id;
+
+        if (! $tarifa->stripe_price_base_id || ! $tarifa->stripe_price_extra_id || $ivaPendiente) {
             return redirect()->route('admin.facturacion.index')
                 ->with('status', 'Las tarifas todavía no están sincronizadas con Stripe. Contacta con el soporte.');
         }
@@ -81,10 +86,21 @@ class FacturacionController extends Controller
             $builder->price($tarifa->stripe_price_extra_id, $extra);
         }
 
-        return $builder->checkout([
-            'success_url' => route('admin.facturacion.index').'?suscripcion=ok',
-            'cancel_url' => route('admin.facturacion.index').'?suscripcion=cancelada',
-        ]);
+        try {
+            return $builder->checkout([
+                'success_url' => route('admin.facturacion.index').'?suscripcion=ok',
+                'cancel_url' => route('admin.facturacion.index').'?suscripcion=cancelada',
+                // Datos fiscales de la empresa en la factura (dirección y NIF/CIF).
+                'billing_address_collection' => 'required',
+                'tax_id_collection' => ['enabled' => true],
+                'customer_update' => ['name' => 'auto', 'address' => 'auto'],
+            ]);
+        } catch (ApiErrorException $e) {
+            Log::warning('No se pudo crear el pago en Stripe: '.$e->getMessage());
+
+            return redirect()->route('admin.facturacion.index')
+                ->with('status', 'No se pudo iniciar el pago. Inténtalo de nuevo en unos minutos o escríbenos.');
+        }
     }
 
     /**

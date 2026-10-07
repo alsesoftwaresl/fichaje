@@ -59,6 +59,17 @@ class Empresa extends Model
     }
 
     /**
+     * Tipos de IVA que Cashier aplica a las suscripciones de esta empresa (el IVA va
+     * incluido en el precio; ver Tarifa::sincronizarIvaConStripe).
+     */
+    public function taxRates(): array
+    {
+        $id = Tarifa::actual()->stripe_tax_rate_id;
+
+        return $id ? [$id] : [];
+    }
+
+    /**
      * Licencia gratuita canjeada, si la hay.
      */
     public function licencia(): BelongsTo
