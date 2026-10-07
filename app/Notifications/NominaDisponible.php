@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Nomina;
+use App\Support\Avisos;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -22,9 +23,8 @@ class NominaDisponible extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return Avisos::mensaje($notifiable)
             ->subject('Tienes una nómina nueva')
-            ->greeting('Hola, '.$notifiable->name)
             ->line('Ya tienes disponible tu nómina de '.$this->nomina->titulo().'.')
             ->action('Ver mis nóminas', route('nominas.mis'))
             ->salutation('— Achrono');

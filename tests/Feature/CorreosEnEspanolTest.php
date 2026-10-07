@@ -28,13 +28,15 @@ class CorreosEnEspanolTest extends TestCase
         $html = $correo->render()->toHtml();
 
         $this->assertSame('Restablecer contraseña', $correo->subject);
-        $this->assertStringContainsString('¡Hola!', $html);
+        $this->assertStringContainsString('Hola, Ana', $html);
+        $this->assertStringContainsString('Empresa:', $html);
         $this->assertStringContainsString('Saludos,', $html);
-        $this->assertStringContainsString('Todos los derechos reservados.', $html);
+        $this->assertStringContainsString('un producto de ALSE SOFTWARE, S.L.', $html);
+        $this->assertStringContainsString('images/logo-claro.png', $html);
         $this->assertStringContainsString('caduca en 60 minutos', $html);
         $this->assertStringContainsString('Si no puedes pulsar el botón', $html);
 
-        foreach (['Hello!', 'Regards,', 'If you did not request', 'All rights reserved'] as $ingles) {
+        foreach (['Hello!', 'Regards,', 'If you did not request', 'All rights reserved', 'Laravel'] as $ingles) {
             $this->assertStringNotContainsString($ingles, $html);
         }
     }

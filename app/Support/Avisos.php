@@ -36,6 +36,21 @@ class Avisos
     }
 
     /**
+     * Mensaje de correo con saludo personal y, si el usuario pertenece a una empresa,
+     * una línea con el nombre de esa empresa. Es el punto de partida de todos los avisos.
+     */
+    public static function mensaje(object $destinatario): \Illuminate\Notifications\Messages\MailMessage
+    {
+        $mensaje = (new \Illuminate\Notifications\Messages\MailMessage)->greeting('Hola, '.$destinatario->name);
+
+        if ($empresa = $destinatario->empresa ?? null) {
+            $mensaje->line('Empresa: **'.$empresa->nombre.'**');
+        }
+
+        return $mensaje;
+    }
+
+    /**
      * Admins activos de una empresa (los destinatarios de los avisos de gestión).
      *
      * @return Collection<int, User>

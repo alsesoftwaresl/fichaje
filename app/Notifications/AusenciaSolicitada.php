@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Ausencia;
+use App\Support\Avisos;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -29,9 +30,8 @@ class AusenciaSolicitada extends Notification
             default => 'una ausencia',
         };
 
-        $mensaje = (new MailMessage)
+        $mensaje = Avisos::mensaje($notifiable)
             ->subject($a->usuario->name.' ha solicitado '.$tipo)
-            ->greeting('Hola, '.$notifiable->name)
             ->line($a->usuario->name.' ha solicitado '.$tipo.' del '.$a->fecha_inicio->format('d/m/Y').' al '.$a->fecha_fin->format('d/m/Y').'.');
 
         if ($a->motivo) {

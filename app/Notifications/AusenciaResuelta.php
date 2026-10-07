@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Ausencia;
+use App\Support\Avisos;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -26,9 +27,8 @@ class AusenciaResuelta extends Notification
         $aprobada = $a->estado === 'aprobada';
         $rango = $a->fecha_inicio->format('d/m/Y').' al '.$a->fecha_fin->format('d/m/Y');
 
-        $mensaje = (new MailMessage)
+        $mensaje = Avisos::mensaje($notifiable)
             ->subject($aprobada ? 'Tu solicitud ha sido aprobada' : 'Tu solicitud ha sido rechazada')
-            ->greeting('Hola, '.$notifiable->name)
             ->line($aprobada
                 ? "Tu solicitud del {$rango} ha sido aprobada."
                 : "Tu solicitud del {$rango} ha sido rechazada.");

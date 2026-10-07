@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Services\IncidenciasCalculador;
+use App\Support\Avisos;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Collection;
@@ -25,9 +26,8 @@ class ResumenIncidencias extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mensaje = (new MailMessage)
+        $mensaje = Avisos::mensaje($notifiable)
             ->subject('Incidencias de hoy ('.$this->incidencias->count().')')
-            ->greeting('Hola, '.$notifiable->name)
             ->line('Estas son las incidencias de control horario detectadas hoy:');
 
         foreach ($this->incidencias as $incidencia) {
