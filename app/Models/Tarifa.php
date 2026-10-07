@@ -27,6 +27,7 @@ class Tarifa extends Model
         'partner_pvp_recomendado',
         'iva_porcentaje',
         'stripe_tax_rate_id',
+        'stripe_modo',
         'actualizado_por',
         'stripe_product_id',
         'stripe_price_base_id',
@@ -147,6 +148,16 @@ class Tarifa extends Model
             return;
         }
 
+        // Al pasar de claves de prueba a claves reales, todo lo creado en Stripe (productos,
+        // precios, IVA, clientes y suscripciones) deja de existir: se olvida y se vuelve a crear.
+        $modoAnterior = $this->stripe_modo ?? ($this->stripe_product_id ? 'test' : null);
+
+        if ($modoAnterior !== null && $modoAnterior !== static::modoStripe()) {
+            $this->olvidarDatosDeStripe();
+        }
+
+        $this->stripe_modo = static::modoStripe();
+
         $stripe = Cashier::stripe();
 
         if (! $this->stripe_product_id) {
@@ -178,6 +189,40 @@ class Tarifa extends Model
         $this->sincronizarIvaConStripe($stripe);
 
         $this->save();
+    }
+
+    /** "live" si las claves de Stripe son las reales (sk_live_...), "test" en cualquier otro caso. */
+    public static function modoStripe(): string
+    {
+        return str_starts_with((string) config('cashier.secret'), 'sk_live_') ? 'live' : 'test';
+    }
+
+    /**
+     * Borra de la base de datos todo lo que apunta a objetos de Stripe del otro modo:
+     * ids de producto, precios e IVA de la tarifa, y clientes y suscripciones de las
+     * empresas. Solo se ejecuta al cambiar de modo, cuando todo eso era de prueba.
+     */
+    public function olvidarDatosDeStripe(): void
+    {
+        \Illuminate\Support\Facades\Log::warning('Cambio de modo de Stripe: se olvidan los datos del modo anterior.');
+
+        $this->forceFill([
+            'stripe_product_id' => null,
+            'stripe_price_base_id' => null,
+            'stripe_price_extra_id' => null,
+            'stripe_tax_rate_id' => null,
+        ]);
+
+        \Illuminate\Support\Facades\DB::transaction(function () {
+            \Illuminate\Support\Facades\DB::table('subscription_items')->delete();
+            \Illuminate\Support\Facades\DB::table('subscriptions')->delete();
+            \Illuminate\Support\Facades\DB::table('empresas')->update([
+                'stripe_id' => null,
+                'pm_type' => null,
+                'pm_last_four' => null,
+                'trial_ends_at' => null,
+            ]);
+        });
     }
 
     /**
