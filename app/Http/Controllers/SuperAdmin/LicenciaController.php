@@ -23,6 +23,7 @@ class LicenciaController extends Controller
     {
         return view('super-admin.licencias.index', [
             'licencias' => Licencia::with('empresas')->latest()->get(),
+            'empleadosPorDefecto' => \App\Models\Tarifa::actual()->partner_empleados_incluidos,
         ]);
     }
 
@@ -35,6 +36,7 @@ class LicenciaController extends Controller
             'nota' => ['nullable', 'string', 'max:255'],
             'meses' => ['nullable', 'integer', 'min:1', 'max:120'],
             'max_usos' => ['required', 'integer', 'min:1', 'max:1000'],
+            'max_empleados' => ['nullable', 'integer', 'min:1', 'max:100000'],
             'canjeable_hasta' => ['nullable', 'date', 'after_or_equal:today'],
         ]);
 

@@ -20,6 +20,11 @@ class Tarifa extends Model
         'precio_base_mensual',
         'empleados_incluidos',
         'precio_empleado_extra',
+        'partner_precio_licencia',
+        'partner_empleados_incluidos',
+        'partner_precio_empleado_extra',
+        'partner_licencias_minimas',
+        'partner_pvp_recomendado',
         'actualizado_por',
         'stripe_product_id',
         'stripe_price_base_id',
@@ -35,6 +40,11 @@ class Tarifa extends Model
             'precio_base_mensual' => 'decimal:2',
             'precio_empleado_extra' => 'decimal:2',
             'empleados_incluidos' => 'integer',
+            'partner_precio_licencia' => 'decimal:2',
+            'partner_empleados_incluidos' => 'integer',
+            'partner_precio_empleado_extra' => 'decimal:2',
+            'partner_licencias_minimas' => 'integer',
+            'partner_pvp_recomendado' => 'decimal:2',
         ];
     }
 
@@ -75,6 +85,18 @@ class Tarifa extends Model
         $texto = number_format((float) $this->precio_base_mensual, 2, ',', '.');
 
         return str_ends_with($texto, ',00') ? substr($texto, 0, -3) : $texto;
+    }
+
+    /** Lo que paga una asesoría al mes por un número de licencias. */
+    public function partnerPagoMensual(int $licencias): float
+    {
+        return round($licencias * (float) $this->partner_precio_licencia, 2);
+    }
+
+    /** Lo que gana la asesoría por licencia si vende al precio recomendado (puede ser negativo). */
+    public function partnerMargenPorLicencia(): float
+    {
+        return round((float) $this->partner_pvp_recomendado - (float) $this->partner_precio_licencia, 2);
     }
 
     public function empleadosExtra(int $empleadosActivos): int

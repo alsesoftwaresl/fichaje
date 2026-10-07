@@ -28,6 +28,9 @@
                 <p class="text-slate-600">
                     {{ $empresa->licencia_hasta ? 'Válida hasta el '.$empresa->licencia_hasta->format('d/m/Y').'.' : 'Sin fecha de caducidad.' }}
                     No se te cobra nada.
+                    @if ($empresa->licencia?->max_empleados)
+                        Incluye hasta {{ $empresa->licencia->max_empleados }} empleados (ahora tienes {{ $empleadosActivos }}).
+                    @endif
                 </p>
             </x-card>
         @endif

@@ -27,6 +27,11 @@
                     <x-input-error class="mt-2" :messages="$errors->get('max_usos')" />
                 </div>
                 <div>
+                    <x-input-label for="max_empleados" value="Empleados que incluye (vacío = sin tope)" />
+                    <x-text-input id="max_empleados" name="max_empleados" type="number" min="1" class="mt-1 block w-full" :value="old('max_empleados', $empleadosPorDefecto)" />
+                    <x-input-error class="mt-2" :messages="$errors->get('max_empleados')" />
+                </div>
+                <div>
                     <x-input-label for="canjeable_hasta" value="Canjeable hasta (opcional)" />
                     <x-text-input id="canjeable_hasta" name="canjeable_hasta" type="date" class="mt-1 block w-full" :value="old('canjeable_hasta')" />
                     <x-input-error class="mt-2" :messages="$errors->get('canjeable_hasta')" />
@@ -45,6 +50,7 @@
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Código</th>
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Nota</th>
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Duración</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Empleados</th>
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Usos</th>
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Empresas</th>
                         <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Estado</th>
@@ -57,6 +63,7 @@
                             <td class="px-4 py-3 font-mono font-medium text-slate-900 select-all">{{ $licencia->codigo }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $licencia->nota ?? '—' }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $licencia->meses ? $licencia->meses.' '.($licencia->meses === 1 ? 'mes' : 'meses') : 'Sin caducidad' }}</td>
+                            <td class="px-4 py-3 text-slate-700">{{ $licencia->max_empleados ?? 'Sin tope' }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $licencia->usos }} / {{ $licencia->max_usos }}</td>
                             <td class="px-4 py-3 text-slate-700">
                                 @forelse ($licencia->empresas as $empresa)
@@ -86,7 +93,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-10 text-center text-sm text-slate-400">Todavía no hay códigos.</td>
+                            <td colspan="8" class="px-4 py-10 text-center text-sm text-slate-400">Todavía no hay códigos.</td>
                         </tr>
                     @endforelse
                 </tbody>

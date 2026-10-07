@@ -65,6 +65,8 @@ class EmpleadoController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->comprobarLimiteDeLicencia();
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'dni_nie' => ['required', 'string', 'max:20', 'regex:'.self::REGEX_DNI_NIE, 'unique:users,dni_nie'],
@@ -207,6 +209,7 @@ class EmpleadoController extends Controller
     public function activar(User $empleado): RedirectResponse
     {
         $this->autorizarMismaEmpresa($empleado);
+        $this->comprobarLimiteDeLicencia();
 
         $empleado->update(['activo' => true]);
         AuditLog::registrar('empleado_activado', $empleado);
@@ -326,6 +329,22 @@ class EmpleadoController extends Controller
      * ya se guardó bien) — se queda desincronizado hasta el próximo cambio
      * o la siguiente factura, que Stripe recalcula igualmente.
      */
+    /**
+     * Con una licencia que tiene tope de empleados, no deja pasar de ese número de
+     * empleados activos (da de alta o reactiva solo si queda plaza).
+     */
+    protected function comprobarLimiteDeLicencia(): void
+    {
+        $empresa = Auth::user()->empresa;
+        $limite = $empresa->limiteEmpleadosPorLicencia();
+
+        if ($limite !== null && $empresa->usuarios()->where('activo', true)->count() >= $limite) {
+            throw ValidationException::withMessages([
+                'name' => "Tu licencia incluye hasta {$limite} empleados y ya los has alcanzado. Escribe a soporte para ampliarla.",
+            ]);
+        }
+    }
+
     protected function sincronizarFacturacion(): void
     {
         try {

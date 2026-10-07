@@ -73,6 +73,19 @@ class Empresa extends Model
             && ($this->licencia_hasta === null || ! $this->licencia_hasta->endOfDay()->isPast());
     }
 
+    /**
+     * Tope de empleados activos si la empresa usa la app con una licencia (y no con una
+     * suscripción propia). null = sin tope.
+     */
+    public function limiteEmpleadosPorLicencia(): ?int
+    {
+        if (! $this->tieneLicenciaActiva() || $this->subscribed('default')) {
+            return null;
+        }
+
+        return $this->licencia?->max_empleados;
+    }
+
     /** Puede usar la app: licencia gratuita vigente o suscripción activa. */
     public function tieneAcceso(): bool
     {
