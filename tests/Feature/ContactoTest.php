@@ -30,7 +30,7 @@ class ContactoTest extends TestCase
     {
         $this->get('/contacto')
             ->assertOk()
-            ->assertSee('info@alsesoftware.com')
+            ->assertSee('info@achrono.es')
             ->assertSee('atención al cliente en español', false)
             ->assertSee('¿Es una emergencia?')
             ->assertHeaderMissing('X-Robots-Tag');
@@ -52,7 +52,7 @@ class ContactoTest extends TestCase
         $this->assertSame('soporte', $contacto->asunto);
         $this->assertNull($contacto->leido_en);
 
-        Notification::assertSentOnDemand(ContactoRecibido::class, fn ($n, $canales, $notifiable) => $notifiable->routes['mail'] === 'info@alsesoftware.com');
+        Notification::assertSentOnDemand(ContactoRecibido::class, fn ($n, $canales, $notifiable) => $notifiable->routes['mail'] === 'info@achrono.es');
     }
 
     public function test_un_mensaje_urgente_se_marca_en_el_asunto_del_correo(): void
@@ -125,7 +125,7 @@ class ContactoTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('Atención personal, en español')
-            ->assertSee('mailto:info@alsesoftware.com', false)
+            ->assertSee('mailto:info@achrono.es', false)
             ->assertSee('"contactPoint"', false);
     }
 

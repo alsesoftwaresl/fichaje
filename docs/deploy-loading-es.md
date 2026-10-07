@@ -113,16 +113,16 @@ nueva y un **resumen diario de incidencias** (laborables a las 11:00) a los
 admins. Los empleados que entran solo con DNI (sin email) no reciben correos.
 
 1. **Crea un buzón** en Plesk → *Correo* → *Crear dirección de correo*, por
-   ejemplo `no-reply@achrono.es`. Apunta su contraseña.
+   ejemplo `info@achrono.es`. Apunta su contraseña.
 2. **Edita el `.env` del servidor** (Administrador de archivos):
    ```
    MAIL_MAILER=smtp
    MAIL_HOST=<servidor SMTP que indica Plesk para el buzón>
    MAIL_PORT=465
    MAIL_SCHEME=smtps
-   MAIL_USERNAME=no-reply@achrono.es
+   MAIL_USERNAME=info@achrono.es
    MAIL_PASSWORD=<contraseña del buzón>
-   MAIL_FROM_ADDRESS="no-reply@achrono.es"
+   MAIL_FROM_ADDRESS="info@achrono.es"
    MAIL_FROM_NAME="Achrono"
    ```
    Después limpia la configuración: `cmd=config:clear`.
@@ -139,7 +139,7 @@ admins. Los empleados que entran solo con DNI (sin email) no reciben correos.
    mantenimiento no se ejecuta; ábrela al público antes.
 
 **Comprobar que funciona:** abre `https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=correo:probar`.
-Envía un correo de prueba a `info@alsesoftware.com` y, si falla, te dice el motivo (usuario
+Envía un correo de prueba a `info@achrono.es` y, si falla, te dice el motivo (usuario
 incorrecto, servidor que no responde, certificado...).
 
 Si el correo falla, no se rompe nada: el aviso se anota en

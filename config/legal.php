@@ -13,7 +13,7 @@ return [
         'nombre' => env('LEGAL_NOMBRE', 'ALSE SOFTWARE, S.R.L.'),
         'nif' => env('LEGAL_NIF'),
         'domicilio' => env('LEGAL_DOMICILIO'),
-        'email' => env('LEGAL_EMAIL', 'info@alsesoftware.com'),
+        'email' => env('LEGAL_EMAIL', 'info@achrono.es'),
         'telefono' => env('LEGAL_TELEFONO'),
         'registro_mercantil' => env('LEGAL_REGISTRO_MERCANTIL'),
     ],

@@ -20,7 +20,7 @@ class ProbarCorreoTest extends TestCase
         config(['mail.default' => 'array']);
 
         $this->artisan('correo:probar')
-            ->expectsOutputToContain('Destino:  info@alsesoftware.com')
+            ->expectsOutputToContain('Destino:  info@achrono.es')
             ->expectsOutputToContain('Enviado.')
             ->assertSuccessful();
     }
