@@ -38,6 +38,8 @@ class DeployController extends Controller
         // Para la tarea programada de Plesk: ejecuta lo que toque (p. ej. el
         // resumen diario de incidencias). Se llama cada minuto.
         'schedule:run',
+        // Envía un correo de prueba al correo de contacto y muestra el error si el SMTP falla.
+        'correo:probar',
     ];
 
     /**

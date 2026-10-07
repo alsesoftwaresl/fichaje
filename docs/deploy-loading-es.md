@@ -101,7 +101,7 @@ precios en Stripe) ni dar de alta empresas a mano.
 
 Comandos disponibles (cambia `cmd=`): `migrate`, `db:seed`, `storage:link`,
 `config:clear`, `route:clear`, `view:clear`, `cache:clear`,
-`optimize:clear`, `schedule:run` (tareas programadas), `down` y `up` (mantenimiento). La ruta da 404
+`optimize:clear`, `schedule:run` (tareas programadas), `correo:probar` (correo de prueba), `down` y `up` (mantenimiento). La ruta da 404
 siempre si `DEPLOY_TOKEN` está vacío, así que no pasa nada por dejarla en el
 código — solo no compartas el token.
 
@@ -137,6 +137,10 @@ admins. Los empleados que entran solo con DNI (sin email) no reciben correos.
    ```
    Laravel decide por sí solo qué toca ejecutar cada minuto. Con la web en
    mantenimiento no se ejecuta; ábrela al público antes.
+
+**Comprobar que funciona:** abre `https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=correo:probar`.
+Envía un correo de prueba a `info@alsesoftware.com` y, si falla, te dice el motivo (usuario
+incorrecto, servidor que no responde, certificado...).
 
 Si el correo falla, no se rompe nada: el aviso se anota en
 `storage/logs/laravel.log` y la acción (aprobar, subir nómina…) continúa.
