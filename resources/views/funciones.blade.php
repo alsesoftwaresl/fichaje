@@ -1,86 +1,81 @@
 @php
     // Una sola fuente para la página y para los datos estructurados (featureList).
+    // Lenguaje claro, pensado para quien lleva un negocio, no para un técnico.
     $bloques = [
         [
             'id' => 'fichar',
-            'titulo' => 'Fichar sin complicaciones',
-            'resumen' => 'Cada empleado ficha como le resulte más cómodo, sin instalar nada.',
+            'titulo' => 'Fichar es tocar un botón',
+            'resumen' => 'Cada empleado ficha como le venga mejor, sin instalar nada.',
             'puntos' => [
-                'Fichaje desde el navegador del móvil o del ordenador, con un botón de entrada y salida.',
-                'Kiosco compartido: una tablet o un PC en la entrada donde cada empleado ficha con su PIN de 6 dígitos.',
-                'El PIN es personal y el administrador puede regenerarlo cuando haga falta; no se guarda en claro.',
-                'Los empleados sin correo electrónico entran con su DNI o NIE y eligen su contraseña la primera vez.',
-                'La hora se toma siempre del servidor, nunca del dispositivo del empleado.',
+                'Desde el móvil o el ordenador, con un solo botón de entrada y salida.',
+                'En una tablet compartida en la entrada, con un PIN de 6 números para cada empleado.',
+                'Si alguien no tiene correo, entra con su DNI.',
+                'La hora la pone el sistema, no el empleado, así nadie puede cambiarla.',
             ],
         ],
         [
             'id' => 'control',
-            'titulo' => 'Control de la plantilla y de las incidencias',
-            'resumen' => 'Un panel que te dice qué está pasando hoy, sin revisar fichaje por fichaje.',
+            'titulo' => 'Sabes qué pasa sin tener que preguntar',
+            'resumen' => 'Un panel que te cuenta cómo va el día.',
             'puntos' => [
-                'Estado del equipo en directo: quién está trabajando, de vacaciones, de baja o fuera.',
-                'Horario por empleado, corrido o en turno partido (varios tramos al día) y con los días que trabaja.',
-                'Incidencias de hoy y de un periodo: retraso (con un margen de 10 minutos), sin fichar, jornada sin cerrar, no ha vuelto de una gestión y horas de más.',
-                'Quien está de vacaciones o de baja, o tiene una salida avisada, no genera incidencias por error.',
-                'Resumen diario por correo al administrador, en días laborables, con la lista de incidencias.',
+                'Ves de un vistazo quién está trabajando, quién está de vacaciones o de baja y quién está fuera.',
+                'Te avisa de quién llega tarde, quién no ha fichado y quién se ha dejado la jornada abierta.',
+                'Funciona con horario normal o con turno partido (mañana y tarde).',
+                'Si hubo incidencias, recibes un correo cada día laborable con la lista.',
             ],
         ],
         [
             'id' => 'ausencias',
-            'titulo' => 'Vacaciones, bajas y avisos de salida',
-            'resumen' => 'Todo por escrito y con rastro, sin mensajes sueltos por WhatsApp.',
+            'titulo' => 'Vacaciones y bajas, sin líos',
+            'resumen' => 'Todo por escrito, sin mensajes sueltos por WhatsApp.',
             'puntos' => [
-                'El empleado solicita vacaciones, una baja u otra ausencia y el administrador la aprueba o la rechaza, con un motivo.',
-                'Cada solicitud y cada respuesta avisan por correo a quien corresponda.',
-                'Avisos de salida dentro de la jornada (médico, una gestión): el empleado indica el día, la hora de salida y la de vuelta, y explica el motivo con sus palabras.',
-                'El administrador ve en el panel quién está fuera con permiso y a qué hora vuelve.',
+                'El empleado las pide desde su cuenta y tú las apruebas o las rechazas.',
+                'Os avisamos por correo a los dos, y todo queda guardado.',
+                'Si alguien tiene que salir un rato (médico, una gestión), lo avisa con la hora a la que vuelve.',
             ],
         ],
         [
             'id' => 'nominas',
-            'titulo' => 'Nóminas siempre a mano',
-            'resumen' => 'La empresa las sube; cada empleado las ve y las descarga cuando quiera.',
+            'titulo' => 'Nóminas al alcance de cada empleado',
+            'resumen' => 'La empresa las sube y cada uno las descarga cuando quiera.',
             'puntos' => [
-                'El administrador, o una persona con permiso de contable, sube la nómina en PDF (hasta 5 MB) a cada empleado.',
-                'El empleado la encuentra en "Mis nóminas", con una marca de "nueva", y la descarga cuando la necesite.',
-                'Los PDF se guardan en un almacenamiento privado: no se pueden abrir con un enlace público.',
-                'Cada empleado solo ve las suyas. Quien gestiona nóminas ve las de su empresa.',
-                'No es un programa de nóminas: no las calcula, las guarda y las reparte.',
+                'Subes la nómina en PDF y el empleado la descarga desde su cuenta.',
+                'Cada uno ve solo las suyas, y le avisamos por correo cuando hay una nueva.',
+                'Puede subirlas tu contable sin necesidad de ser administrador.',
+                'No calcula las nóminas: las guarda y las reparte.',
             ],
         ],
         [
             'id' => 'registro',
-            'titulo' => 'Registro inalterable, correcciones e informes',
-            'resumen' => 'Un registro de jornada que no se reescribe, y las herramientas para demostrarlo.',
+            'titulo' => 'Un registro fiable, listo para entregar',
+            'resumen' => 'Lo que se ficha no se puede cambiar, y puedes descargarlo cuando lo pidan.',
             'puntos' => [
-                'Un fichaje guardado no se puede editar ni borrar desde la aplicación, tampoco por el administrador.',
-                'Los errores se arreglan con una corrección que guarda la hora nueva, el motivo y quién la hizo; el original se conserva.',
-                'Registro de actividad: altas, aprobaciones, correcciones y subida de nóminas quedan anotadas con la persona y la fecha.',
-                'Exportación de los fichajes a CSV, Excel y PDF, filtrando por empleado y por fechas.',
-                'Los datos de cada empresa están aislados: una empresa nunca ve los de otra.',
+                'Un fichaje guardado no se puede borrar ni editar. Si hay un error, se corrige aparte con su motivo y quién lo hizo.',
+                'Descargas los fichajes en Excel, PDF o CSV, por empleado y por fechas.',
+                'Queda anotado quién ha hecho cada cosa y cuándo.',
+                'Los datos de tu empresa están separados de los de las demás.',
             ],
         ],
         [
             'id' => 'empleados',
-            'titulo' => 'El espacio de cada empleado',
-            'resumen' => 'Lo suyo, siempre a mano, sin tener que preguntarle al jefe.',
+            'titulo' => 'Cada empleado tiene su espacio',
+            'resumen' => 'Lo suyo, siempre a mano, sin pedírselo al jefe.',
             'puntos' => [
-                'Todos sus fichajes, agrupados por jornada y con las horas trabajadas; si hubo una corrección, la ve con su motivo.',
-                'Sus nóminas en PDF, disponibles siempre, aunque la empresa tenga pendiente la suscripción.',
-                'Sus solicitudes de vacaciones y bajas, con su estado: pendiente, aprobada o rechazada.',
-                'Sus avisos de salida y los próximos que tiene programados.',
+                'Ve todos sus fichajes y las horas de cada día.',
+                'Descarga sus nóminas cuando las necesita.',
+                'Pide vacaciones y ve si se las han aprobado.',
+                'Avisa si tiene que salir un rato.',
             ],
         ],
         [
             'id' => 'acceso',
-            'titulo' => 'Altas, accesos y facturación',
-            'resumen' => 'Empezar es rápido y la cuenta se gestiona sola.',
+            'titulo' => 'Empezar es rápido',
+            'resumen' => 'En un par de minutos puedes tenerlo en marcha.',
             'puntos' => [
-                'La empresa se da de alta con correo y contraseña, o con su cuenta de Google, y verifica su correo.',
-                'Los empleados se dan de alta con DNI o NIE; el administrador puede darles acceso a la web con una contraseña temporal.',
-                'Prueba de 15 días con tarjeta, sin cobro durante ese tiempo, y sin permanencia.',
-                'Facturación automática según los empleados activos, con facturas descargables y un portal para cambiar la tarjeta o cancelar.',
-                'Códigos de licencia para dar acceso a una empresa sin pasar por la suscripción.',
+                'Te das de alta con tu correo o con tu cuenta de Google.',
+                'Das de alta a cada empleado con su DNI y le generas su PIN.',
+                '15 días gratis (se pide tarjeta, pero no se cobra nada durante la prueba) y sin permanencia.',
+                'Facturas descargables, y cancelas cuando quieras.',
             ],
         ],
     ];
@@ -153,8 +148,8 @@
 
         <h1 class="mt-6 font-display text-3xl sm:text-5xl font-bold tracking-tight text-indigo-950">Todo lo que hace {{ config('app.name') }}</h1>
         <p class="mt-4 max-w-2xl text-lg text-slate-600">
-            Control horario, ausencias y nóminas en un solo sitio, pensado para pymes. Estas son todas las funciones,
-            explicadas sin adornos.
+            Fichar, controlar al equipo, gestionar vacaciones y repartir nóminas, en un solo sitio y pensado para
+            pequeñas empresas. Esto es lo que hace, explicado sin tecnicismos.
         </p>
 
         {{-- Índice --}}

@@ -158,7 +158,7 @@ class SeoTest extends TestCase
             ->assertOk()
             ->assertHeaderMissing('X-Robots-Tag')
             ->assertSee('Todo lo que hace Achrono')
-            ->assertSee('Nóminas siempre a mano')
+            ->assertSee('Nóminas al alcance de cada empleado')
             ->assertSee('Lo que no hace (todavía)')
             ->assertSee('"featureList"', false);
 
