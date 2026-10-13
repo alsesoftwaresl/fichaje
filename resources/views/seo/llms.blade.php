@@ -24,6 +24,7 @@
 ## Páginas
 
 - [Inicio]({{ route('home') }}): qué es, funciones, precio y preguntas frecuentes.
+- [Funciones]({{ route('funciones') }}): todas las funciones explicadas, y lo que no hace.
 - [Guía: registro de jornada obligatorio en España]({{ route('guia.registro-jornada') }}): qué exige la ley y cómo cumplirla.
 - [Guía: registro horario digital, en qué punto está la reforma]({{ route('guia.registro-digital') }}): qué es obligatorio hoy y qué está pendiente de aprobación.
 - [Contacto]({{ route('contacto.create') }}): atención al cliente en español, con atención personal. Correo: {{ config('legal.titular.email') }}.

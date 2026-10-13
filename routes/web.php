@@ -37,6 +37,7 @@ use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 Route::get('/', HomeController::class)->name('home');
 
 // Guía pública sobre el registro de jornada (contenido para buscadores e IAs).
+Route::view('/funciones', 'funciones')->name('funciones');
 Route::view('/guia/registro-de-jornada', 'guia.registro-jornada')->name('guia.registro-jornada');
 Route::view('/guia/registro-horario-digital-obligatorio', 'guia.registro-digital')->name('guia.registro-digital');
 

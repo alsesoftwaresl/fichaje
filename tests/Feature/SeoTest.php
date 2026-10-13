@@ -151,5 +151,20 @@ class SeoTest extends TestCase
             ->assertSee('Resumen diario por correo')
             ->assertSee('Avisos de salida');
     }
+
+    public function test_la_pagina_de_funciones_es_indexable_y_esta_en_sitemap_y_portada(): void
+    {
+        $this->get('/funciones')
+            ->assertOk()
+            ->assertHeaderMissing('X-Robots-Tag')
+            ->assertSee('Todo lo que hace Achrono')
+            ->assertSee('Nóminas siempre a mano')
+            ->assertSee('Lo que no hace (todavía)')
+            ->assertSee('"featureList"', false);
+
+        $this->get('/sitemap.xml')->assertSee(route('funciones'));
+        $this->get('/')->assertSee('Fichar, controlar y tenerlo todo ordenado')->assertSee(route('funciones'));
+        $this->get('/llms.txt')->assertSee(route('funciones'));
+    }
 }
 

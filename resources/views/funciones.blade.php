@@ -1,0 +1,219 @@
+@php
+    // Una sola fuente para la página y para los datos estructurados (featureList).
+    $bloques = [
+        [
+            'id' => 'fichar',
+            'titulo' => 'Fichar sin complicaciones',
+            'resumen' => 'Cada empleado ficha como le resulte más cómodo, sin instalar nada.',
+            'puntos' => [
+                'Fichaje desde el navegador del móvil o del ordenador, con un botón de entrada y salida.',
+                'Kiosco compartido: una tablet o un PC en la entrada donde cada empleado ficha con su PIN de 6 dígitos.',
+                'El PIN es personal y el administrador puede regenerarlo cuando haga falta; no se guarda en claro.',
+                'Los empleados sin correo electrónico entran con su DNI o NIE y eligen su contraseña la primera vez.',
+                'La hora se toma siempre del servidor, nunca del dispositivo del empleado.',
+            ],
+        ],
+        [
+            'id' => 'control',
+            'titulo' => 'Control de la plantilla y de las incidencias',
+            'resumen' => 'Un panel que te dice qué está pasando hoy, sin revisar fichaje por fichaje.',
+            'puntos' => [
+                'Estado del equipo en directo: quién está trabajando, de vacaciones, de baja o fuera.',
+                'Horario por empleado, corrido o en turno partido (varios tramos al día) y con los días que trabaja.',
+                'Incidencias de hoy y de un periodo: retraso (con un margen de 10 minutos), sin fichar, jornada sin cerrar, no ha vuelto de una gestión y horas de más.',
+                'Quien está de vacaciones o de baja, o tiene una salida avisada, no genera incidencias por error.',
+                'Resumen diario por correo al administrador, en días laborables, con la lista de incidencias.',
+            ],
+        ],
+        [
+            'id' => 'ausencias',
+            'titulo' => 'Vacaciones, bajas y avisos de salida',
+            'resumen' => 'Todo por escrito y con rastro, sin mensajes sueltos por WhatsApp.',
+            'puntos' => [
+                'El empleado solicita vacaciones, una baja u otra ausencia y el administrador la aprueba o la rechaza, con un motivo.',
+                'Cada solicitud y cada respuesta avisan por correo a quien corresponda.',
+                'Avisos de salida dentro de la jornada (médico, una gestión): el empleado indica el día, la hora de salida y la de vuelta, y explica el motivo con sus palabras.',
+                'El administrador ve en el panel quién está fuera con permiso y a qué hora vuelve.',
+            ],
+        ],
+        [
+            'id' => 'nominas',
+            'titulo' => 'Nóminas siempre a mano',
+            'resumen' => 'La empresa las sube; cada empleado las ve y las descarga cuando quiera.',
+            'puntos' => [
+                'El administrador, o una persona con permiso de contable, sube la nómina en PDF (hasta 5 MB) a cada empleado.',
+                'El empleado la encuentra en "Mis nóminas", con una marca de "nueva", y la descarga cuando la necesite.',
+                'Los PDF se guardan en un almacenamiento privado: no se pueden abrir con un enlace público.',
+                'Cada empleado solo ve las suyas. Quien gestiona nóminas ve las de su empresa.',
+                'No es un programa de nóminas: no las calcula, las guarda y las reparte.',
+            ],
+        ],
+        [
+            'id' => 'registro',
+            'titulo' => 'Registro inalterable, correcciones e informes',
+            'resumen' => 'Un registro de jornada que no se reescribe, y las herramientas para demostrarlo.',
+            'puntos' => [
+                'Un fichaje guardado no se puede editar ni borrar desde la aplicación, tampoco por el administrador.',
+                'Los errores se arreglan con una corrección que guarda la hora nueva, el motivo y quién la hizo; el original se conserva.',
+                'Registro de actividad: altas, aprobaciones, correcciones y subida de nóminas quedan anotadas con la persona y la fecha.',
+                'Exportación de los fichajes a CSV, Excel y PDF, filtrando por empleado y por fechas.',
+                'Los datos de cada empresa están aislados: una empresa nunca ve los de otra.',
+            ],
+        ],
+        [
+            'id' => 'empleados',
+            'titulo' => 'El espacio de cada empleado',
+            'resumen' => 'Lo suyo, siempre a mano, sin tener que preguntarle al jefe.',
+            'puntos' => [
+                'Todos sus fichajes, agrupados por jornada y con las horas trabajadas; si hubo una corrección, la ve con su motivo.',
+                'Sus nóminas en PDF, disponibles siempre, aunque la empresa tenga pendiente la suscripción.',
+                'Sus solicitudes de vacaciones y bajas, con su estado: pendiente, aprobada o rechazada.',
+                'Sus avisos de salida y los próximos que tiene programados.',
+            ],
+        ],
+        [
+            'id' => 'acceso',
+            'titulo' => 'Altas, accesos y facturación',
+            'resumen' => 'Empezar es rápido y la cuenta se gestiona sola.',
+            'puntos' => [
+                'La empresa se da de alta con correo y contraseña, o con su cuenta de Google, y verifica su correo.',
+                'Los empleados se dan de alta con DNI o NIE; el administrador puede darles acceso a la web con una contraseña temporal.',
+                'Prueba de 15 días con tarjeta, sin cobro durante ese tiempo, y sin permanencia.',
+                'Facturación automática según los empleados activos, con facturas descargables y un portal para cambiar la tarjeta o cancelar.',
+                'Códigos de licencia para dar acceso a una empresa sin pasar por la suscripción.',
+            ],
+        ],
+    ];
+@endphp
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Funciones del software de control horario — {{ config('app.name') }}</title>
+    <meta name="description" content="Todo lo que hace {{ config('app.name') }}: fichaje web y con PIN, turno partido, incidencias y retrasos, vacaciones y bajas, nóminas para los empleados, registro inalterable e informes.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="{{ route('funciones') }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Funciones del software de control horario — {{ config('app.name') }}">
+    <meta property="og:description" content="Fichaje con PIN, turno partido, incidencias, ausencias, nóminas y registro inalterable.">
+    <meta property="og:url" content="{{ route('funciones') }}">
+    <meta property="og:image" content="{{ asset('images/og-image.png') }}">
+    <meta property="og:locale" content="es_ES">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'WebPage',
+                'name' => 'Funciones de '.config('app.name'),
+                'url' => route('funciones'),
+                'inLanguage' => 'es-ES',
+                'about' => [
+                    '@type' => 'SoftwareApplication',
+                    'name' => config('app.name'),
+                    'applicationCategory' => 'BusinessApplication',
+                    'operatingSystem' => 'Web',
+                    'featureList' => collect($bloques)->flatMap(fn ($b) => $b['puntos'])->values()->all(),
+                ],
+            ],
+            [
+                '@type' => 'BreadcrumbList',
+                'itemListElement' => [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Inicio', 'item' => route('home')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Funciones', 'item' => route('funciones')],
+                ],
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    @include('partials.head-brand')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-white text-slate-900 antialiased font-sans">
+    <header class="bg-indigo-950">
+        <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-5 flex justify-between items-center">
+            <a href="{{ route('home') }}" class="flex items-center">
+                <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-7 w-auto">
+            </a>
+            <a href="{{ route('registro.create') }}" class="inline-flex items-center rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-indigo-950 hover:bg-accent-400 transition">Prueba gratis</a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-12 sm:py-16">
+        <nav aria-label="Migas de pan" class="text-sm text-slate-500">
+            <a href="{{ route('home') }}" class="hover:underline">Inicio</a> <span aria-hidden="true">/</span> Funciones
+        </nav>
+
+        <h1 class="mt-6 font-display text-3xl sm:text-5xl font-bold tracking-tight text-indigo-950">Todo lo que hace {{ config('app.name') }}</h1>
+        <p class="mt-4 max-w-2xl text-lg text-slate-600">
+            Control horario, ausencias y nóminas en un solo sitio, pensado para pymes. Estas son todas las funciones,
+            explicadas sin adornos.
+        </p>
+
+        {{-- Índice --}}
+        <nav aria-label="Índice de funciones" class="mt-8 flex flex-wrap gap-2">
+            @foreach ($bloques as $b)
+                <a href="#{{ $b['id'] }}" class="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-700 transition">{{ $b['titulo'] }}</a>
+            @endforeach
+        </nav>
+
+        <div class="mt-14 space-y-14">
+            @foreach ($bloques as $b)
+                <section id="{{ $b['id'] }}" class="scroll-mt-6 grid gap-6 border-t border-slate-200 pt-10 lg:grid-cols-3">
+                    <div>
+                        <h2 class="font-display text-2xl font-bold tracking-tight text-indigo-950">{{ $b['titulo'] }}</h2>
+                        <p class="mt-2 text-slate-600">{{ $b['resumen'] }}</p>
+                    </div>
+                    <ul class="space-y-3 text-slate-700 lg:col-span-2">
+                        @foreach ($b['puntos'] as $punto)
+                            <li class="flex gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="mt-1 h-4 w-4 shrink-0 text-accent-600" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                <span>{{ $punto }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endforeach
+
+            <section id="limites" class="scroll-mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
+                <h2 class="font-display text-2xl font-bold tracking-tight text-indigo-950">Lo que no hace (todavía)</h2>
+                <p class="mt-2 text-slate-600">Para que decidas con la información completa:</p>
+                <ul class="mt-4 space-y-2 text-slate-700">
+                    <li>No es un ERP ni un programa de nóminas: las nóminas se suben en PDF, no se calculan.</li>
+                    <li>No hay aplicación móvil para instalar: funciona desde el navegador.</li>
+                    <li>No tiene geolocalización ni reconocimiento facial.</li>
+                    <li>Necesita conexión a internet para registrar los fichajes.</li>
+                    <li>No gestiona cuadrantes de turnos rotativos, ni el saldo de días de vacaciones.</li>
+                </ul>
+            </section>
+
+            <section class="rounded-2xl bg-indigo-950 px-6 py-12 text-center text-white sm:px-12">
+                <h2 class="font-display text-2xl sm:text-3xl font-bold tracking-tight">Pruébalo 15 días gratis</h2>
+                <p class="mx-auto mt-3 max-w-lg text-indigo-100/90">Se pide tarjeta, pero no se cobra nada durante la prueba. Sin permanencia.</p>
+                <div class="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                    <a href="{{ route('registro.create') }}" class="inline-flex items-center justify-center rounded-lg bg-accent-500 px-7 py-3 font-semibold text-indigo-950 hover:bg-accent-400 transition">Crear mi cuenta</a>
+                    <a href="{{ route('contacto.create') }}" class="inline-flex items-center justify-center rounded-lg border border-indigo-400/40 px-7 py-3 font-medium text-white hover:bg-white/5 transition">Hablar con el equipo</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-indigo-950">
+        <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-indigo-300">
+            <a href="{{ route('home') }}" class="hover:text-white hover:underline">Inicio</a>
+            <a href="{{ route('guia.registro-jornada') }}" class="hover:text-white hover:underline">Registro de jornada</a>
+            <a href="{{ route('contacto.create') }}" class="hover:text-white hover:underline">Contacto</a>
+            <a href="{{ route('legal.aviso-legal') }}" class="hover:text-white hover:underline">Aviso legal</a>
+            <a href="{{ route('legal.terminos') }}" class="hover:text-white hover:underline">Términos</a>
+            <a href="{{ route('legal.privacidad') }}" class="hover:text-white hover:underline">Privacidad</a>
+        </div>
+    </footer>
+</body>
+</html>

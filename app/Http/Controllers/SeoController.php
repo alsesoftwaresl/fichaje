@@ -28,6 +28,7 @@ class SeoController extends Controller
     /** Páginas públicas que van al sitemap: ruta => prioridad. */
     protected const PAGINAS = [
         'home' => '1.0',
+        'funciones' => '0.9',
         'guia.registro-jornada' => '0.9',
         'guia.registro-digital' => '0.8',
         'registro.create' => '0.8',

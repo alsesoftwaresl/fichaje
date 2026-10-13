@@ -7,6 +7,7 @@
         ['¿Pueden fichar empleados que no tienen correo electrónico?', 'Sí. Cada empleado se identifica con su DNI o NIE; el correo es opcional.'],
         ['¿Se pueden gestionar vacaciones, bajas y nóminas?', 'Sí. Los empleados solicitan vacaciones y bajas y el administrador las aprueba o rechaza. La empresa puede subir las nóminas en PDF y cada empleado las ve y descarga cuando quiera.'],
         ['¿Puedo exportar los fichajes?', 'Sí, a CSV, Excel y PDF, filtrando por empleado y por fechas.'],
+        ['¿Qué puede ver y hacer cada empleado?', 'Cada empleado entra con su cuenta (con su DNI si no tiene correo) y ve todos sus fichajes agrupados por jornada, con las horas trabajadas y las correcciones que haya. También ve y descarga sus nóminas en PDF, pide vacaciones y bajas, y avisa de una salida dentro de la jornada, por ejemplo para ir al médico.'],
         ['¿Necesito tarjeta para la prueba gratis?', 'Sí. Se pide una tarjeta para activar la prueba de 15 días, pero no se cobra nada durante ese tiempo. Si cancelas antes de que acabe, no pagas.'],
         ['¿Funciona sin conexión a internet?', 'No. '.config('app.name').' es una aplicación web y necesita conexión para registrar los fichajes. Si en tu centro la conexión es poco fiable, ten en cuenta este punto antes de empezar.'],
         ['¿Tiene aplicación móvil?', 'No hay aplicación para instalar. Funciona desde el navegador del móvil, la tablet o el ordenador.'],
@@ -120,10 +121,9 @@
                 </a>
                 <nav class="flex items-center gap-3 sm:gap-5 text-sm">
                     <a href="#como-funciona" class="hidden md:inline text-indigo-200 hover:text-white">Cómo funciona</a>
-                    <a href="#empleados" class="hidden md:inline text-indigo-200 hover:text-white">Para empleados</a>
+                    <a href="{{ route('funciones') }}" class="hidden md:inline text-indigo-200 hover:text-white">Funciones</a>
                     <a href="#precio" class="hidden md:inline text-indigo-200 hover:text-white">Precio</a>
                     <a href="{{ route('contacto.create') }}" class="hidden md:inline text-indigo-200 hover:text-white">Contacto</a>
-                    <a href="{{ route('guia.registro-jornada') }}" class="hidden lg:inline text-indigo-200 hover:text-white">Guía de registro de jornada</a>
                     @auth
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center rounded-lg bg-accent-500 px-4 py-2 font-semibold text-indigo-950 hover:bg-accent-400 transition">Ir al panel</a>
                     @else
@@ -294,56 +294,147 @@
             </div>
         </section>
 
-        {{-- ============ FUNCIONES (bento) ============ --}}
-        <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-28">
-            <div class="max-w-xl">
-                <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Todo en uno</p>
-                <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">Lo que necesitas para llevar el control, sin hojas de cálculo</h2>
+        {{-- ============ RECORRIDO POR EL PRODUCTO (pestañas) ============ --}}
+        <section id="producto" class="scroll-mt-4 max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-28" x-data="{ tab: 'fichar' }">
+            <div class="max-w-2xl">
+                <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">El producto</p>
+                <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">Fichar, controlar y tenerlo todo ordenado</h2>
+                <p class="mt-4 text-slate-600">Lo esencial de un control horario, y lo que lo rodea, en un solo sitio.</p>
             </div>
 
-            <div class="mt-12 grid gap-5 lg:grid-cols-3">
-                <div class="lg:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-7">
-                    <h3 class="font-display text-xl font-semibold text-indigo-950">Quién está trabajando, ahora mismo</h3>
-                    <p class="mt-2 max-w-md text-slate-600">Un panel que te dice quién ha fichado, quién está de vacaciones o de baja y quién aún no ha llegado.</p>
-                    <div class="mt-6 grid gap-2 sm:grid-cols-2" aria-hidden="true">
-                        <div class="flex items-center justify-between rounded-lg bg-white px-4 py-3 text-sm shadow-sm"><span>Ana García</span><span class="rounded-full bg-accent-100 px-2.5 py-0.5 text-xs font-medium text-accent-800">Trabajando · 08:02</span></div>
-                        <div class="flex items-center justify-between rounded-lg bg-white px-4 py-3 text-sm shadow-sm"><span>Luis Pérez</span><span class="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">Vacaciones</span></div>
-                        <div class="flex items-center justify-between rounded-lg bg-white px-4 py-3 text-sm shadow-sm"><span>Marta Ruiz</span><span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">Baja médica</span></div>
-                        <div class="flex items-center justify-between rounded-lg bg-white px-4 py-3 text-sm shadow-sm"><span>Pablo Soto</span><span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">Fuera</span></div>
-                    </div>
-                </div>
+            @php
+                $pestanas = [
+                    'fichar' => 'Fichar',
+                    'controlar' => 'Controlar',
+                    'ausencias' => 'Ausencias',
+                    'nominas' => 'Nóminas',
+                    'registro' => 'Registro e informes',
+                ];
+            @endphp
 
-                <div class="rounded-2xl bg-indigo-950 p-7 text-white">
-                    <h3 class="font-display text-xl font-semibold">Avisos de retrasos y horas de más</h3>
-                    <p class="mt-2 text-indigo-100/90">Asigna un horario a cada empleado y el panel te marca solo quién llega tarde o se pasa de hora.</p>
-                    <div class="mt-6 space-y-2 text-sm" aria-hidden="true">
-                        <div class="flex items-center justify-between rounded-lg bg-indigo-900 px-4 py-2.5"><span>Entrada esperada</span><span class="font-semibold">09:00</span></div>
-                        <div class="flex items-center justify-between rounded-lg bg-rose-500/15 px-4 py-2.5 text-rose-200"><span>Entró a las 09:25</span><span class="font-semibold">Retraso</span></div>
-                    </div>
-                </div>
-
-                <div class="rounded-2xl border border-slate-200 p-7">
-                    <h3 class="font-display text-xl font-semibold text-indigo-950">Vacaciones y bajas</h3>
-                    <p class="mt-2 text-slate-600">El empleado lo pide desde su cuenta, tú lo apruebas o rechazas. Todo queda registrado.</p>
-                </div>
-
-                <div class="rounded-2xl border border-slate-200 p-7">
-                    <h3 class="font-display text-xl font-semibold text-indigo-950">Informes cuando los pidas</h3>
-                    <p class="mt-2 text-slate-600">Descarga los fichajes en el formato que te hagan falta.</p>
-                    <div class="mt-5 flex flex-wrap gap-2" aria-hidden="true">
-                        <span class="rounded-md bg-accent-100 px-3 py-1 text-xs font-semibold text-accent-800">CSV</span>
-                        <span class="rounded-md bg-accent-100 px-3 py-1 text-xs font-semibold text-accent-800">Excel</span>
-                        <span class="rounded-md bg-accent-100 px-3 py-1 text-xs font-semibold text-accent-800">PDF</span>
-                    </div>
-                </div>
-
-                <div class="rounded-2xl border border-slate-200 p-7">
-                    <h3 class="font-display text-xl font-semibold text-indigo-950">Cada empresa, su espacio</h3>
-                    <p class="mt-2 text-slate-600">Los datos de tu empresa son solo tuyos: aislados del resto, siempre.</p>
+            <div class="mt-10 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="tablist" aria-label="Funciones principales">
+                <div class="flex w-max gap-2 sm:w-auto sm:flex-wrap">
+                    @foreach ($pestanas as $clave => $nombre)
+                        <button type="button" role="tab" id="tab-{{ $clave }}" aria-controls="panel-{{ $clave }}"
+                            :aria-selected="tab === '{{ $clave }}'" @click="tab = '{{ $clave }}'"
+                            :class="tab === '{{ $clave }}' ? 'bg-indigo-950 text-white border-indigo-950' : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300'"
+                            class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-semibold transition">
+                            {{ $nombre }}
+                        </button>
+                    @endforeach
                 </div>
             </div>
+
+            <div class="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-10">
+                {{-- Fichar --}}
+                <div id="panel-fichar" role="tabpanel" aria-labelledby="tab-fichar" x-show="tab === 'fichar'" class="grid gap-10 lg:grid-cols-2 lg:items-center">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold text-indigo-950">Fichar sin complicaciones</h3>
+                        <p class="mt-3 text-slate-600">Cada empleado ficha como le resulte más cómodo, sin instalar nada.</p>
+                        <ul class="mt-5 space-y-2.5 text-sm text-slate-700">
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Desde el navegador del móvil o del ordenador, con un botón de entrada y salida.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Kiosco compartido: una tablet en la entrada donde cada uno ficha con su PIN de 6 dígitos.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Quien no tiene correo entra con su DNI o NIE.</li>
+                        </ul>
+                    </div>
+                    <div class="mx-auto w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl shadow-slate-900/10" aria-hidden="true">
+                        <p class="text-center text-xs text-slate-400">Taller Ejemplo, S.L.</p>
+                        <p class="mt-1 text-center font-display font-semibold text-indigo-950">Introduce tu PIN para fichar</p>
+                        <div class="mt-4 flex justify-center gap-2">@foreach (range(1, 6) as $i)<span class="h-2.5 w-2.5 rounded-full border-2 {{ $i <= 4 ? 'border-accent-500 bg-accent-500' : 'border-slate-300' }}"></span>@endforeach</div>
+                        <div class="mt-5 flex items-center gap-3 rounded-xl bg-accent-100 px-4 py-3">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500 text-white"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg></span>
+                            <span class="text-sm"><span class="block font-semibold text-accent-900">Hola, Ana</span><span class="text-accent-800">Entrada registrada · 08:02</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Controlar --}}
+                <div id="panel-controlar" role="tabpanel" aria-labelledby="tab-controlar" x-show="tab === 'controlar'" x-cloak class="grid gap-10 lg:grid-cols-2 lg:items-center">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold text-indigo-950">Quién trabaja y qué ha pasado hoy</h3>
+                        <p class="mt-3 text-slate-600">Un panel con el estado del equipo y las incidencias, sin revisar fichaje por fichaje.</p>
+                        <ul class="mt-5 space-y-2.5 text-sm text-slate-700">
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Quién está trabajando, de vacaciones, de baja o fuera.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Retrasos, faltas de fichaje, jornadas sin cerrar y horas de más.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Horario corrido o turno partido, con tramos por día.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Un resumen diario por correo si hay incidencias.</li>
+                        </ul>
+                    </div>
+                    <div class="mx-auto w-full max-w-md space-y-2 rounded-2xl bg-white p-5 text-sm shadow-xl shadow-slate-900/10" aria-hidden="true">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Incidencias de hoy · ejemplo</p>
+                        <div class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2.5"><span>Pablo Soto</span><span class="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-rose-700">Retraso · 25 min</span></div>
+                        <div class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2.5"><span>Laura Gil</span><span class="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-rose-700">Sin fichar</span></div>
+                        <div class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2.5"><span>Iván Mora</span><span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">Sin cerrar</span></div>
+                        <div class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2.5"><span>Rosa Vega</span><span class="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">Horas de más</span></div>
+                    </div>
+                </div>
+
+                {{-- Ausencias --}}
+                <div id="panel-ausencias" role="tabpanel" aria-labelledby="tab-ausencias" x-show="tab === 'ausencias'" x-cloak class="grid gap-10 lg:grid-cols-2 lg:items-center">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold text-indigo-950">Vacaciones, bajas y avisos de salida</h3>
+                        <p class="mt-3 text-slate-600">Todo por escrito y con rastro, sin mensajes sueltos por WhatsApp.</p>
+                        <ul class="mt-5 space-y-2.5 text-sm text-slate-700">
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>El empleado solicita; el administrador aprueba o rechaza, con un motivo.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Cada solicitud y cada respuesta avisan por correo.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Avisos de salida (médico, gestiones) con la hora de vuelta.</li>
+                        </ul>
+                    </div>
+                    <div class="mx-auto w-full max-w-md rounded-2xl bg-white p-5 text-sm shadow-xl shadow-slate-900/10" aria-hidden="true">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Solicitud · ejemplo</p>
+                        <p class="mt-3 font-semibold text-indigo-950">Luis Pérez · Vacaciones</p>
+                        <p class="text-slate-500">1 – 5 de diciembre</p>
+                        <p class="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-slate-600">Motivo: viaje familiar</p>
+                        <div class="mt-4 flex gap-2"><span class="rounded-lg bg-accent-500 px-4 py-2 font-semibold text-indigo-950">Aprobar</span><span class="rounded-lg border border-slate-200 px-4 py-2 font-medium text-slate-600">Rechazar</span></div>
+                    </div>
+                </div>
+
+                {{-- Nóminas --}}
+                <div id="panel-nominas" role="tabpanel" aria-labelledby="tab-nominas" x-show="tab === 'nominas'" x-cloak class="grid gap-10 lg:grid-cols-2 lg:items-center">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold text-indigo-950">Nóminas siempre a mano</h3>
+                        <p class="mt-3 text-slate-600">La empresa las sube; cada empleado las ve y las descarga cuando quiera.</p>
+                        <ul class="mt-5 space-y-2.5 text-sm text-slate-700">
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Las sube el administrador o una persona con permiso de contable.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Cada empleado solo ve las suyas, y recibe un aviso cuando hay una nueva.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Almacenamiento privado: no se abren con un enlace público.</li>
+                        </ul>
+                    </div>
+                    <div class="mx-auto w-full max-w-md rounded-2xl bg-white p-5 text-sm shadow-xl shadow-slate-900/10" aria-hidden="true">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Mis nóminas · ejemplo</p>
+                        <div class="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-200">
+                            <div class="flex items-center justify-between px-4 py-3"><span>Septiembre 2026</span><span class="flex items-center gap-2"><span class="rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-800">Nueva</span><span class="text-xs font-semibold text-indigo-600">Descargar PDF</span></span></div>
+                            <div class="flex items-center justify-between px-4 py-3"><span>Agosto 2026</span><span class="text-xs font-semibold text-indigo-600">Descargar PDF</span></div>
+                            <div class="flex items-center justify-between px-4 py-3"><span>Julio 2026</span><span class="text-xs font-semibold text-indigo-600">Descargar PDF</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Registro e informes --}}
+                <div id="panel-registro" role="tabpanel" aria-labelledby="tab-registro" x-show="tab === 'registro'" x-cloak class="grid gap-10 lg:grid-cols-2 lg:items-center">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold text-indigo-950">Un registro que no se reescribe</h3>
+                        <p class="mt-3 text-slate-600">Los fichajes no se editan; los errores se corrigen aparte y todo se puede exportar.</p>
+                        <ul class="mt-5 space-y-2.5 text-sm text-slate-700">
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Correcciones con su motivo y su autor; el original se conserva.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Registro de quién hizo qué y cuándo.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Exportación a CSV, Excel y PDF por empleado y fechas.</li>
+                        </ul>
+                    </div>
+                    <div class="mx-auto w-full max-w-md rounded-2xl bg-white p-5 text-sm shadow-xl shadow-slate-900/10" aria-hidden="true">
+                        <div class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3"><span>Entrada · 08:12</span><span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">Original</span></div>
+                        <div class="mt-2 rounded-lg border border-accent-200 bg-accent-50 px-4 py-3"><div class="flex items-center justify-between"><span class="font-semibold text-accent-900">Corrección → 08:00</span><span class="rounded-full bg-accent-500 px-2 py-0.5 text-xs font-semibold text-indigo-950">Vigente</span></div><p class="mt-1 text-xs text-accent-800">Motivo: olvidó fichar al llegar · por Marta (admin)</p></div>
+                        <div class="mt-4 flex flex-wrap gap-2"><span class="rounded-md bg-accent-100 px-3 py-1 text-xs font-semibold text-accent-800">CSV</span><span class="rounded-md bg-accent-100 px-3 py-1 text-xs font-semibold text-accent-800">Excel</span><span class="rounded-md bg-accent-100 px-3 py-1 text-xs font-semibold text-accent-800">PDF</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-6 text-center text-sm text-slate-500">
+                ¿Quieres verlo todo?
+                <a href="{{ route('funciones') }}" class="font-medium text-indigo-600 hover:underline">Consulta todas las funciones</a>
+                y lo que no hace.
+            </p>
         </section>
-
         {{-- ============ PARA TUS EMPLEADOS ============ --}}
         <section id="empleados" class="scroll-mt-4 bg-slate-50 border-y border-slate-100">
             <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-28 grid gap-12 lg:grid-cols-2 lg:items-center">
@@ -622,6 +713,7 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-indigo-300">
+                <a href="{{ route('funciones') }}" class="hover:text-white hover:underline">Funciones</a>
                 <a href="{{ route('guia.registro-jornada') }}" class="hover:text-white hover:underline">Registro de jornada</a>
                 <a href="{{ route('contacto.create') }}" class="hover:text-white hover:underline">Contacto</a>
                 <a href="{{ route('legal.aviso-legal') }}" class="hover:text-white hover:underline">Aviso legal</a>
