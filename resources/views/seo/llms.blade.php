@@ -9,7 +9,9 @@
 - Horarios por empleado (horario corrido o turno partido) y avisos de retrasos, falta de fichaje, jornadas sin cerrar y horas de más.
 - Vacaciones, bajas y otras ausencias con solicitud del empleado y aprobación del administrador, y avisos de salida dentro de la jornada (médico, gestiones).
 - Estado del equipo en tiempo real: quién está trabajando, de vacaciones, de baja o fuera.
+- Cada empleado tiene su espacio: ve todos sus fichajes agrupados por jornada, pide vacaciones y bajas, avisa de una salida dentro de la jornada y ve y descarga sus nóminas.
 - Nóminas en PDF que sube la empresa y que cada empleado puede ver y descargar.
+- Resumen diario por correo al administrador con las incidencias del día.
 - Exportación de fichajes a CSV, Excel y PDF.
 - Cada empresa tiene su espacio de datos aislado.
 - Los empleados pueden acceder solo con su DNI/NIE; no necesitan correo electrónico.

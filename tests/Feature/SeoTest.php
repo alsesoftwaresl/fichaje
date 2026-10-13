@@ -139,4 +139,17 @@ class SeoTest extends TestCase
         $tarifa->precio_base_mensual = 28.99;
         $this->assertSame('28,99', $tarifa->precioBaseTexto());
     }
+
+    public function test_la_portada_cuenta_el_espacio_del_empleado_y_las_funciones_menos_visibles(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Cada empleado tiene su propio espacio')
+            ->assertSee('Todos sus fichajes')
+            ->assertSee('Sus nóminas')
+            ->assertSee('Horario corrido o turno partido')
+            ->assertSee('Resumen diario por correo')
+            ->assertSee('Avisos de salida');
+    }
 }
+

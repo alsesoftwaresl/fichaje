@@ -120,6 +120,7 @@
                 </a>
                 <nav class="flex items-center gap-3 sm:gap-5 text-sm">
                     <a href="#como-funciona" class="hidden md:inline text-indigo-200 hover:text-white">Cómo funciona</a>
+                    <a href="#empleados" class="hidden md:inline text-indigo-200 hover:text-white">Para empleados</a>
                     <a href="#precio" class="hidden md:inline text-indigo-200 hover:text-white">Precio</a>
                     <a href="{{ route('contacto.create') }}" class="hidden md:inline text-indigo-200 hover:text-white">Contacto</a>
                     <a href="{{ route('guia.registro-jornada') }}" class="hidden lg:inline text-indigo-200 hover:text-white">Guía de registro de jornada</a>
@@ -340,6 +341,78 @@
                     <h3 class="font-display text-xl font-semibold text-indigo-950">Cada empresa, su espacio</h3>
                     <p class="mt-2 text-slate-600">Los datos de tu empresa son solo tuyos: aislados del resto, siempre.</p>
                 </div>
+            </div>
+        </section>
+
+        {{-- ============ PARA TUS EMPLEADOS ============ --}}
+        <section id="empleados" class="scroll-mt-4 bg-slate-50 border-y border-slate-100">
+            <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-28 grid gap-12 lg:grid-cols-2 lg:items-center">
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Para tus empleados</p>
+                    <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">Cada empleado tiene su propio espacio</h2>
+                    <p class="mt-4 max-w-lg text-slate-600">
+                        Además de fichar, cada persona de tu equipo entra con su cuenta y lo ve todo lo suyo, sin tener que
+                        preguntarte. Menos mensajes de "¿me puedes pasar mis horas?".
+                    </p>
+
+                    <ul class="mt-8 space-y-4 text-sm text-slate-600">
+                        <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span><span><strong class="text-indigo-950">Todos sus fichajes,</strong> agrupados por jornada y con las horas trabajadas. Si hubo una corrección, la ve con su motivo.</span></li>
+                        <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span><span><strong class="text-indigo-950">Sus nóminas,</strong> siempre disponibles para ver y descargar en PDF, con un aviso cuando hay una nueva.</span></li>
+                        <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span><span><strong class="text-indigo-950">Vacaciones y bajas:</strong> las pide desde el móvil y ve si están pendientes, aprobadas o rechazadas.</span></li>
+                        <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span><span><strong class="text-indigo-950">Avisos de salida:</strong> si tiene que ir al médico o hacer una gestión en mitad de la jornada, lo avisa con la hora de vuelta.</span></li>
+                        <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span><span><strong class="text-indigo-950">Entra con su DNI</strong> si no tiene correo electrónico. La primera vez elige su propia contraseña.</span></li>
+                    </ul>
+                </div>
+
+                <div class="rounded-2xl bg-white p-5 sm:p-6 shadow-xl shadow-slate-900/10 border border-slate-200" aria-hidden="true">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Vista del empleado · ejemplo</p>
+
+                    <p class="mt-4 text-sm font-semibold text-indigo-950">Mis fichajes</p>
+                    <div class="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200 text-sm">
+                        <div class="flex items-center justify-between px-4 py-2.5"><span class="text-slate-600">Lun 6 · 08:02 – 16:05</span><span class="font-semibold text-slate-900">8,05 h</span></div>
+                        <div class="flex items-center justify-between px-4 py-2.5"><span class="text-slate-600">Mar 7 · 08:00 – 16:00</span><span class="font-semibold text-slate-900">8,00 h</span></div>
+                        <div class="flex items-center justify-between px-4 py-2.5"><span class="text-slate-600">Mié 8 · 08:10 – 16:02</span><span class="flex items-center gap-2"><span class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">Corregido</span><span class="font-semibold text-slate-900">7,87 h</span></span></div>
+                    </div>
+
+                    <p class="mt-5 text-sm font-semibold text-indigo-950">Mis nóminas</p>
+                    <div class="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200 text-sm">
+                        <div class="flex items-center justify-between px-4 py-2.5"><span class="text-slate-600">Septiembre 2026</span><span class="flex items-center gap-2"><span class="rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-800">Nueva</span><span class="text-xs font-semibold text-indigo-600">PDF</span></span></div>
+                        <div class="flex items-center justify-between px-4 py-2.5"><span class="text-slate-600">Agosto 2026</span><span class="text-xs font-semibold text-indigo-600">PDF</span></div>
+                    </div>
+
+                    <p class="mt-5 text-sm font-semibold text-indigo-950">Mis ausencias</p>
+                    <div class="mt-2 flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2.5 text-sm">
+                        <span class="text-slate-600">Vacaciones · 1–5 dic</span>
+                        <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Pendiente</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- ============ Y ADEMÁS ============ --}}
+        <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-24">
+            <div class="max-w-xl">
+                <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Y además</p>
+                <h2 class="mt-3 font-display text-3xl font-bold tracking-tight text-indigo-950">Detalles que ahorran tiempo</h2>
+            </div>
+
+            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ([
+                    ['Horario corrido o turno partido', 'Define uno o varios tramos al día y los días que trabaja cada empleado. Cada tramo se evalúa por separado.'],
+                    ['Jornadas sin cerrar y "no ha vuelto"', 'Además de los retrasos, el panel marca quién se olvidó de fichar la salida o no ha vuelto de una gestión a la hora avisada.'],
+                    ['Resumen diario por correo', 'Si hay incidencias, el administrador recibe cada día laborable un correo con la lista, sin tener que entrar a mirar.'],
+                    ['Nóminas de toda la plantilla', 'Sube los PDF de cada empleado. Puedes dar el permiso de contable a otra persona sin hacerla administradora.'],
+                    ['Correcciones con rastro', 'Si un fichaje es incorrecto, se añade una corrección con su motivo y su autor. El original nunca se pierde.'],
+                    ['Registro de quién hizo qué', 'Altas, aprobaciones, correcciones y subida de nóminas quedan anotadas con la persona y la fecha.'],
+                    ['Entrar con Google', 'El administrador de la empresa puede registrarse y entrar con su cuenta de Google, sin crear otra contraseña.'],
+                    ['PIN propio para cada empleado', 'En el kiosco cada uno ficha con su PIN de 6 dígitos, y el administrador puede regenerarlo cuando haga falta.'],
+                    ['Avisos por correo', 'Solicitudes de vacaciones, respuestas y nóminas nuevas llegan por correo a quien corresponda.'],
+                ] as [$titulo, $texto])
+                    <div class="rounded-2xl border border-slate-200 p-6">
+                        <h3 class="font-display text-lg font-semibold text-indigo-950">{{ $titulo }}</h3>
+                        <p class="mt-2 text-sm text-slate-600">{{ $texto }}</p>
+                    </div>
+                @endforeach
             </div>
         </section>
 
