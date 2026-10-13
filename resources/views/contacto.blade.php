@@ -42,14 +42,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white text-slate-900 antialiased font-sans">
-    <header class="bg-indigo-950">
-        <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-5 flex justify-between items-center">
-            <a href="{{ route('home') }}" class="flex items-center">
-                <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-7 w-auto">
-            </a>
-            <a href="{{ route('registro.create') }}" class="inline-flex items-center rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-indigo-950 hover:bg-accent-400 transition">Prueba gratis</a>
-        </div>
-    </header>
+    <x-sitio.cabecera ancho="max-w-4xl" />
 
     <main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-12 sm:py-16">
         <h1 class="font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">Contacto y atención al cliente</h1>

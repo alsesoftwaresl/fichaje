@@ -114,25 +114,7 @@
         <div class="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-accent-500/20 blur-3xl"></div>
         <div class="pointer-events-none absolute -bottom-52 -left-32 h-[30rem] w-[30rem] rounded-full bg-indigo-500/30 blur-3xl"></div>
 
-        <header class="relative">
-            <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-5 flex justify-between items-center">
-                <a href="{{ route('home') }}" class="flex items-center">
-                    <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-7 sm:h-8 w-auto">
-                </a>
-                <nav class="flex items-center gap-3 sm:gap-5 text-sm">
-                    <a href="#como-funciona" class="hidden md:inline text-indigo-200 hover:text-white">Cómo funciona</a>
-                    <a href="{{ route('funciones') }}" class="hidden md:inline text-indigo-200 hover:text-white">Funciones</a>
-                    <a href="#precio" class="hidden md:inline text-indigo-200 hover:text-white">Precio</a>
-                    <a href="{{ route('contacto.create') }}" class="hidden md:inline text-indigo-200 hover:text-white">Contacto</a>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center rounded-lg bg-accent-500 px-4 py-2 font-semibold text-indigo-950 hover:bg-accent-400 transition">Ir al panel</a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-indigo-200 hover:text-white">Iniciar sesión</a>
-                        <a href="{{ route('registro.create') }}" class="inline-flex items-center rounded-lg bg-accent-500 px-4 py-2 font-semibold text-indigo-950 hover:bg-accent-400 transition">Prueba gratis</a>
-                    @endauth
-                </nav>
-            </div>
-        </header>
+        <x-sitio.cabecera fondo="" />
 
         <section class="relative max-w-6xl mx-auto w-full px-4 sm:px-6 pt-10 sm:pt-16 pb-20 sm:pb-28 grid lg:grid-cols-2 gap-14 items-center">
             <div>
@@ -161,7 +143,7 @@
             </div>
 
             {{-- Mockup del kiosco --}}
-            <div class="relative mx-auto w-full max-w-sm lg:max-w-md" aria-hidden="true">
+            <div class="relative mx-auto flex w-full max-w-sm flex-col sm:block lg:max-w-md" aria-hidden="true">
                 <div class="rounded-[2rem] border border-indigo-700/70 bg-indigo-900 p-3 shadow-2xl shadow-black/40">
                     <div class="rounded-[1.5rem] bg-indigo-950 px-6 pb-7 pt-8 text-center">
                         <p class="text-xs text-indigo-300">Taller Ejemplo, S.L.</p>
@@ -184,7 +166,7 @@
                     </div>
                 </div>
 
-                <div class="absolute -right-3 -top-5 sm:-right-8 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-slate-900 shadow-xl">
+                <div class="order-first mb-4 flex w-fit items-center gap-3 self-end rounded-2xl bg-white px-4 py-3 text-slate-900 shadow-xl sm:absolute sm:-right-8 sm:-top-5 sm:mb-0">
                     <span class="flex h-9 w-9 items-center justify-center rounded-full bg-accent-500 text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
                     </span>
@@ -194,7 +176,7 @@
                     </span>
                 </div>
 
-                <div class="absolute -bottom-6 -left-3 sm:-left-10 w-48 rounded-2xl bg-white p-3 text-slate-900 shadow-xl">
+                <div class="mt-4 w-full max-w-xs self-start rounded-2xl bg-white p-3 text-slate-900 shadow-xl sm:absolute sm:-bottom-6 sm:-left-10 sm:mt-0 sm:w-48">
                     <p class="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-400">Equipo ahora mismo</p>
                     <ul class="mt-2 space-y-1.5 text-xs">
                         <li class="flex items-center justify-between"><span>Ana</span><span class="rounded-full bg-accent-100 px-2 py-0.5 font-medium text-accent-800">Trabajando</span></li>

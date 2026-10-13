@@ -132,14 +132,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white text-slate-900 antialiased font-sans">
-    <header class="bg-indigo-950">
-        <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-5 flex justify-between items-center">
-            <a href="{{ route('home') }}" class="flex items-center">
-                <img src="{{ asset('images/logo-claro.png') }}" alt="{{ config('app.name') }}" class="h-7 w-auto">
-            </a>
-            <a href="{{ route('registro.create') }}" class="inline-flex items-center rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-indigo-950 hover:bg-accent-400 transition">Prueba gratis</a>
-        </div>
-    </header>
+    <x-sitio.cabecera ancho="max-w-5xl" />
 
     <main class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-12 sm:py-16">
         <nav aria-label="Migas de pan" class="text-sm text-slate-500">
@@ -153,11 +146,11 @@
         </p>
 
         {{-- Índice --}}
-        <nav aria-label="Índice de funciones" class="mt-8 flex flex-wrap gap-2">
+        <nav aria-label="Índice de funciones" class="-mx-4 mt-8 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"><div class="flex w-max gap-2 sm:w-auto sm:flex-wrap">
             @foreach ($bloques as $b)
-                <a href="#{{ $b['id'] }}" class="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-700 transition">{{ $b['titulo'] }}</a>
+                <a href="#{{ $b['id'] }}" class="whitespace-nowrap rounded-full border border-slate-200 px-4 py-1.5 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-700 transition">{{ $b['titulo'] }}</a>
             @endforeach
-        </nav>
+        </div></nav>
 
         <div class="mt-14 space-y-14">
             @foreach ($bloques as $b)
