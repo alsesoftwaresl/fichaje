@@ -356,6 +356,8 @@ La suite (unas 230 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el
 
 Las llamadas reales a Stripe, al SMTP y a IndexNow no se hacen en las pruebas. La lista de comprobaciones manuales antes de salir está en [`docs/lista-pruebas-salida.md`](docs/lista-pruebas-salida.md).
 
+La guía para ampliar el código sin romper nada (capas, reglas, cómo añadir funciones y módulos de pago, y por dónde escalar) está en [`docs/arquitectura.md`](docs/arquitectura.md). GitHub Actions ejecuta Pint y las pruebas en cada push.
+
 ## Despliegue
 
 La guía paso a paso para un **hosting compartido con Plesk y sin SSH** (Loading.es) está en [`docs/deploy-loading-es.md`](docs/deploy-loading-es.md): configuración de PHP, base de datos, despliegue desde Git, migraciones sin terminal, **modo mantenimiento** para pruebas, correo SMTP, tarea programada y paso a Stripe en modo *live*.
