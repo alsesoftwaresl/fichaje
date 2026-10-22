@@ -257,4 +257,3 @@ class KioskoDniTest extends TestCase
         $this->assertTrue($empresa->fresh()->kiosko_modo_elegido);
     }
 }
-

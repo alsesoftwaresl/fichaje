@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Fichaje;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -16,7 +17,7 @@ class JornadasAgrupador
 {
     /**
      * @param  Collection<int, Fichaje>  $fichajes  Deben traer cargadas las
-     *                                               relaciones 'usuario' y 'correcciones'.
+     *                                              relaciones 'usuario' y 'correcciones'.
      * @return Collection<int, array{usuario: mixed, entrada: ?Fichaje, salida: ?Fichaje, horas: ?float, correcciones: Collection}>
      */
     public static function agrupar(Collection $fichajes): Collection
@@ -96,7 +97,7 @@ class JornadasAgrupador
      * (si tiene alguna) — reutilizada también por IncidenciasCalculador para
      * que una corrección ya aplicada se refleje igual ahí.
      */
-    public static function horaEfectiva(?Fichaje $fichaje): ?\Illuminate\Support\Carbon
+    public static function horaEfectiva(?Fichaje $fichaje): ?Carbon
     {
         if (! $fichaje) {
             return null;

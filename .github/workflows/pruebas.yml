@@ -1,0 +1,43 @@
+# Integración continua: en cada push y pull request a main se comprueba el estilo del
+# código (Laravel Pint) y se ejecuta toda la suite de pruebas (SQLite en memoria).
+name: Pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.2 con las extensiones que usa la app
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_sqlite, sqlite3, gd, zip, intl, bcmath, fileinfo
+          coverage: none
+
+      - name: Caché de Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Dependencias
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Entorno
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Estilo de código (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Pruebas
+        run: php artisan test

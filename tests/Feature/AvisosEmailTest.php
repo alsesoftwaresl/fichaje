@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use App\Models\Ausencia;
 use App\Models\Empresa;
 use App\Models\Nomina;
-use App\Support\Tenant;
 use App\Models\User;
 use App\Notifications\AusenciaResuelta;
 use App\Notifications\AusenciaSolicitada;
 use App\Notifications\NominaDisponible;
 use App\Notifications\ResumenIncidencias;
+use App\Support\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -161,6 +161,7 @@ class AvisosEmailTest extends TestCase
 
         Notification::assertNotSentTo($admin, ResumenIncidencias::class);
     }
+
     public function test_los_correos_se_generan_sin_errores(): void
     {
         $empresa = Empresa::factory()->create();

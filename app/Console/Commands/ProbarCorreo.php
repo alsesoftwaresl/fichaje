@@ -34,7 +34,7 @@ class ProbarCorreo extends Command
 
         try {
             Mail::raw(
-                "Este es un correo de prueba de ".config('app.name').".\n\nSi lo recibes, el envío por SMTP funciona.",
+                'Este es un correo de prueba de '.config('app.name').".\n\nSi lo recibes, el envío por SMTP funciona.",
                 fn ($mensaje) => $mensaje->to($destino)->subject('Prueba de correo — '.config('app.name'))
             );
         } catch (\Throwable $e) {

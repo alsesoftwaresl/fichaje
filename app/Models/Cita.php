@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Aviso de salida dentro de la jornada (médico, gestión...): día, hora de salida y de
@@ -67,7 +68,7 @@ class Cita extends Model
      */
     public function descripcion(): string
     {
-        return \Illuminate\Support\Str::limit($this->motivo ?: 'Salida avisada', 60);
+        return Str::limit($this->motivo ?: 'Salida avisada', 60);
     }
 
     /**

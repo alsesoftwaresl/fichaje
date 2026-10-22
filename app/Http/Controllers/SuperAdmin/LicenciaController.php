@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Empresa;
 use App\Models\Licencia;
+use App\Models\Tarifa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -23,7 +24,7 @@ class LicenciaController extends Controller
     {
         return view('super-admin.licencias.index', [
             'licencias' => Licencia::with('empresas')->latest()->get(),
-            'empleadosPorDefecto' => \App\Models\Tarifa::actual()->partner_empleados_incluidos,
+            'empleadosPorDefecto' => Tarifa::actual()->partner_empleados_incluidos,
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
@@ -65,7 +66,7 @@ class DeployControllerTest extends TestCase
         $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=db:seed')->assertOk();
         $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=db:seed')->assertOk();
 
-        $this->assertSame(1, \App\Models\User::where('rol', 'super_admin')->count());
+        $this->assertSame(1, User::where('rol', 'super_admin')->count());
     }
 
     public function test_ejecuta_un_comando_permitido_con_el_token_correcto(): void
@@ -96,4 +97,3 @@ class DeployControllerTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'jefe@ejemplo.test', 'rol' => 'super_admin']);
     }
 }
-

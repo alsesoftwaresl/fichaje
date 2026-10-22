@@ -1,5 +1,13 @@
 <?php
 
+use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\ForzarCambioPassword;
+use App\Http\Middleware\IdentifyTenant;
+use App\Http\Middleware\ModuloNominas;
+use App\Http\Middleware\PuedeGestionarNominas;
+use App\Http\Middleware\RequireEmailVerificado;
+use App\Http\Middleware\RequireSuscripcion;
+use App\Http\Middleware\SeoRobots;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,12 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'tenant' => \App\Http\Middleware\IdentifyTenant::class,
-            'role' => \App\Http\Middleware\EnsureRole::class,
-            'suscripcion' => \App\Http\Middleware\RequireSuscripcion::class,
-            'verificado' => \App\Http\Middleware\RequireEmailVerificado::class,
-            'gestor.nominas' => \App\Http\Middleware\PuedeGestionarNominas::class,
-            'modulo.nominas' => \App\Http\Middleware\ModuloNominas::class,
+            'tenant' => IdentifyTenant::class,
+            'role' => EnsureRole::class,
+            'suscripcion' => RequireSuscripcion::class,
+            'verificado' => RequireEmailVerificado::class,
+            'gestor.nominas' => PuedeGestionarNominas::class,
+            'modulo.nominas' => ModuloNominas::class,
         ]);
 
         // En modo mantenimiento solo pasa quien tenga la clave secreta, salvo el
@@ -30,8 +38,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Quien entra con una contraseña temporal no puede hacer nada más
         // hasta elegir la suya.
         $middleware->web(append: [
-            \App\Http\Middleware\ForzarCambioPassword::class,
-            \App\Http\Middleware\SeoRobots::class,
+            ForzarCambioPassword::class,
+            SeoRobots::class,
         ]);
 
         // Stripe llama a este endpoint directamente, sin pasar por el

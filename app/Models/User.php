@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 // MustVerifyEmail es a nivel de clase, pero NO todos los usuarios tienen que
@@ -22,7 +24,7 @@ use Illuminate\Support\Str;
 class User extends Authenticatable implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, MustVerifyEmail;
+    use HasFactory, MustVerifyEmail, Notifiable, SoftDeletes;
 
     // Nota: User NO usa el scope global de tenant (BelongsToTenant). super_admin
     // necesita poder crear/ver usuarios de cualquier empresa (p.ej. al dar de alta
@@ -192,7 +194,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
     /**
      * Solicitudes de ausencia del usuario.
      */
-    public function ausencias(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function ausencias(): HasMany
     {
         return $this->hasMany(Ausencia::class);
     }
@@ -200,7 +202,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
     /**
      * Nóminas del usuario.
      */
-    public function nominas(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function nominas(): HasMany
     {
         return $this->hasMany(Nomina::class);
     }
@@ -218,7 +220,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
     /**
      * Avisos de cita del usuario.
      */
-    public function citas():\Illuminate\Database\Eloquent\Relations\HasMany
+    public function citas(): HasMany
     {
         return $this->hasMany(Cita::class);
     }
@@ -258,7 +260,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
     /**
      * true si tiene horario y el día dado de la semana es laborable para él.
      */
-    public function trabajaEnDia(\Illuminate\Support\Carbon $fecha): bool
+    public function trabajaEnDia(Carbon $fecha): bool
     {
         return $this->tieneHorario() && in_array($fecha->dayOfWeekIso, $this->dias_laborables ?? [], true);
     }

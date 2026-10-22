@@ -2,7 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Tarifa;
+use App\Providers\AppServiceProvider;
+use App\Support\ContenidoWeb;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class SeoTest extends TestCase
@@ -123,7 +128,7 @@ class SeoTest extends TestCase
 
     public function test_los_ejemplos_de_precio_usan_la_tarifa_real(): void
     {
-        $tarifa = \App\Models\Tarifa::actual();
+        $tarifa = Tarifa::actual();
         $esperado = number_format($tarifa->calcularPrecioMensual(20), 2, ',', '.');
 
         $this->get('/')->assertOk()->assertSee('20 empleados')->assertSee($esperado.' €');
@@ -131,7 +136,7 @@ class SeoTest extends TestCase
 
     public function test_el_precio_base_se_muestra_exacto_sin_redondear(): void
     {
-        $tarifa = \App\Models\Tarifa::actual();
+        $tarifa = Tarifa::actual();
 
         $tarifa->precio_base_mensual = 29;
         $this->assertSame('29', $tarifa->precioBaseTexto());
@@ -204,13 +209,13 @@ class SeoTest extends TestCase
     public function test_el_comando_indexnow_avisa_con_las_urls_publicas_y_la_clave(): void
     {
         config(['app.url' => 'https://achrono.es']);
-        \Illuminate\Support\Facades\URL::forceRootUrl('https://achrono.es');
-        \Illuminate\Support\Facades\URL::forceScheme('https');
-        \Illuminate\Support\Facades\Http::fake(['api.indexnow.org/*' => \Illuminate\Support\Facades\Http::response('', 200)]);
+        URL::forceRootUrl('https://achrono.es');
+        URL::forceScheme('https');
+        Http::fake(['api.indexnow.org/*' => Http::response('', 200)]);
 
         $this->artisan('seo:indexnow')->expectsOutputToContain('Aviso enviado.')->assertSuccessful();
 
-        \Illuminate\Support\Facades\Http::assertSent(function ($peticion) {
+        Http::assertSent(function ($peticion) {
             $datos = $peticion->data();
 
             return $peticion->url() === 'https://api.indexnow.org/indexnow'
@@ -224,17 +229,17 @@ class SeoTest extends TestCase
 
     public function test_indexnow_no_avisa_desde_una_direccion_local(): void
     {
-        \Illuminate\Support\Facades\Http::fake();
+        Http::fake();
         config(['app.url' => 'http://localhost:8000']);
 
         $this->artisan('seo:indexnow')->expectsOutputToContain('no es una dirección pública')->assertFailed();
-        \Illuminate\Support\Facades\Http::assertNothingSent();
+        Http::assertNothingSent();
     }
 
     public function test_indexnow_informa_si_el_buscador_rechaza_el_aviso(): void
     {
         config(['app.url' => 'https://achrono.es']);
-        \Illuminate\Support\Facades\Http::fake(['api.indexnow.org/*' => \Illuminate\Support\Facades\Http::response('clave inválida', 403)]);
+        Http::fake(['api.indexnow.org/*' => Http::response('clave inválida', 403)]);
 
         $this->artisan('seo:indexnow')->expectsOutputToContain('IndexNow no ha aceptado')->assertFailed();
     }
@@ -250,9 +255,9 @@ class SeoTest extends TestCase
 
     public function test_el_contenido_compartido_es_el_mismo_en_la_web_y_en_llms_full(): void
     {
-        $tarifa = \App\Models\Tarifa::actual();
-        $primera = \App\Support\ContenidoWeb::preguntas($tarifa)[0][0];
-        $titulo = \App\Support\ContenidoWeb::funciones()[0]['titulo'];
+        $tarifa = Tarifa::actual();
+        $primera = ContenidoWeb::preguntas($tarifa)[0][0];
+        $titulo = ContenidoWeb::funciones()[0]['titulo'];
 
         $this->get('/')->assertSee($primera);
         $this->get('/funciones')->assertSee($titulo);
@@ -262,14 +267,13 @@ class SeoTest extends TestCase
     public function test_con_app_url_https_todas_las_urls_generadas_salen_con_https(): void
     {
         config(['app.url' => 'https://achrono.es']);
-        (new \App\Providers\AppServiceProvider(app()))->boot();
+        (new AppServiceProvider(app()))->boot();
 
         $this->assertStringStartsWith('https://', route('home'));
         $this->assertStringStartsWith('https://', route('funciones'));
         $this->assertStringStartsWith('https://', url('/cualquier-cosa'));
 
         // Restablece el esquema para no afectar a otras pruebas.
-        \Illuminate\Support\Facades\URL::forceScheme('http');
+        URL::forceScheme('http');
     }
 }
-

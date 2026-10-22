@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Empresa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class HorarioEmpleadoTest extends TestCase
@@ -39,7 +40,7 @@ class HorarioEmpleadoTest extends TestCase
 
         // La comparación estricta de trabajaEnDia() debe funcionar con
         // enteros de verdad, no con los strings que mandó el formulario.
-        $lunesQueViene = now()->next(\Illuminate\Support\Carbon::MONDAY);
+        $lunesQueViene = now()->next(Carbon::MONDAY);
         $this->assertTrue($empleado->trabajaEnDia($lunesQueViene));
     }
 

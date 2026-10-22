@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\SeoController;
+use App\Models\Tarifa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\TestCase;
@@ -113,7 +115,7 @@ class PlantillaYSectoresTest extends TestCase
 
     public function test_el_precio_en_las_preguntas_del_sector_es_el_de_la_tarifa(): void
     {
-        $tarifa = \App\Models\Tarifa::actual();
+        $tarifa = Tarifa::actual();
 
         $this->get('/control-horario/hosteleria')
             ->assertOk()
@@ -151,7 +153,7 @@ class PlantillaYSectoresTest extends TestCase
 
     public function test_las_urls_para_avisar_a_los_buscadores_incluyen_las_paginas_nuevas(): void
     {
-        $urls = \App\Http\Controllers\SeoController::urlsPublicas();
+        $urls = SeoController::urlsPublicas();
 
         $this->assertContains(route('plantilla.index'), $urls);
         $this->assertContains(route('sector.show', 'talleres'), $urls);

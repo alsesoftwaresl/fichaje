@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Laravel\Cashier\Cashier;
 
 /**
@@ -218,7 +220,7 @@ class Tarifa extends Model
      */
     public function olvidarDatosDeStripe(): void
     {
-        \Illuminate\Support\Facades\Log::warning('Cambio de modo de Stripe: se olvidan los datos del modo anterior.');
+        Log::warning('Cambio de modo de Stripe: se olvidan los datos del modo anterior.');
 
         $this->forceFill([
             'stripe_product_id' => null,
@@ -228,10 +230,10 @@ class Tarifa extends Model
             'stripe_price_nominas_id' => null,
         ]);
 
-        \Illuminate\Support\Facades\DB::transaction(function () {
-            \Illuminate\Support\Facades\DB::table('subscription_items')->delete();
-            \Illuminate\Support\Facades\DB::table('subscriptions')->delete();
-            \Illuminate\Support\Facades\DB::table('empresas')->update([
+        DB::transaction(function () {
+            DB::table('subscription_items')->delete();
+            DB::table('subscriptions')->delete();
+            DB::table('empresas')->update([
                 'stripe_id' => null,
                 'pm_type' => null,
                 'pm_last_four' => null,

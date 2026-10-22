@@ -7,6 +7,7 @@ use App\Models\Empresa;
 use App\Models\User;
 use App\Notifications\ContactoRecibido;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -59,7 +60,7 @@ class ContactoTest extends TestCase
     {
         $contacto = Contacto::create($this->datos(['asunto' => 'urgente']) + ['ip_address' => '127.0.0.1']);
 
-        $correo = (new ContactoRecibido($contacto))->toMail(new \Illuminate\Notifications\AnonymousNotifiable);
+        $correo = (new ContactoRecibido($contacto))->toMail(new AnonymousNotifiable);
 
         $this->assertStringStartsWith('[URGENTE]', $correo->subject);
         $this->assertSame([['marta@taller.test', 'Marta Ruiz']], $correo->replyTo);
@@ -149,4 +150,3 @@ class ContactoTest extends TestCase
             ->assertSessionHasErrors('email');
     }
 }
-

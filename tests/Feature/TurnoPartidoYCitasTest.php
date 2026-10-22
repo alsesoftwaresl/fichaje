@@ -6,6 +6,7 @@ use App\Models\Cita;
 use App\Models\Empresa;
 use App\Models\Fichaje;
 use App\Models\User;
+use App\Services\EstadoEquipoCalculador;
 use App\Services\IncidenciasCalculador;
 use App\Support\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -271,13 +272,13 @@ class TurnoPartidoYCitasTest extends TestCase
         $this->fichar($empresa, $u, 'entrada', 9);
 
         $this->ahoraA(11, 30);
-        $estado = \App\Services\EstadoEquipoCalculador::delDia($empresa->id)->firstWhere(fn ($i) => $i['empleado']->id === $u->id);
+        $estado = EstadoEquipoCalculador::delDia($empresa->id)->firstWhere(fn ($i) => $i['empleado']->id === $u->id);
         $this->assertSame('cita', $estado['estado']);
         $this->assertStringContainsString('12:30', $estado['detalle']);
         $this->assertStringContainsString('Médico', $estado['detalle']);
 
         $this->ahoraA(13);
-        $estado = \App\Services\EstadoEquipoCalculador::delDia($empresa->id)->firstWhere(fn ($i) => $i['empleado']->id === $u->id);
+        $estado = EstadoEquipoCalculador::delDia($empresa->id)->firstWhere(fn ($i) => $i['empleado']->id === $u->id);
         $this->assertSame('trabajando', $estado['estado']);
     }
 

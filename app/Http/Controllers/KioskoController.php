@@ -134,6 +134,7 @@ class KioskoController extends Controller
 
         return $empleado;
     }
+
     /**
      * Si la copia local dice que no, se pregunta a Stripe (como mucho una vez
      * cada 30 s por empresa — esta página es pública y no debe poder martillear

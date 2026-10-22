@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\User;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -39,9 +40,9 @@ class Avisos
      * Mensaje de correo con saludo personal y, si el usuario pertenece a una empresa,
      * una línea con el nombre de esa empresa. Es el punto de partida de todos los avisos.
      */
-    public static function mensaje(object $destinatario): \Illuminate\Notifications\Messages\MailMessage
+    public static function mensaje(object $destinatario): MailMessage
     {
-        $mensaje = (new \Illuminate\Notifications\Messages\MailMessage)->greeting('Hola, '.$destinatario->name);
+        $mensaje = (new MailMessage)->greeting('Hola, '.$destinatario->name);
 
         if ($empresa = $destinatario->empresa ?? null) {
             $mensaje->line('Empresa: **'.$empresa->nombre.'**');

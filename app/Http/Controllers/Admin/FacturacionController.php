@@ -24,7 +24,6 @@ class FacturacionController extends Controller
      */
     const DIAS_PRUEBA_GRATIS = 15;
 
-
     /**
      * Pantalla de Facturación: plan actual, precio estimado según empleados activos,
      * estado de la suscripción o licencia, y facturas.

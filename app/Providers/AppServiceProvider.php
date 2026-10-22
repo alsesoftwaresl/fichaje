@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Empresa;
 use App\Support\Avisos;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
-use App\Models\Empresa;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;

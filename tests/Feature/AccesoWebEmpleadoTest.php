@@ -6,6 +6,7 @@ use App\Models\Empresa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AccesoWebEmpleadoTest extends TestCase
@@ -113,8 +114,8 @@ class AccesoWebEmpleadoTest extends TestCase
         $nueva = session('acceso_generado')['password'];
         $empleado->refresh();
         $this->assertTrue($empleado->debe_cambiar_password);
-        $this->assertTrue(\Illuminate\Support\Facades\Hash::check($nueva, $empleado->password));
-        $this->assertFalse(\Illuminate\Support\Facades\Hash::check('ClaveVieja123', $empleado->password));
+        $this->assertTrue(Hash::check($nueva, $empleado->password));
+        $this->assertFalse(Hash::check('ClaveVieja123', $empleado->password));
     }
 
     public function test_no_se_puede_generar_acceso_a_un_empleado_de_otra_empresa(): void

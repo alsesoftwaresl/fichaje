@@ -104,10 +104,10 @@ class PlantillaJornadaExport implements FromArray, WithColumnFormatting, WithCol
         $azul = '1B1B54';
 
         $hoja->mergeCells('A1:F1');
-        $hoja->mergeCells("A".($total + 2).":F".($total + 2));
-        $hoja->mergeCells("A".($total + 3).":F".($total + 3));
+        $hoja->mergeCells('A'.($total + 2).':F'.($total + 2));
+        $hoja->mergeCells('A'.($total + 3).':F'.($total + 3));
         $hoja->getRowDimension($total + 2)->setRowHeight(30);
-        $hoja->getStyle("A".($total + 2))->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
+        $hoja->getStyle('A'.($total + 2))->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
 
         // Cabecera de la tabla
         $hoja->getStyle('A6:F6')->applyFromArray([
@@ -145,7 +145,7 @@ class PlantillaJornadaExport implements FromArray, WithColumnFormatting, WithCol
             $hoja->getStyle($rango)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THIN);
         }
 
-        $hoja->getStyle("A".($total + 3))->getFont()->setItalic(true)->getColor()->setRGB('64748B');
+        $hoja->getStyle('A'.($total + 3))->getFont()->setItalic(true)->getColor()->setRGB('64748B');
 
         return [
             1 => ['font' => ['bold' => true, 'size' => 15, 'color' => ['rgb' => $azul]], 'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT]],

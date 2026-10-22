@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tarifa;
+use App\Support\ContenidoWeb;
 use Illuminate\Http\Response;
 
 /**
@@ -84,6 +86,7 @@ class SeoController extends Controller
 
         return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
+
     /**
      * Versión larga de llms.txt: todo el contenido de la web en texto plano (producto,
      * funciones, límites, precio, preguntas, ley y contacto) para que un asistente de IA lo
@@ -91,12 +94,12 @@ class SeoController extends Controller
      */
     public function llmsFull(): Response
     {
-        $tarifa = \App\Models\Tarifa::actual();
+        $tarifa = Tarifa::actual();
 
         return response(view('seo.llms-full', [
             'tarifa' => $tarifa,
-            'preguntas' => \App\Support\ContenidoWeb::preguntas($tarifa),
-            'funciones' => \App\Support\ContenidoWeb::funciones(),
+            'preguntas' => ContenidoWeb::preguntas($tarifa),
+            'funciones' => ContenidoWeb::funciones(),
         ])->render(), 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
 
@@ -116,7 +119,7 @@ class SeoController extends Controller
      */
     public function llms(): Response
     {
-        return response(view('seo.llms', ['tarifa' => \App\Models\Tarifa::actual()])->render(), 200, [
+        return response(view('seo.llms', ['tarifa' => Tarifa::actual()])->render(), 200, [
             'Content-Type' => 'text/plain; charset=UTF-8',
         ]);
     }

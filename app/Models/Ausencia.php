@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Solicitud de vacaciones, baja médica u otra ausencia. La pide el empleado (estado
@@ -61,7 +62,7 @@ class Ausencia extends Model
     /**
      * Indica si la ausencia está aprobada y el día dado cae dentro de sus fechas.
      */
-    public function cubre(\Illuminate\Support\Carbon $fecha): bool
+    public function cubre(Carbon $fecha): bool
     {
         return $this->estado === 'aprobada'
             && $fecha->between($this->fecha_inicio, $this->fecha_fin);
