@@ -15,6 +15,7 @@
 - Exportación de fichajes a CSV, Excel y PDF.
 - Cada empresa tiene su espacio de datos aislado.
 - Los empleados pueden acceder solo con su DNI/NIE; no necesitan correo electrónico.
+- Se puede instalar en el móvil desde el navegador como una aplicación web (PWA), sin pasar por las tiendas de aplicaciones.
 
 ## Precio
 

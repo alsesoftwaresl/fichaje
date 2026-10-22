@@ -73,6 +73,7 @@
             'resumen' => 'En un par de minutos puedes tenerlo en marcha.',
             'puntos' => [
                 'Te das de alta con tu correo o con tu cuenta de Google.',
+                'Instalas Achrono en el móvil como una app, con un icono en la pantalla de inicio.',
                 'Das de alta a cada empleado con su DNI y le generas su PIN.',
                 '15 días gratis (se pide tarjeta, pero no se cobra nada durante la prueba) y sin permanencia.',
                 'Facturas descargables, y cancelas cuando quieras.',
@@ -175,7 +176,7 @@
                 <p class="mt-2 text-slate-600">Para que decidas con la información completa:</p>
                 <ul class="mt-4 space-y-2 text-slate-700">
                     <li>No es un ERP ni un programa de nóminas: las nóminas se suben en PDF, no se calculan.</li>
-                    <li>No hay aplicación móvil para instalar: funciona desde el navegador.</li>
+                    <li>No está en las tiendas de aplicaciones (App Store y Google Play): se instala desde el navegador con un toque y se abre como una app.</li>
                     <li>No tiene geolocalización ni reconocimiento facial.</li>
                     <li>Necesita conexión a internet para registrar los fichajes.</li>
                     <li>No gestiona cuadrantes de turnos rotativos, ni el saldo de días de vacaciones.</li>

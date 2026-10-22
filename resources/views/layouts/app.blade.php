@@ -35,5 +35,6 @@
                 {{ $slot }}
             </main>
         </div>
+        <x-instalar-app />
     </body>
 </html>

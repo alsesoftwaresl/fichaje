@@ -105,6 +105,8 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 ## I. Web pública y contacto
 
 - [ ] La portada se ve bien en móvil, tablet y ordenador, sin scroll horizontal.
+- [ ] En el móvil (Android/Chrome), tras entrar en el panel, sale el botón "Instalar app"; al instalarla aparece el icono de Achrono y se abre a pantalla completa. En iPhone: Compartir → Añadir a pantalla de inicio.
+- [ ] Con el móvil en modo avión, abrir la app instalada muestra la pantalla "Sin conexión" con el botón Reintentar.
 - [ ] Precio con IVA incluido y desglose correcto; ejemplos de 5, 10, 20 y 50 empleados bien calculados.
 - [ ] Formulario de contacto de la portada: llega a `info@achrono.es` y aparece en super admin → Mensajes.
 - [ ] Un mensaje "Incidencia urgente" llega con `[URGENTE]` en el asunto.

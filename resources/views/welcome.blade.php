@@ -10,7 +10,7 @@
         ['¿Qué puede ver y hacer cada empleado?', 'Cada empleado entra con su cuenta (con su DNI si no tiene correo) y ve todos sus fichajes agrupados por jornada, con las horas trabajadas y las correcciones que haya. También ve y descarga sus nóminas en PDF, pide vacaciones y bajas, y avisa de una salida dentro de la jornada, por ejemplo para ir al médico.'],
         ['¿Necesito tarjeta para la prueba gratis?', 'Sí. Se pide una tarjeta para activar la prueba de 15 días, pero no se cobra nada durante ese tiempo. Si cancelas antes de que acabe, no pagas.'],
         ['¿Funciona sin conexión a internet?', 'No. '.config('app.name').' es una aplicación web y necesita conexión para registrar los fichajes. Si en tu centro la conexión es poco fiable, ten en cuenta este punto antes de empezar.'],
-        ['¿Tiene aplicación móvil?', 'No hay aplicación para instalar. Funciona desde el navegador del móvil, la tablet o el ordenador.'],
+        ['¿Tiene aplicación móvil?', 'No está en las tiendas de aplicaciones (App Store o Google Play), pero se puede instalar desde el navegador con un toque: aparece como un icono en la pantalla de inicio y se abre a pantalla completa. También funciona directamente desde el navegador del móvil, la tablet o el ordenador.'],
         ['¿Hay atención al cliente y cómo puedo contactar?', 'Sí. Ofrecemos atención al cliente en español, con atención personal. Puedes escribirnos a '.config('legal.titular.email').' o usar el formulario de contacto; si es una incidencia urgente, indícalo y la atendemos con prioridad.'],
         ['¿Quién está detrás de '.config('app.name').'?', config('app.name').' es un producto de '.config('legal.titular.nombre').'. Los datos del titular están en el aviso legal.'],
     ];
