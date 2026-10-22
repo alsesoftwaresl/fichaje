@@ -264,7 +264,8 @@ class EmpleadoController extends Controller
     /**
      * Quita las filas vacías y comprueba que cada tramo tenga entrada y
      * salida, que la salida sea posterior a la entrada y que los tramos
-     * vayan en orden sin solaparse.
+     * vayan en orden sin solaparse. El último tramo puede acabar pasada la
+     * medianoche (22:00 a 06:00): su salida es entonces del día siguiente.
      *
      * @return list<array{entrada: string, salida: string}>
      */
@@ -283,8 +284,12 @@ class EmpleadoController extends Controller
                 throw ValidationException::withMessages([$campo => 'Cada tramo necesita hora de entrada y de salida.']);
             }
 
-            if ($tramo['salida'] <= $tramo['entrada']) {
-                throw ValidationException::withMessages([$campo => 'La salida tiene que ser posterior a la entrada.']);
+            $esElUltimo = $i === $tramos->count() - 1;
+
+            if ($tramo['salida'] === $tramo['entrada'] || ($tramo['salida'] < $tramo['entrada'] && ! $esElUltimo)) {
+                throw ValidationException::withMessages([$campo => $esElUltimo
+                    ? 'La salida tiene que ser distinta de la entrada.'
+                    : 'La salida tiene que ser posterior a la entrada. Solo el último tramo puede acabar pasada la medianoche.']);
             }
 
             if ($anteriorSalida !== null && $tramo['entrada'] < $anteriorSalida) {

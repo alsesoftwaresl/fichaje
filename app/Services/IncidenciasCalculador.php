@@ -91,15 +91,15 @@ class IncidenciasCalculador
 
         $ids = $empleados->pluck('id');
 
-        // Fichajes del periodo y del día siguiente al último (una entrada sin salida no es
-        // olvido si la siguiente marca es una salida: turno que cruza la medianoche).
-        $fichajesPorDia = Fichaje::with(['usuario', 'correcciones'])
+        // Fichajes desde el día anterior (turno de noche que empezó antes del periodo) hasta
+        // dos días después (salida de un turno que acaba al día siguiente).
+        $fichajesPorDia = static::agruparPorDiaDeJornada(Fichaje::with(['usuario', 'correcciones'])
             ->whereIn('user_id', $ids)
-            ->where('fecha_hora', '>=', $desde)
+            ->where('fecha_hora', '>=', $desde->copy()->subDay())
             ->where('fecha_hora', '<', $hasta->copy()->addDays(2))
             ->orderBy('fecha_hora')
-            ->get()
-            ->groupBy(fn (Fichaje $f) => $f->fecha_hora->toDateString());
+            ->orderBy('id')
+            ->get());
 
         $ausenciasAprobadas = Ausencia::where('estado', 'aprobada')
             ->whereIn('user_id', $ids)
@@ -144,11 +144,6 @@ class IncidenciasCalculador
     ): Collection {
         $fichajesPorUsuario = $fichajesPorDia->get($fecha->toDateString(), collect())->groupBy('user_id');
 
-        $primeraMarcaDelDiaSiguiente = $fichajesPorDia
-            ->get($fecha->copy()->addDay()->toDateString(), collect())
-            ->groupBy('user_id')
-            ->map(fn (Collection $marcas) => $marcas->first());
-
         $ausentes = $ausenciasAprobadas
             ->filter(fn (Ausencia $ausencia) => $ausencia->cubre($fecha))
             ->pluck('user_id')
@@ -165,7 +160,6 @@ class IncidenciasCalculador
                 $empleado,
                 $fichajesPorUsuario->get($empleado->id, collect()),
                 $fecha,
-                $primeraMarcaDelDiaSiguiente->get($empleado->id),
                 $citasPorUsuario->get($empleado->id, collect()),
             ))
             ->values();
@@ -173,10 +167,10 @@ class IncidenciasCalculador
 
     /**
      * Calcula las incidencias de un empleado en un día: compara su horario (por tramos)
-     * con sus fichajes, teniendo en cuenta citas avisadas y, para días pasados, la
-     * primera marca del día siguiente.
+     * con sus fichajes (los de las jornadas que empezaron ese día, aunque acaben al
+     * siguiente) teniendo en cuenta las citas avisadas.
      */
-    protected static function incidenciasDeEmpleado(User $empleado, Collection $fichajesDelDia, Carbon $fecha, ?Fichaje $primeraMarcaDelDiaSiguiente, Collection $citas): array
+    protected static function incidenciasDeEmpleado(User $empleado, Collection $fichajesDelDia, Carbon $fecha, Collection $citas): array
     {
         $incidencias = [];
         $ahora = now();
@@ -242,19 +236,19 @@ class IncidenciasCalculador
             }
         }
 
-        // Sin cerrar: un día ya pasado siempre; el de hoy solo si hay horario
-        // y ya ha pasado la hora de salida del último tramo (antes es normal
-        // seguir fichado).
+        // Sin cerrar: una entrada sin salida cuando ya ha pasado la hora de salida del
+        // último tramo (que en un turno de noche es la del día siguiente) o, sin horario,
+        // el máximo de una jornada. Antes es normal seguir fichado.
         $ultimaSalida = $tramos !== [] ? end($tramos)[1] : null;
-        $puedeEstarSinCerrar = $esPasado
-            ? ! ($primeraMarcaDelDiaSiguiente && $primeraMarcaDelDiaSiguiente->tipo === 'salida')
-            : ($ultimaSalida !== null && $ahora->gt($ultimaSalida->copy()->addMinutes($margen)));
 
-        if ($puedeEstarSinCerrar) {
-            foreach ($jornadas->filter(fn (array $j) => $j['entrada'] && ! $j['salida']) as $jornada) {
+        foreach ($jornadas->filter(fn (array $j) => $j['entrada'] && ! $j['salida']) as $jornada) {
+            $horaEntrada = JornadasAgrupador::horaEfectiva($jornada['entrada']);
+            $cierre = $ultimaSalida ?? $horaEntrada->copy()->addHours(Fichaje::HORAS_MAXIMAS_JORNADA);
+
+            if ($ahora->gt($cierre->copy()->addMinutes($margen))) {
                 $incidencias[] = static::incidencia('sin_cerrar', $empleado, $fecha, sprintf(
                     'Entrada a las %s sin salida',
-                    JornadasAgrupador::horaEfectiva($jornada['entrada'])->format('H:i')
+                    $horaEntrada->format('H:i')
                 ));
             }
         }
@@ -302,11 +296,33 @@ class IncidenciasCalculador
     protected static function tramosDelDia(User $empleado, Carbon $fecha): array
     {
         return collect($empleado->tramos())
-            ->map(fn (array $t) => [
-                Carbon::parse($fecha->toDateString().' '.$t['entrada']),
-                Carbon::parse($fecha->toDateString().' '.$t['salida']),
-            ])
+            ->map(function (array $t) use ($fecha) {
+                $inicio = Carbon::parse($fecha->toDateString().' '.$t['entrada']);
+                $fin = Carbon::parse($fecha->toDateString().' '.$t['salida']);
+
+                // Turno de noche (22:00 a 06:00): la salida es del día siguiente.
+                return [$inicio, $fin->lte($inicio) ? $fin->addDay() : $fin];
+            })
             ->all();
+    }
+
+    /**
+     * Reparte los fichajes por día y empleado según la jornada a la que pertenecen: cada
+     * jornada cuenta para el día en que empezó, así un turno de 22:00 a 06:00 es una sola
+     * jornada del primer día y sus horas se cuentan enteras.
+     *
+     * @return Collection<string, Collection<int, Fichaje>> clave Y-m-d
+     */
+    protected static function agruparPorDiaDeJornada(Collection $fichajes): Collection
+    {
+        return JornadasAgrupador::agrupar($fichajes)
+            ->flatMap(fn (array $jornada) => collect([$jornada['entrada'], $jornada['salida']])
+                ->filter()
+                ->map(fn (Fichaje $f) => ['dia' => ($jornada['entrada'] ?? $jornada['salida'])->fecha_hora->toDateString(), 'fichaje' => $f]))
+            ->groupBy('dia')
+            ->map(fn (Collection $delDia) => $delDia->pluck('fichaje')
+                ->sortBy([['fecha_hora', 'asc'], ['id', 'asc']])
+                ->values());
     }
 
     /**

@@ -21,6 +21,10 @@
             sin cerrar o hace más horas de las esperadas, y lo verás en Control horario. Si lo dejas
             en blanco, no se le controla ningún horario.
         </p>
+        <p class="text-xs text-slate-500 mt-1">
+            ¿Turno de noche? Pon la salida tal cual (por ejemplo, de 22:00 a 06:00): se entiende que
+            acaba al día siguiente. Los días marcados son los días en que empieza el turno.
+        </p>
     </div>
 
     <div x-data="{ tramos: @js($tramosIniciales) }" class="space-y-3">

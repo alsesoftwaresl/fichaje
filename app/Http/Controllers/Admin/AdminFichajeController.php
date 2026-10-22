@@ -31,7 +31,7 @@ class AdminFichajeController extends Controller
      */
     public function index(Request $request): View
     {
-        $jornadas = $this->paginar(JornadasAgrupador::agrupar($this->fichajesFiltrados($request)->get()));
+        $jornadas = $this->paginar($this->jornadasFiltradas($request));
 
         $empleados = User::deEmpresa(Auth::user()->empresa_id)
             ->orderBy('name')
@@ -50,7 +50,7 @@ class AdminFichajeController extends Controller
      */
     public function exportar(Request $request, string $formato): Response
     {
-        $jornadas = JornadasAgrupador::agrupar($this->fichajesFiltrados($request)->get());
+        $jornadas = $this->jornadasFiltradas($request);
         $nombreArchivo = 'fichajes-'.now()->format('Y-m-d-His');
 
         return match ($formato) {
@@ -98,16 +98,30 @@ class AdminFichajeController extends Controller
     }
 
     /**
-     * Consulta base de fichajes con los filtros del formulario (empleado, desde, hasta),
-     * ordenada por fecha. El aislamiento por empresa lo aplica el global scope del modelo.
+     * Jornadas con los filtros del formulario (empleado, desde, hasta). Una jornada cuenta
+     * para el día en que empezó: se cargan los fichajes de un día antes y uno después del
+     * rango para que un turno de noche salga entero (entrada y salida) y no partido en dos.
+     * El aislamiento por empresa lo aplica el global scope del modelo.
      */
-    protected function fichajesFiltrados(Request $request)
+    protected function jornadasFiltradas(Request $request): Collection
     {
-        return Fichaje::query()
+        $desde = $request->filled('desde') ? $request->date('desde')->startOfDay() : null;
+        $hasta = $request->filled('hasta') ? $request->date('hasta')->endOfDay() : null;
+
+        $fichajes = Fichaje::query()
             ->with(['usuario', 'correcciones'])
             ->when($request->filled('user_id'), fn ($q) => $q->where('user_id', $request->integer('user_id')))
-            ->when($request->filled('desde'), fn ($q) => $q->whereDate('fecha_hora', '>=', $request->date('desde')))
-            ->when($request->filled('hasta'), fn ($q) => $q->whereDate('fecha_hora', '<=', $request->date('hasta')))
-            ->orderBy('fecha_hora');
+            ->when($desde, fn ($q) => $q->where('fecha_hora', '>=', $desde->copy()->subDay()))
+            ->when($hasta, fn ($q) => $q->where('fecha_hora', '<=', $hasta->copy()->addDay()))
+            ->orderBy('fecha_hora')
+            ->get();
+
+        return JornadasAgrupador::agrupar($fichajes)
+            ->filter(function (array $jornada) use ($desde, $hasta) {
+                $inicio = ($jornada['entrada'] ?? $jornada['salida'])->fecha_hora;
+
+                return (! $desde || $inicio->gte($desde)) && (! $hasta || $inicio->lte($hasta));
+            })
+            ->values();
     }
 }
