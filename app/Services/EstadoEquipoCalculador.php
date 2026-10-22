@@ -35,16 +35,23 @@ class EstadoEquipoCalculador
         // Ausencia ya viene auto-filtrada a la empresa actual (BelongsToTenant).
         $ausenciaPorUsuario = Ausencia::where('estado', 'aprobada')
             ->whereIn('user_id', $empleados->pluck('id'))
+            ->whereDate('fecha_inicio', '<=', $fecha)
+            ->whereDate('fecha_fin', '>=', $fecha)
             ->get()
             ->filter(fn (Ausencia $ausencia) => $ausencia->cubre($fecha))
             ->keyBy('user_id');
 
-        $ultimoFichajeHoyPorUsuario = Fichaje::whereIn('user_id', $empleados->pluck('id'))
-            ->whereDate('fecha_hora', $fecha)
+        // Últimas horas y no "hoy": quien entró a las 22:00 sigue trabajando pasada la
+        // medianoche. Una entrada más antigua que el máximo de jornada es un olvido, no
+        // alguien trabajando.
+        $ultimoFichajePorUsuario = Fichaje::whereIn('user_id', $empleados->pluck('id'))
+            ->where('fecha_hora', '>', $fecha->copy()->subHours(Fichaje::HORAS_MAXIMAS_JORNADA))
+            ->where('fecha_hora', '<=', $fecha)
             ->orderBy('fecha_hora')
+            ->orderBy('id')
             ->get()
             ->groupBy('user_id')
-            ->map(fn (Collection $fichajesDelDia) => $fichajesDelDia->last());
+            ->map(fn (Collection $recientes) => $recientes->last());
 
         // Citas (médico...) avisadas para hoy que cubren este instante.
         $citaAhoraPorUsuario = Cita::vigentes()
@@ -54,7 +61,7 @@ class EstadoEquipoCalculador
             ->filter(fn (Cita $c) => $c->desde()->lte($fecha) && $c->hasta()->gt($fecha))
             ->keyBy('user_id');
 
-        return $empleados->map(function (User $empleado) use ($ausenciaPorUsuario, $ultimoFichajeHoyPorUsuario, $citaAhoraPorUsuario) {
+        return $empleados->map(function (User $empleado) use ($ausenciaPorUsuario, $ultimoFichajePorUsuario, $citaAhoraPorUsuario) {
             $ausencia = $ausenciaPorUsuario->get($empleado->id);
 
             if ($ausencia) {
@@ -79,7 +86,7 @@ class EstadoEquipoCalculador
                 ];
             }
 
-            $ultimoFichaje = $ultimoFichajeHoyPorUsuario->get($empleado->id);
+            $ultimoFichaje = $ultimoFichajePorUsuario->get($empleado->id);
 
             if ($ultimoFichaje && $ultimoFichaje->tipo === 'entrada') {
                 return [

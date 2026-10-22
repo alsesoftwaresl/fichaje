@@ -1,10 +1,10 @@
 <div
     x-data="{
         open: false,
-        fichajeId: null,
+        accion: '',
         fecha: '',
     }"
-    @abrir-correccion.window="open = true; fichajeId = $event.detail.id; fecha = $event.detail.fecha"
+    @abrir-correccion.window="open = true; accion = $event.detail.accion; fecha = $event.detail.fecha"
     x-show="open"
     x-cloak
     x-transition.opacity
@@ -13,7 +13,7 @@
     <div @click.outside="open = false" class="bg-white rounded-xl shadow-lg border border-slate-200 max-w-md w-full p-6">
         <h3 class="text-lg font-semibold text-slate-900 mb-4">Corregir fichaje</h3>
 
-        <form :action="`/admin/fichajes/${fichajeId}/correcciones`" method="POST" class="space-y-4">
+        <form :action="accion" method="POST" class="space-y-4">
             @csrf
 
             <div>

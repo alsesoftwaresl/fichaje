@@ -59,6 +59,7 @@ class KioskoDniTest extends TestCase
             ->assertSessionHas('resultado', fn ($r) => $r['nombre'] === 'Ana García' && $r['tipo'] === 'entrada');
 
         // El siguiente fichaje del mismo empleado es la salida.
+        $this->travel(5)->minutes(); // menos de un minuto entre fichajes sería un doble toque
         $this->fichar($empresa, ['dni' => '12345678Z'])
             ->assertSessionHas('resultado', fn ($r) => $r['tipo'] === 'salida');
 
@@ -85,6 +86,7 @@ class KioskoDniTest extends TestCase
         [$empresa, , $pin] = $this->empresaConEmpleado('ambos');
 
         $this->fichar($empresa, ['pin' => $pin])->assertSessionHas('resultado');
+        $this->travel(5)->minutes(); // menos de un minuto entre fichajes sería un doble toque
         $this->fichar($empresa, ['dni' => '12345678Z'])->assertSessionHas('resultado');
 
         $this->assertSame(2, $this->totalFichajes($empresa));

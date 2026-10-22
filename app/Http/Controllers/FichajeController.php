@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\PaginaColecciones;
 use App\Models\Fichaje;
 use App\Services\JornadasAgrupador;
+use App\Services\RegistroFichajes;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -29,7 +30,7 @@ class FichajeController extends Controller
 
         $jornadas = $this->paginar(JornadasAgrupador::agrupar($fichajes));
 
-        $siguienteTipo = $fichajes->last()?->tipo === 'entrada' ? 'salida' : 'entrada';
+        $siguienteTipo = RegistroFichajes::siguienteTipo($fichajes->last());
 
         $fichajeWeb = Auth::user()->empresa->fichaje_web;
 
@@ -37,8 +38,8 @@ class FichajeController extends Controller
     }
 
     /**
-     * Registra un fichaje web: alterna entrada/salida y guarda la hora del servidor, IP y
-     * navegador. Los fichajes no se pueden editar ni borrar después.
+     * Registra un fichaje web con las reglas comunes de RegistroFichajes (entrada o salida,
+     * entradas olvidadas, doble clic). Los fichajes no se pueden editar ni borrar después.
      */
     public function store(): RedirectResponse
     {
@@ -48,23 +49,19 @@ class FichajeController extends Controller
                 ->withErrors(['fichaje' => 'Tu empresa solo permite fichar en el kiosco.']);
         }
 
-        $ultimoFichaje = Fichaje::where('user_id', Auth::id())
-            ->orderByDesc('fecha_hora')
-            ->first();
+        $resultado = RegistroFichajes::registrar(Auth::user(), 'web', request());
 
-        $tipo = $ultimoFichaje?->tipo === 'entrada' ? 'salida' : 'entrada';
+        if ($resultado['repetido']) {
+            return redirect()->route('fichajes.mis')
+                ->withErrors(['fichaje' => 'Acabas de fichar. Espera un minuto si de verdad quieres volver a hacerlo.']);
+        }
 
-        Fichaje::create([
-            'user_id' => Auth::id(),
-            'tipo' => $tipo,
-            // fecha_hora se genera siempre en el servidor, nunca se acepta del cliente.
-            'fecha_hora' => now(),
-            'origen' => 'web',
-            'ip_address' => request()->ip(),
-            'user_agent' => substr((string) request()->userAgent(), 0, 255),
-        ]);
+        $mensaje = $resultado['tipo'] === 'entrada' ? 'Entrada registrada.' : 'Salida registrada.';
 
-        return redirect()->route('fichajes.mis')
-            ->with('status', $tipo === 'entrada' ? 'Entrada registrada.' : 'Salida registrada.');
+        if ($resultado['olvidada']) {
+            $mensaje .= ' '.RegistroFichajes::avisoEntradaOlvidada($resultado['olvidada']);
+        }
+
+        return redirect()->route('fichajes.mis')->with('status', $mensaje);
     }
 }

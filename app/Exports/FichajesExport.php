@@ -51,7 +51,7 @@ class FichajesExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
             $jornada['entrada']?->fecha_hora->format('H:i:s') ?? '—',
             $jornada['salida']?->fecha_hora->format('H:i:s') ?? 'En curso',
             $jornada['horas'] !== null ? number_format($jornada['horas'], 2) : '—',
-            $jornada['correcciones']->map(fn ($c) => $c->motivo)->implode(' | '),
+            $jornada['notas'],
         ];
     }
 

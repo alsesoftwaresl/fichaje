@@ -14,7 +14,8 @@
     @if (session('resultado'))
         <div
             x-data="{ show: true }"
-            x-init="setTimeout(() => { window.location.href = window.location.pathname }, 3000)"
+            {{-- Con aviso se deja más tiempo en pantalla para que dé tiempo a leerlo. --}}
+            x-init="setTimeout(() => { window.location.href = window.location.pathname }, {{ empty(session('resultado')['aviso']) ? 3000 : 8000 }})"
             x-show="show"
             class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-indigo-950"
         >
@@ -29,6 +30,9 @@
                 {{ $resultado['tipo'] === 'entrada' ? 'Entrada registrada' : 'Salida registrada' }}
             </p>
             <p class="mt-1 text-sm text-indigo-300">{{ now()->format('H:i:s') }}</p>
+            @if (! empty($resultado['aviso']))
+                <p class="mt-6 max-w-md rounded-lg bg-amber-400/15 px-4 py-3 text-center text-base text-amber-200">{{ $resultado['aviso'] }}</p>
+            @endif
         </div>
     @endif
 

@@ -84,7 +84,7 @@ class AdminFichajeController extends Controller
                     $jornada['entrada']?->fecha_hora->format('H:i:s'),
                     $jornada['salida']?->fecha_hora->format('H:i:s'),
                     $jornada['horas'],
-                    $jornada['correcciones']->map(fn ($c) => $c->motivo)->implode(' | '),
+                    $jornada['notas'],
                 ]);
             }
 

@@ -88,6 +88,7 @@ class KioskoFlowTest extends TestCase
         $pin = $empleado->generarNuevoPin();
 
         $this->post(route('kiosko.fichar', $empresa->kiosko_token), ['pin' => $pin]);
+        $this->travel(5)->minutes(); // menos de un minuto entre fichajes sería un doble toque
         $this->post(route('kiosko.fichar', $empresa->kiosko_token), ['pin' => $pin]);
 
         $this->assertSame(2, Fichaje::where('user_id', $empleado->id)->count());

@@ -28,6 +28,7 @@ class FichajeFlowTest extends TestCase
         $this->assertDatabaseHas('fichajes', ['user_id' => $empleado->id, 'tipo' => 'entrada']);
 
         // 2. Ficha salida (toggle automático: el último fue entrada).
+        $this->travel(5)->minutes(); // menos de un minuto entre fichajes sería un doble toque
         $this->actingAs($empleado)->post(route('fichajes.store'));
 
         $this->assertDatabaseHas('fichajes', ['user_id' => $empleado->id, 'tipo' => 'salida']);
@@ -72,6 +73,7 @@ class FichajeFlowTest extends TestCase
         $empleado = User::factory()->for($empresa)->create();
 
         $this->actingAs($empleado)->post(route('fichajes.store')); // entrada
+        $this->travel(5)->minutes(); // menos de un minuto entre fichajes sería un doble toque
         $this->actingAs($empleado)->post(route('fichajes.store')); // salida
 
         // "Mis fichajes" del propio empleado: una fila con entrada y salida.
@@ -94,6 +96,7 @@ class FichajeFlowTest extends TestCase
         $empleado = User::factory()->for($empresa)->create();
 
         $this->actingAs($empleado)->post(route('fichajes.store')); // entrada
+        $this->travel(5)->minutes(); // menos de un minuto entre fichajes sería un doble toque
         $this->actingAs($empleado)->post(route('fichajes.store')); // salida
 
         $fichajeEntrada = Fichaje::where('user_id', $empleado->id)->where('tipo', 'entrada')->first();
@@ -127,6 +130,7 @@ class FichajeFlowTest extends TestCase
         $empleado = User::factory()->for($empresa)->create();
 
         $this->actingAs($empleado)->post(route('fichajes.store'));
+        $this->travel(5)->minutes(); // menos de un minuto entre fichajes sería un doble toque
         $this->actingAs($empleado)->post(route('fichajes.store'));
 
         $excel = $this->actingAs($admin)->get(route('admin.fichajes.exportar', ['formato' => 'excel']));

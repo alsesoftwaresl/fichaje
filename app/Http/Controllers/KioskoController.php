@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Empresa;
-use App\Models\Fichaje;
 use App\Models\User;
+use App\Services\RegistroFichajes;
 use App\Support\Tenant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,24 +68,18 @@ class KioskoController extends Controller
         // a partir de la empresa resuelta por el token de la URL.
         Tenant::set($empresa->id);
 
-        $ultimoFichaje = Fichaje::where('user_id', $empleado->id)
-            ->orderByDesc('fecha_hora')
-            ->first();
+        $resultado = RegistroFichajes::registrar($empleado, 'kiosco', $request);
 
-        $tipo = $ultimoFichaje?->tipo === 'entrada' ? 'salida' : 'entrada';
-
-        Fichaje::create([
-            'user_id' => $empleado->id,
-            'tipo' => $tipo,
-            'fecha_hora' => now(),
-            'origen' => 'kiosco',
-            'ip_address' => $request->ip(),
-            'user_agent' => substr((string) $request->userAgent(), 0, 255),
-        ]);
+        if ($resultado['repetido']) {
+            return back()->withErrors([
+                $conDni ? 'dni' : 'pin' => 'Ya has fichado hace un momento. Espera un minuto para volver a fichar.',
+            ]);
+        }
 
         return redirect()->route('kiosko.show', $token)->with('resultado', [
             'nombre' => $empleado->name,
-            'tipo' => $tipo,
+            'tipo' => $resultado['tipo'],
+            'aviso' => $resultado['olvidada'] ? RegistroFichajes::avisoEntradaOlvidada($resultado['olvidada']) : null,
         ]);
     }
 

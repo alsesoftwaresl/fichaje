@@ -44,7 +44,7 @@
                     <td>{{ $jornada['entrada']?->fecha_hora->format('H:i:s') ?? '—' }}</td>
                     <td>{{ $jornada['salida']?->fecha_hora->format('H:i:s') ?? 'En curso' }}</td>
                     <td>{{ $jornada['horas'] !== null ? number_format($jornada['horas'], 2).' h' : '—' }}</td>
-                    <td>{{ $jornada['correcciones']->map(fn ($c) => $c->motivo)->implode(' | ') ?: '—' }}</td>
+                    <td>{{ $jornada['notas'] ?: '—' }}</td>
                 </tr>
             @empty
                 <tr>

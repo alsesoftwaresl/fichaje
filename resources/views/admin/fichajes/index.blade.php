@@ -4,6 +4,15 @@
     </x-slot>
 
     <div class="space-y-6">
+        {{-- Errores de las ventanas de corregir y añadir salida (se cierran al enviar). --}}
+        @if ($errors->any())
+            <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
         <x-card class="p-4">
             <form method="GET" action="{{ route('admin.fichajes.index') }}" class="flex flex-wrap items-end gap-4">
                 <div>
@@ -62,6 +71,11 @@
                             <td class="px-4 py-3 text-slate-700">
                                 @if ($jornada['salida'])
                                     {{ $jornada['salida']->fecha_hora->format('H:i:s') }}
+                                    @if ($jornada['salida']->origen === 'empresa')
+                                        <div class="text-xs text-amber-700" title="{{ $jornada['salida']->motivo }}">Añadida por la empresa: {{ $jornada['salida']->motivo }}</div>
+                                    @endif
+                                @elseif (App\Services\RegistroFichajes::entradaOlvidada($jornada['entrada']))
+                                    <x-badge tone="warning">Sin salida</x-badge>
                                 @else
                                     <x-badge tone="indigo">En curso</x-badge>
                                 @endif
@@ -80,7 +94,7 @@
                                 @if ($jornada['entrada'])
                                     <button type="button"
                                         x-data
-                                        @click="$dispatch('abrir-correccion', { id: {{ $jornada['entrada']->id }}, fecha: '{{ $jornada['entrada']->fecha_hora->format('Y-m-d\TH:i') }}' })"
+                                        @click="$dispatch('abrir-correccion', { accion: '{{ route('admin.fichajes.correcciones.store', $jornada['entrada']) }}', fecha: '{{ $jornada['entrada']->fecha_hora->format('Y-m-d\TH:i') }}' })"
                                         class="text-xs font-medium text-indigo-600 hover:text-indigo-500">
                                         Corregir entrada
                                     </button>
@@ -88,9 +102,16 @@
                                 @if ($jornada['salida'])
                                     <button type="button"
                                         x-data
-                                        @click="$dispatch('abrir-correccion', { id: {{ $jornada['salida']->id }}, fecha: '{{ $jornada['salida']->fecha_hora->format('Y-m-d\TH:i') }}' })"
+                                        @click="$dispatch('abrir-correccion', { accion: '{{ route('admin.fichajes.correcciones.store', $jornada['salida']) }}', fecha: '{{ $jornada['salida']->fecha_hora->format('Y-m-d\TH:i') }}' })"
                                         class="text-xs font-medium text-indigo-600 hover:text-indigo-500">
                                         Corregir salida
+                                    </button>
+                                @elseif ($jornada['entrada'])
+                                    <button type="button"
+                                        x-data
+                                        @click="$dispatch('abrir-salida', { accion: '{{ route('admin.fichajes.salida.store', $jornada['entrada']) }}', fecha: '{{ $jornada['entrada']->fecha_hora->format('Y-m-d\TH:i') }}' })"
+                                        class="text-xs font-medium text-amber-600 hover:text-amber-500">
+                                        Añadir salida
                                     </button>
                                 @endif
                             </td>
@@ -108,4 +129,5 @@
     </div>
 
     @include('admin.fichajes._correccion-modal')
+    @include('admin.fichajes._salida-modal')
 </x-app-layout>

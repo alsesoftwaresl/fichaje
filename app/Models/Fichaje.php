@@ -20,6 +20,14 @@ class Fichaje extends Model
     // Append-only: no hay updated_at, es una tabla de solo-inserción.
     const UPDATED_AT = null;
 
+    // Una entrada sin salida más antigua que esto se da por olvidada: el siguiente
+    // fichaje vuelve a ser una entrada y no se empareja con ella (ver RegistroFichajes).
+    // Cubre de sobra un turno largo o nocturno.
+    const HORAS_MAXIMAS_JORNADA = 16;
+
+    // Dos fichajes del mismo empleado separados por menos de esto son un doble toque.
+    const SEGUNDOS_ENTRE_FICHAJES = 60;
+
     /**
      * Campos que se pueden rellenar. empresa_id lo pone BelongsToTenant, nunca el
      * formulario.
@@ -29,6 +37,8 @@ class Fichaje extends Model
         'tipo',
         'fecha_hora',
         'origen',
+        'registrado_por',
+        'motivo',
         'ip_address',
         'user_agent',
     ];

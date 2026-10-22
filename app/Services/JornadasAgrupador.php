@@ -18,7 +18,7 @@ class JornadasAgrupador
     /**
      * @param  Collection<int, Fichaje>  $fichajes  Deben traer cargadas las
      *                                              relaciones 'usuario' y 'correcciones'.
-     * @return Collection<int, array{usuario: mixed, entrada: ?Fichaje, salida: ?Fichaje, horas: ?float, correcciones: Collection}>
+     * @return Collection<int, array{usuario: mixed, entrada: ?Fichaje, salida: ?Fichaje, horas: ?float, correcciones: Collection, notas: string}>
      */
     public static function agrupar(Collection $fichajes): Collection
     {
@@ -31,7 +31,7 @@ class JornadasAgrupador
 
     /**
      * Empareja las entradas y salidas de un usuario en jornadas, respetando el orden. Una
-     * entrada sin salida queda como jornada en curso.
+     * entrada sin salida queda como jornada en curso (o sin cerrar, si es antigua).
      */
     protected static function agruparDeUnUsuario(Collection $fichajesOrdenados): Collection
     {
@@ -41,8 +41,8 @@ class JornadasAgrupador
         foreach ($fichajesOrdenados as $fichaje) {
             if ($fichaje->tipo === 'entrada') {
                 if ($entradaPendiente) {
-                    // Dos entradas seguidas sin salida intermedia (no debería
-                    // ocurrir con el toggle normal, pero no lo descartamos).
+                    // Dos entradas seguidas: la primera se quedó sin salida (el
+                    // empleado olvidó fichar y RegistroFichajes la dio por olvidada).
                     $jornadas->push(static::jornada($entradaPendiente, null));
                 }
                 $entradaPendiente = $fichaje;
@@ -50,7 +50,14 @@ class JornadasAgrupador
                 continue;
             }
 
-            // tipo === 'salida'
+            // tipo === 'salida'. Si la entrada pendiente es de hace demasiado, no son la
+            // misma jornada (datos de antes de RegistroFichajes, en los que olvidar la salida
+            // convertía la llegada del día siguiente en "salida"): cada una va por su lado.
+            if ($entradaPendiente && $entradaPendiente->fecha_hora->diffInHours($fichaje->fecha_hora) > Fichaje::HORAS_MAXIMAS_JORNADA) {
+                $jornadas->push(static::jornada($entradaPendiente, null));
+                $entradaPendiente = null;
+            }
+
             $jornadas->push(static::jornada($entradaPendiente, $fichaje));
             $entradaPendiente = null;
         }
@@ -89,6 +96,13 @@ class JornadasAgrupador
             'correcciones' => collect([$entrada, $salida])
                 ->filter()
                 ->flatMap(fn (Fichaje $f) => $f->correcciones),
+            // Texto para los informes: motivos de las correcciones y de los fichajes que
+            // añadió la empresa (p. ej. una salida olvidada).
+            'notas' => collect([$entrada, $salida])
+                ->filter()
+                ->flatMap(fn (Fichaje $f) => $f->correcciones->pluck('motivo')
+                    ->when($f->origen === 'empresa', fn ($notas) => $notas->prepend(ucfirst($f->tipo).' añadida por la empresa: '.$f->motivo)))
+                ->implode(' | '),
         ];
     }
 
