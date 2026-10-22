@@ -58,6 +58,31 @@ class IncidenciasCalculador
             return collect();
         }
 
+        return static::delPeriodo($empresaId, $fecha, $fecha);
+    }
+
+    /**
+     * Incidencias de todos los días entre $desde y $hasta (ambos incluidos,
+     * sin pasar de hoy ni de MAX_DIAS_PERIODO días).
+     *
+     * Escalabilidad: los datos del periodo se cargan UNA vez (empleados, fichajes,
+     * ausencias y citas, con un número de consultas fijo) y se reparten por días en
+     * memoria. Antes se hacían unas cinco consultas por cada día del periodo.
+     *
+     * @return Collection<int, array{tipo: string, empleado: User, detalle: string, fecha: Carbon, minutos: ?int, horas_extra: ?float}>
+     */
+    public static function delPeriodo(int $empresaId, Carbon $desde, Carbon $hasta): Collection
+    {
+        Tenant::set($empresaId);
+
+        $desde = $desde->copy()->startOfDay();
+        $hasta = $hasta->copy()->startOfDay()->min(now()->startOfDay());
+        $hasta = $hasta->min($desde->copy()->addDays(static::MAX_DIAS_PERIODO - 1));
+
+        if ($desde->gt($hasta)) {
+            return collect();
+        }
+
         $empleados = User::deEmpresa($empresaId)->where('activo', true)->get();
 
         if ($empleados->isEmpty()) {
@@ -66,35 +91,70 @@ class IncidenciasCalculador
 
         $ids = $empleados->pluck('id');
 
-        $fichajesPorUsuario = Fichaje::with(['usuario', 'correcciones'])
+        // Fichajes del periodo y del día siguiente al último (una entrada sin salida no es
+        // olvido si la siguiente marca es una salida: turno que cruza la medianoche).
+        $fichajesPorDia = Fichaje::with(['usuario', 'correcciones'])
             ->whereIn('user_id', $ids)
-            ->whereDate('fecha_hora', $fecha)
+            ->where('fecha_hora', '>=', $desde)
+            ->where('fecha_hora', '<', $hasta->copy()->addDays(2))
             ->orderBy('fecha_hora')
             ->get()
-            ->groupBy('user_id');
+            ->groupBy(fn (Fichaje $f) => $f->fecha_hora->toDateString());
 
-        // Una entrada de ayer sin salida hoy no es olvido si la siguiente
-        // marca es una salida (turno que cruza la medianoche).
-        $primeraMarcaDelDiaSiguiente = Fichaje::whereIn('user_id', $ids)
-            ->whereDate('fecha_hora', $fecha->copy()->addDay())
-            ->orderBy('fecha_hora')
+        $ausenciasAprobadas = Ausencia::where('estado', 'aprobada')
+            ->whereIn('user_id', $ids)
+            ->whereDate('fecha_inicio', '<=', $hasta)
+            ->whereDate('fecha_fin', '>=', $desde)
+            ->get();
+
+        // Citas (médico, etc.) avisadas: justifican la salida.
+        $citasPorDia = Cita::vigentes()
+            ->whereIn('user_id', $ids)
+            ->whereDate('fecha', '>=', $desde)
+            ->whereDate('fecha', '<=', $hasta)
             ->get()
+            ->groupBy(fn (Cita $c) => $c->fecha->toDateString());
+
+        $incidencias = collect();
+
+        for ($dia = $desde->copy(); $dia->lte($hasta); $dia->addDay()) {
+            $incidencias = $incidencias->concat(
+                static::incidenciasDelDia($empleados, $dia, $fichajesPorDia, $ausenciasAprobadas, $citasPorDia)
+            );
+        }
+
+        return $incidencias->values();
+    }
+
+    /**
+     * Incidencias de un día a partir de datos ya cargados (no hace consultas).
+     *
+     * @param  Collection<int, User>  $empleados  Empleados activos de la empresa.
+     * @param  Collection<string, Collection<int, Fichaje>>  $fichajesPorDia  Fichajes agrupados por fecha (Y-m-d), en orden.
+     * @param  Collection<int, Ausencia>  $ausenciasAprobadas  Ausencias aprobadas que pueden afectar al periodo.
+     * @param  Collection<string, Collection<int, Cita>>  $citasPorDia  Citas vigentes agrupadas por fecha (Y-m-d).
+     * @return Collection<int, array{tipo: string, empleado: User, detalle: string, fecha: Carbon, minutos: ?int, horas_extra: ?float}>
+     */
+    protected static function incidenciasDelDia(
+        Collection $empleados,
+        Carbon $fecha,
+        Collection $fichajesPorDia,
+        Collection $ausenciasAprobadas,
+        Collection $citasPorDia,
+    ): Collection {
+        $fichajesPorUsuario = $fichajesPorDia->get($fecha->toDateString(), collect())->groupBy('user_id');
+
+        $primeraMarcaDelDiaSiguiente = $fichajesPorDia
+            ->get($fecha->copy()->addDay()->toDateString(), collect())
             ->groupBy('user_id')
             ->map(fn (Collection $marcas) => $marcas->first());
 
-        $ausentes = Ausencia::where('estado', 'aprobada')
-            ->whereIn('user_id', $ids)
-            ->get()
+        $ausentes = $ausenciasAprobadas
             ->filter(fn (Ausencia $ausencia) => $ausencia->cubre($fecha))
             ->pluck('user_id')
             ->flip();
 
-        // Citas (médico, etc.) avisadas para ese día: justifican la salida.
-        $citasPorUsuario = Cita::vigentes()
-            ->whereIn('user_id', $ids)
-            ->whereDate('fecha', $fecha)
-            ->get()
-            ->groupBy('user_id');
+        $citasPorUsuario = $citasPorDia->get($fecha->toDateString(), collect())->groupBy('user_id');
 
         return $empleados
             // Nada de incidencias de días anteriores al alta del empleado
@@ -109,27 +169,6 @@ class IncidenciasCalculador
                 $citasPorUsuario->get($empleado->id, collect()),
             ))
             ->values();
-    }
-
-    /**
-     * Incidencias de todos los días entre $desde y $hasta (ambos incluidos,
-     * sin pasar de hoy ni de MAX_DIAS_PERIODO días).
-     *
-     * @return Collection<int, array{tipo: string, empleado: User, detalle: string, fecha: Carbon, minutos: ?int, horas_extra: ?float}>
-     */
-    public static function delPeriodo(int $empresaId, Carbon $desde, Carbon $hasta): Collection
-    {
-        $desde = $desde->copy()->startOfDay();
-        $hasta = $hasta->copy()->startOfDay()->min(now()->startOfDay());
-        $hasta = $hasta->min($desde->copy()->addDays(static::MAX_DIAS_PERIODO - 1));
-
-        $incidencias = collect();
-
-        for ($dia = $desde->copy(); $dia->lte($hasta); $dia->addDay()) {
-            $incidencias = $incidencias->concat(static::delDia($empresaId, $dia));
-        }
-
-        return $incidencias->values();
     }
 
     /**
