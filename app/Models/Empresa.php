@@ -40,6 +40,7 @@ class Empresa extends Model
         return [
             'activa' => 'boolean',
             'fichaje_web' => 'boolean',
+            'kiosko_modo_elegido' => 'boolean',
             'licencia_hasta' => 'date',
         ];
     }

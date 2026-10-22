@@ -4,6 +4,36 @@
     </x-slot>
 
     <div class="space-y-6">
+        {{-- Pregunta de una sola vez: cómo se ficha en el kiosco (por defecto, con PIN). --}}
+        @unless (Auth::user()->empresa->kiosko_modo_elegido)
+            <x-card class="border-indigo-200 bg-indigo-50 p-5">
+                <h3 class="font-semibold text-indigo-950">¿Cómo quieres que fichen tus empleados en el kiosco?</h3>
+                <p class="mt-1 text-sm text-indigo-900/80">Puedes cambiarlo cuando quieras en Empleados. Empezamos con PIN, que es lo más seguro.</p>
+
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                    <form method="POST" action="{{ route('admin.kiosko.modo') }}">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="kiosko_modo" value="pin">
+                        <button class="w-full rounded-lg border border-indigo-300 bg-white p-4 text-left transition hover:border-indigo-500">
+                            <span class="block font-semibold text-slate-900">Con un PIN de 6 números <span class="ml-1 rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-800">Recomendado</span></span>
+                            <span class="mt-1 block text-sm text-slate-600">Cada empleado tiene su PIN personal. Es el más seguro.</span>
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.kiosko.modo') }}">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="kiosko_modo" value="dni">
+                        <button class="w-full rounded-lg border border-indigo-300 bg-white p-4 text-left transition hover:border-indigo-500">
+                            <span class="block font-semibold text-slate-900">Con su DNI o NIE</span>
+                            <span class="mt-1 block text-sm text-slate-600">Nadie tiene que recordar nada, pero cualquiera que conozca el DNI de un compañero podría fichar por él.</span>
+                        </button>
+                    </form>
+                </div>
+                <p class="mt-3 text-xs text-indigo-900/70">También puedes permitir las dos formas desde <a href="{{ route('admin.empleados.index') }}" class="font-medium underline">Empleados</a>.</p>
+            </x-card>
+        @endunless
+
         @if ($incidencias->isNotEmpty())
             <x-card class="p-4 border-amber-200 bg-amber-50">
                 <div class="mb-3 flex items-center justify-between gap-3">

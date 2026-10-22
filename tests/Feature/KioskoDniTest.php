@@ -225,5 +225,36 @@ class KioskoDniTest extends TestCase
         $this->actingAs($admin)->patch(route('admin.kiosko.modo'), ['kiosko_modo' => 'dni', 'fichaje_web' => '1'])->assertRedirect();
         $this->assertTrue($empresa->fresh()->fichaje_web);
     }
+
+    public function test_la_primera_vez_el_admin_ve_la_pregunta_del_kiosco_y_desaparece_al_elegir(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $admin = User::factory()->adminEmpresa()->for($empresa)->create();
+
+        $this->assertSame('pin', $empresa->fresh()->kiosko_modo);
+        $this->assertFalse($empresa->fresh()->kiosko_modo_elegido);
+
+        $this->actingAs($admin)->get(route('admin.panel.index'))
+            ->assertOk()->assertSee('¿Cómo quieres que fichen tus empleados en el kiosco?')->assertSee('Recomendado');
+
+        $this->actingAs($admin)->patch(route('admin.kiosko.modo'), ['kiosko_modo' => 'dni'])->assertRedirect();
+
+        $this->assertSame('dni', $empresa->fresh()->kiosko_modo);
+        $this->assertTrue($empresa->fresh()->kiosko_modo_elegido);
+
+        $this->actingAs($admin->fresh())->get(route('admin.panel.index'))
+            ->assertOk()->assertDontSee('¿Cómo quieres que fichen tus empleados en el kiosco?');
+    }
+
+    public function test_elegir_pin_en_la_pregunta_mantiene_el_pin_y_la_oculta(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $admin = User::factory()->adminEmpresa()->for($empresa)->create();
+
+        $this->actingAs($admin)->patch(route('admin.kiosko.modo'), ['kiosko_modo' => 'pin'])->assertRedirect();
+
+        $this->assertSame('pin', $empresa->fresh()->kiosko_modo);
+        $this->assertTrue($empresa->fresh()->kiosko_modo_elegido);
+    }
 }
 

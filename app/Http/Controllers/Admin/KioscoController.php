@@ -27,7 +27,7 @@ class KioscoController extends Controller
         $empresa = Auth::user()->empresa;
         $anterior = $empresa->kiosko_modo;
 
-        $cambios = ['kiosko_modo' => $data['kiosko_modo']];
+        $cambios = ['kiosko_modo' => $data['kiosko_modo'], 'kiosko_modo_elegido' => true];
 
         // Solo se toca si el formulario lo envía (así no se pisa en peticiones antiguas).
         if ($request->has('fichaje_web')) {
