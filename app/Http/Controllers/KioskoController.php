@@ -20,6 +20,12 @@ use Illuminate\View\View;
  */
 class KioskoController extends Controller
 {
+    // Fallos de PIN o DNI permitidos desde un mismo sitio antes de frenar el kiosco, y
+    // cuánto dura el freno.
+    const FALLOS_PERMITIDOS = 10;
+
+    const SEGUNDOS_DE_BLOQUEO = 300;
+
     /**
      * Muestra el teclado del kiosco, o la pantalla de "bloqueado" si la empresa no tiene
      * suscripción ni licencia.
@@ -56,12 +62,24 @@ class KioskoController extends Controller
             return back()->withErrors([$conDni ? 'dni' : 'pin' => 'Este kiosco no permite fichar así.']);
         }
 
+        // Tras varios fallos seguidos desde el mismo sitio se frena un rato, con PIN y con
+        // DNI, para que no se puedan ir probando PIN o DNIs hasta acertar uno.
+        $campo = $conDni ? 'dni' : 'pin';
+        $claveIntentos = 'kiosko:'.$empresa->id.'|'.$request->ip();
+
+        if (RateLimiter::tooManyAttempts($claveIntentos, self::FALLOS_PERMITIDOS)) {
+            return back()->withErrors([$campo => 'Demasiados intentos. Espera unos minutos y vuelve a probar.']);
+        }
+
         $empleado = $conDni
             ? $this->empleadoPorDni($request, $empresa)
             : $this->empleadoPorPin($request, $empresa);
 
-        if ($empleado instanceof RedirectResponse) {
-            return $empleado;
+        if (! $empleado) {
+            RateLimiter::hit($claveIntentos, self::SEGUNDOS_DE_BLOQUEO);
+
+            // Mensajes genéricos: no se dice si existe o está de baja.
+            return back()->withErrors([$campo => $conDni ? 'No hemos encontrado ese DNI o NIE.' : 'PIN incorrecto.']);
         }
 
         // No hay usuario autenticado en el kiosco: el tenant se fija a mano
@@ -84,49 +102,29 @@ class KioskoController extends Controller
     }
 
     /**
-     * Busca al empleado por su PIN de 6 dígitos. Devuelve el empleado o una respuesta de
-     * error ya preparada.
+     * Busca al empleado activo de la empresa por su PIN de 6 dígitos. null si no hay ninguno
+     * (PIN incorrecto o empleado de baja: no se distingue, para no dar pistas).
      */
-    protected function empleadoPorPin(Request $request, Empresa $empresa): User|RedirectResponse
+    protected function empleadoPorPin(Request $request, Empresa $empresa): ?User
     {
         $data = $request->validate([
             'pin' => ['required', 'digits:6'],
         ]);
 
-        $empleado = User::buscarPorPin($empresa->id, $data['pin']);
-
-        // Mensaje genérico a propósito: no se distingue entre "PIN
-        // incorrecto" y "empleado inactivo" para no dar pistas.
-        return $empleado ?? back()->withErrors(['pin' => 'PIN incorrecto.']);
+        return User::buscarPorPin($empresa->id, $data['pin']);
     }
 
     /**
      * Busca al empleado activo de la empresa por su DNI o NIE (sin importar mayúsculas,
-     * espacios, guiones o puntos). Tras varios fallos seguidos desde el mismo sitio se frena
-     * un rato, para que no se pueda ir probando DNIs.
+     * espacios, guiones o puntos). null si no hay ninguno.
      */
-    protected function empleadoPorDni(Request $request, Empresa $empresa): User|RedirectResponse
+    protected function empleadoPorDni(Request $request, Empresa $empresa): ?User
     {
-        $clave = 'kiosko-dni:'.$empresa->id.'|'.$request->ip();
-
-        if (RateLimiter::tooManyAttempts($clave, 10)) {
-            return back()->withErrors(['dni' => 'Demasiados intentos. Espera unos minutos y vuelve a probar.']);
-        }
-
         $dni = Str::upper(preg_replace('/[\s\-\.]/', '', (string) $request->input('dni')));
 
-        $empleado = preg_match('/^(\d{8}|[XYZ]\d{7})[A-Z]$/', $dni)
+        return preg_match('/^(\d{8}|[XYZ]\d{7})[A-Z]$/', $dni)
             ? User::where('empresa_id', $empresa->id)->where('dni_nie', $dni)->where('activo', true)->first()
             : null;
-
-        if (! $empleado) {
-            RateLimiter::hit($clave, 300);
-
-            // Mensaje genérico: no se dice si el DNI existe o está de baja.
-            return back()->withErrors(['dni' => 'No hemos encontrado ese DNI o NIE.']);
-        }
-
-        return $empleado;
     }
 
     /**

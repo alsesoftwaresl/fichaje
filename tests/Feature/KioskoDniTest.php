@@ -125,7 +125,7 @@ class KioskoDniTest extends TestCase
     public function test_tras_muchos_fallos_seguidos_se_frena_el_kiosco(): void
     {
         [$empresa] = $this->empresaConEmpleado('dni');
-        RateLimiter::clear('kiosko-dni:'.$empresa->id.'|127.0.0.1');
+        RateLimiter::clear('kiosko:'.$empresa->id.'|127.0.0.1');
 
         for ($i = 0; $i < 10; $i++) {
             $this->fichar($empresa, ['dni' => '99999999R']);

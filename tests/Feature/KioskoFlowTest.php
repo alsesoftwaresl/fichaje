@@ -69,6 +69,28 @@ class KioskoFlowTest extends TestCase
         $this->assertDatabaseCount('fichajes', 0);
     }
 
+    public function test_tras_muchos_pin_incorrectos_se_frena_el_kiosco(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $empleado = User::factory()->for($empresa)->create();
+        $pin = $empleado->generarNuevoPin();
+        $incorrecto = $pin === '111111' ? '222222' : '111111';
+
+        for ($i = 0; $i < 10; $i++) {
+            $this->post(route('kiosko.fichar', $empresa->kiosko_token), ['pin' => $incorrecto])
+                ->assertSessionHasErrors(['pin' => 'PIN incorrecto.']);
+        }
+
+        // Ni siquiera el PIN correcto pasa mientras dure el bloqueo.
+        $this->post(route('kiosko.fichar', $empresa->kiosko_token), ['pin' => $pin])
+            ->assertSessionHasErrors(['pin' => 'Demasiados intentos. Espera unos minutos y vuelve a probar.']);
+        $this->assertSame(0, Fichaje::withoutGlobalScopes()->where('user_id', $empleado->id)->count());
+
+        // Pasado el bloqueo vuelve a funcionar.
+        $this->travel(6)->minutes();
+        $this->post(route('kiosko.fichar', $empresa->kiosko_token), ['pin' => $pin])->assertSessionHas('resultado');
+    }
+
     public function test_token_de_kiosco_invalido_devuelve_404(): void
     {
         $this->get('/kiosko/token-que-no-existe')->assertNotFound();
