@@ -32,5 +32,7 @@
 - [Funciones]({{ route('funciones') }}): todas las funciones explicadas, y lo que no hace.
 - [Guía: registro de jornada obligatorio en España]({{ route('guia.registro-jornada') }}): qué exige la ley y cómo cumplirla.
 - [Guía: registro horario digital, en qué punto está la reforma]({{ route('guia.registro-digital') }}): qué es obligatorio hoy y qué está pendiente de aprobación.
+- [Plantilla gratuita de registro de jornada]({{ route('plantilla.index') }}): Excel con fórmulas y PDF para imprimir, sin registro.
+- [Control horario por tipo de negocio]({{ route('sectores.index') }}): bares y restaurantes, tiendas, talleres y oficinas.
 - [Contacto]({{ route('contacto.create') }}): atención al cliente en español, con atención personal. Correo: {{ config('legal.titular.email') }}.
 - [Crear una cuenta]({{ route('registro.create') }}): alta de empresa con prueba gratuita.

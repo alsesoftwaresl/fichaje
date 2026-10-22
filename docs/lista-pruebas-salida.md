@@ -138,3 +138,10 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 - [ ] Sitio enviado a Search Console y Bing, con el sitemap.
 - [ ] Alguien lee `info@achrono.es` a diario.
 - [ ] Primera semana: mirar a diario `storage/logs/laravel.log` y los mensajes de contacto.
+
+## L. Contenido para buscadores e IAs
+
+- [ ] La plantilla gratuita (`/plantilla-registro-jornada`) descarga el Excel y el PDF del mes elegido; en el Excel, al poner entrada, salida y pausa se calculan las horas.
+- [ ] Las cuatro páginas de sector (`/control-horario/…`) abren y se leen bien en móvil.
+- [ ] `/sitemap.xml` lista todas las páginas públicas con fecha; `/robots.txt`, `/llms.txt` y `/llms-full.txt` abren.
+- [ ] Web abierta al público (`cmd=up`), sitemap enviado en Google Search Console y Bing Webmaster Tools, y `cmd=seo:indexnow` responde "Aviso enviado".

@@ -600,6 +600,33 @@
             </div>
         </section>
 
+        {{-- ============ PARA CADA TIPO DE NEGOCIO + PLANTILLA GRATIS ============ --}}
+        <section id="sectores" class="scroll-mt-4 bg-slate-50 border-y border-slate-100">
+            <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-20 sm:py-24">
+                <div class="max-w-2xl">
+                    <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Para cada tipo de negocio</p>
+                    <h2 class="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-indigo-950">No es lo mismo fichar en un bar que en una oficina</h2>
+                </div>
+
+                <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    @foreach (config('sectores') as $slug => $s)
+                        <a href="{{ route('sector.show', $slug) }}" class="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-indigo-300 hover:shadow-md">
+                            <h3 class="font-display text-lg font-semibold text-indigo-950">{{ $s['nombre'] }}</h3>
+                            <span class="mt-3 inline-block text-sm font-semibold text-indigo-600 group-hover:underline">Ver cómo te ayuda →</span>
+                        </a>
+                    @endforeach
+                </div>
+
+                <div class="mt-10 flex flex-col gap-4 rounded-2xl bg-indigo-950 p-6 text-white sm:flex-row sm:items-center sm:justify-between sm:p-8">
+                    <div>
+                        <h3 class="font-display text-xl font-semibold">Plantilla gratuita de registro de jornada</h3>
+                        <p class="mt-1 text-indigo-100/90">Excel con fórmulas o PDF para imprimir. Sin registrarte y sin dejar tu correo.</p>
+                    </div>
+                    <a href="{{ route('plantilla.index') }}" class="inline-flex shrink-0 items-center justify-center rounded-lg bg-accent-500 px-6 py-3 font-semibold text-indigo-950 transition hover:bg-accent-400">Descargar plantilla</a>
+                </div>
+            </div>
+        </section>
+
         {{-- ============ ATENCIÓN AL CLIENTE Y CONTACTO ============ --}}
         <section id="atencion" class="scroll-mt-4 bg-indigo-950 text-white">
             <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-16 sm:py-24 grid gap-10 lg:grid-cols-5 lg:items-start">
@@ -682,6 +709,8 @@
             </div>
             <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-indigo-300">
                 <a href="{{ route('funciones') }}" class="hover:text-white hover:underline">Funciones</a>
+                <a href="{{ route('sectores.index') }}" class="hover:text-white hover:underline">Por sector</a>
+                <a href="{{ route('plantilla.index') }}" class="hover:text-white hover:underline">Plantilla gratis</a>
                 <a href="{{ route('guia.registro-jornada') }}" class="hover:text-white hover:underline">Registro de jornada</a>
                 <a href="{{ route('contacto.create') }}" class="hover:text-white hover:underline">Contacto</a>
                 <a href="{{ route('legal.aviso-legal') }}" class="hover:text-white hover:underline">Aviso legal</a>

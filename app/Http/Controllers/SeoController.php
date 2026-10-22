@@ -33,6 +33,8 @@ class SeoController extends Controller
         'guia.registro-digital' => ['0.8', 'guia/registro-digital'],
         'registro.create' => ['0.8', 'registro/create'],
         'contacto.create' => ['0.6', 'contacto'],
+        'plantilla.index' => ['0.9', 'plantilla/index'],
+        'sectores.index' => ['0.7', 'sector/index'],
     ];
 
     /** URLs públicas (las del sitemap y los ficheros para IAs), por ejemplo para avisar a IndexNow. */
@@ -40,6 +42,7 @@ class SeoController extends Controller
     {
         return array_merge(
             array_map(fn ($ruta) => route($ruta), array_keys(self::PAGINAS)),
+            array_map(fn ($slug) => route('sector.show', $slug), array_keys(config('sectores'))),
             [route('llms'), route('llms-full')]
         );
     }
@@ -61,19 +64,26 @@ class SeoController extends Controller
 
     public function sitemap(): Response
     {
-        $urls = collect(self::PAGINAS)->map(function ($datos, $ruta) {
-            [$prioridad, $vista] = $datos;
-            $fichero = resource_path('views/'.$vista.'.blade.php');
+        $entradas = collect(self::PAGINAS)->map(fn ($datos, $ruta) => [
+            route($ruta), $datos[0], resource_path('views/'.$datos[1].'.blade.php'),
+        ]);
+
+        // Una página por sector: su fecha es la del fichero de contenido.
+        foreach (array_keys(config('sectores')) as $slug) {
+            $entradas->push([route('sector.show', $slug), '0.8', config_path('sectores.php')]);
+        }
+
+        $urls = $entradas->map(function ($e) {
+            [$url, $prioridad, $fichero] = $e;
             $fecha = is_file($fichero) ? gmdate('Y-m-d', filemtime($fichero)) : null;
 
-            return "  <url>\n    <loc>".e(route($ruta))."</loc>\n".($fecha ? "    <lastmod>{$fecha}</lastmod>\n" : '')."    <priority>{$prioridad}</priority>\n  </url>";
+            return "  <url>\n    <loc>".e($url)."</loc>\n".($fecha ? "    <lastmod>{$fecha}</lastmod>\n" : '')."    <priority>{$prioridad}</priority>\n  </url>";
         })->implode("\n");
 
         $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n{$urls}\n</urlset>\n";
 
         return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
-
     /**
      * Versión larga de llms.txt: todo el contenido de la web en texto plano (producto,
      * funciones, límites, precio, preguntas, ley y contacto) para que un asistente de IA lo

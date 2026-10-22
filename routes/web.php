@@ -23,6 +23,8 @@ use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\SuperAdmin\EmpresaController;
 use App\Http\Controllers\Admin\KioscoController;
 use App\Http\Controllers\ContactoController;
+use App\Http\Controllers\PlantillaController;
+use App\Http\Controllers\SectorController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SuperAdmin\MensajeController;
 use App\Http\Controllers\SuperAdmin\LicenciaController as SuperAdminLicenciaController;
@@ -39,6 +41,13 @@ Route::get('/', HomeController::class)->name('home');
 
 // Guía pública sobre el registro de jornada (contenido para buscadores e IAs).
 Route::view('/funciones', 'funciones')->name('funciones');
+
+// Recursos y páginas por sector (contenido para buscadores e IAs).
+Route::get('/plantilla-registro-jornada', [PlantillaController::class, 'index'])->name('plantilla.index');
+Route::get('/plantilla-registro-jornada/excel', [PlantillaController::class, 'excel'])->middleware('throttle:30,1')->name('plantilla.excel');
+Route::get('/plantilla-registro-jornada/pdf', [PlantillaController::class, 'pdf'])->middleware('throttle:30,1')->name('plantilla.pdf');
+Route::get('/control-horario', [SectorController::class, 'index'])->name('sectores.index');
+Route::get('/control-horario/{sector}', [SectorController::class, 'show'])->where('sector', '[a-z\-]+')->name('sector.show');
 Route::view('/guia/registro-de-jornada', 'guia.registro-jornada')->name('guia.registro-jornada');
 Route::view('/guia/registro-horario-digital-obligatorio', 'guia.registro-digital')->name('guia.registro-digital');
 

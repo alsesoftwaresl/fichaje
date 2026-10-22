@@ -73,5 +73,10 @@
 - Funciones: {!! route('funciones') !!}
 - Guía del registro de jornada: {!! route('guia.registro-jornada') !!}
 - Guía del registro horario digital: {!! route('guia.registro-digital') !!}
+- Plantilla gratuita de registro de jornada (Excel y PDF): {!! route('plantilla.index') !!}
+- Control horario por tipo de negocio: {!! route('sectores.index') !!}
+@foreach (config('sectores') as $slug => $s)
+  - {!! $s['titulo'] !!}: {!! route('sector.show', $slug) !!}
+@endforeach
 - Crear una cuenta: {!! route('registro.create') !!}
 - Aviso legal: {!! route('legal.aviso-legal') !!}
