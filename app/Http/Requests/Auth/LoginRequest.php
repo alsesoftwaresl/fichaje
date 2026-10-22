@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -45,6 +47,9 @@ class LoginRequest extends FormRequest
      * mismo campo "login" acepta cualquiera de los dos: si contiene "@" se
      * busca por email, si no por dni_nie.
      *
+     * Un usuario dado de baja (activo=false) o de una empresa desactivada no
+     * puede entrar, sin necesidad de borrar su fila ni sus fichajes.
+     *
      * @throws ValidationException
      */
     public function authenticate(): void
@@ -52,18 +57,12 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $login = trim((string) $this->string('login'));
-        $campo = str_contains($login, '@') ? 'email' : 'dni_nie';
 
-        // 'activo' => true en las credenciales: un empleado/admin dado de baja
-        // (activo=false) no puede iniciar sesión, sin necesidad de borrar su fila
-        // ni sus fichajes históricos.
-        $credentials = [
-            $campo => $campo === 'dni_nie' ? Str::upper($login) : $login,
-            'password' => $this->string('password'),
-            'activo' => true,
-        ];
+        $usuario = str_contains($login, '@')
+            ? $this->usuarioPorEmail($login)
+            : $this->usuarioPorDni(Str::upper($login));
 
-        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
+        if (! $usuario) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -71,18 +70,52 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        $user = Auth::user();
-
-        if ($user->empresa_id !== null && $user->empresa?->activa !== true) {
-            Auth::logout();
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'login' => trans('auth.failed'),
-            ]);
-        }
+        Auth::login($usuario, $this->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey());
+    }
+
+    /**
+     * El email es único en toda la app.
+     */
+    protected function usuarioPorEmail(string $email): ?User
+    {
+        $usuario = User::where('email', $email)->where('activo', true)->first();
+
+        return $usuario && $this->puedeEntrar($usuario) ? $usuario : null;
+    }
+
+    /**
+     * El DNI/NIE es único dentro de cada empresa, pero la misma persona puede estar en dos.
+     * Se queda con la cuenta cuya contraseña coincide; si coinciden varias no se puede
+     * saber a cuál quiere entrar y se le pide que use otra contraseña en una de ellas.
+     *
+     * @throws ValidationException
+     */
+    protected function usuarioPorDni(string $dni): ?User
+    {
+        $coinciden = User::where('dni_nie', $dni)
+            ->where('activo', true)
+            ->get()
+            ->filter(fn (User $usuario) => $this->puedeEntrar($usuario));
+
+        if ($coinciden->count() > 1) {
+            throw ValidationException::withMessages([
+                'login' => 'Tu DNI está dado de alta en varias empresas con la misma contraseña. Pide a una de ellas que te dé una contraseña nueva, o entra con tu email.',
+            ]);
+        }
+
+        return $coinciden->first();
+    }
+
+    /**
+     * Contraseña correcta y, si pertenece a una empresa, que esa empresa esté activa.
+     */
+    protected function puedeEntrar(User $usuario): bool
+    {
+        return $usuario->password !== null
+            && Hash::check((string) $this->string('password'), $usuario->password)
+            && ($usuario->empresa_id === null || $usuario->empresa?->activa === true);
     }
 
     /**

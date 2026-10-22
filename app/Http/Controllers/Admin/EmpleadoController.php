@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rules\Unique;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Stripe\Exception\ApiErrorException;
@@ -69,7 +71,7 @@ class EmpleadoController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'dni_nie' => ['required', 'string', 'max:20', 'regex:'.self::REGEX_DNI_NIE, 'unique:users,dni_nie'],
+            'dni_nie' => ['required', 'string', 'max:20', 'regex:'.self::REGEX_DNI_NIE, $this->dniUnicoEnLaEmpresa()],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['nullable', 'confirmed', Password::defaults()],
             ...$this->reglasHorario(),
@@ -164,7 +166,7 @@ class EmpleadoController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'dni_nie' => ['required', 'string', 'max:20', 'regex:'.self::REGEX_DNI_NIE, 'unique:users,dni_nie,'.$empleado->id],
+            'dni_nie' => ['required', 'string', 'max:20', 'regex:'.self::REGEX_DNI_NIE, $this->dniUnicoEnLaEmpresa()->ignore($empleado->id)],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email,'.$empleado->id],
             // Opcional: en blanco deja la contraseña actual sin tocar. Es la
             // forma de darle acceso a la web más adelante a un empleado que
@@ -343,6 +345,15 @@ class EmpleadoController extends Controller
                 'name' => "Tu licencia incluye hasta {$limite} empleados y ya los has alcanzado. Escribe a soporte para ampliarla.",
             ]);
         }
+    }
+
+    /**
+     * El DNI/NIE no se puede repetir dentro de la empresa; en otra empresa sí (la misma
+     * persona puede trabajar en dos clientes), y no se revela si existe en otra.
+     */
+    protected function dniUnicoEnLaEmpresa(): Unique
+    {
+        return Rule::unique('users', 'dni_nie')->where('empresa_id', Auth::user()->empresa_id);
     }
 
     protected function sincronizarFacturacion(): void
