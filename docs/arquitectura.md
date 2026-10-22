@@ -11,7 +11,7 @@ por dónde crecer cuando haya más empresas, más empleados o más módulos.
 | Middleware | `app/Http/Middleware` | Permisos y contexto (empresa, rol, suscripción, módulos). Una responsabilidad cada uno. |
 | Controladores | `app/Http/Controllers/{Admin,SuperAdmin,Auth}` | Validan, llaman al modelo o servicio y devuelven vista o redirección. Finos. |
 | Modelos | `app/Models` | Relaciones, *casts* y reglas propias del dato (p. ej. `Fichaje` no se edita, `Empresa::tieneAcceso()`). |
-| Servicios | `app/Services` | Cálculos que cruzan varios modelos (jornadas, incidencias, estado del equipo, alta de empresa). Sin efectos secundarios salvo `AltaEmpresaService`. |
+| Servicios | `app/Services` | Cálculos que cruzan varios modelos (jornadas, incidencias, estado del equipo, alta de empresa, registro de fichajes). Sin efectos secundarios salvo `AltaEmpresaService` y `RegistroFichajes`. |
 | Utilidades | `app/Support` | `Tenant` (empresa actual), `Avisos` (envío de correos sin romper la acción), `ContenidoWeb` (textos compartidos). |
 | Notificaciones | `app/Notifications` | Correos. Las de eventos implementan `ShouldQueue`. |
 | Comandos | `app/Console/Commands` | Tareas programadas y de mantenimiento. |
@@ -23,7 +23,9 @@ por dónde crecer cuando haya más empresas, más empleados o más módulos.
    `empresa_id` y lo rellena al crear. Nunca se acepta `empresa_id` desde un formulario. Fuera de
    una petición (comandos, kiosco) se fija con `Tenant::set()` y se limpia con `Tenant::clear()`.
 2. **Registro de jornada inalterable.** `fichajes` y `fichaje_correcciones` solo admiten `INSERT`.
-   Un error se arregla con una corrección (hora nueva, motivo y autor), nunca editando.
+   Un error se arregla con una corrección (hora nueva, motivo y autor), nunca editando; una salida
+   que falta se añade como fichaje nuevo con origen `empresa`. Todo fichaje de empleado pasa por
+   `RegistroFichajes` (entradas olvidadas, doble toque).
 3. **Nada de consultas dentro de bucles.** Se carga lo necesario de una vez (`with()`, `whereIn`,
    rangos de fechas) y se reparte en memoria. `tests/Feature/RendimientoTest.php` vigila el
    cálculo de incidencias; añade una prueba igual para cualquier cálculo pesado nuevo.

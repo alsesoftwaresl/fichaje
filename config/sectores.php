@@ -26,6 +26,7 @@ return [
         'ejemplo' => 'Un restaurante con turno de comida de 12:00 a 16:00 y de cena de 20:00 a 23:30 configura esos dos tramos para cada camarero. Si alguien ficha la entrada de la cena a las 20:25, el panel marca un retraso de 25 minutos; si no ficha la vuelta, aparece como "no ha fichado la vuelta". El dueño lo ve al abrir el panel y no tiene que revisar papeles.',
         'faqs' => [
             ['¿Sirve para turnos partidos?', 'Sí. Puedes definir varios tramos al día para cada empleado (por ejemplo comida y cena) y los días que trabaja. Cada tramo se evalúa por separado.'],
+            ['¿Y si cerramos pasada la medianoche?', 'También. El último tramo del día puede acabar al día siguiente (por ejemplo, de 20:00 a 02:00): la jornada cuenta entera para el día en que empezó y no aparece como un fichaje suelto de la mañana siguiente.'],
             ['¿Y si mis empleados no saben usar aplicaciones?', 'No tienen que instalar nada: fichan en una tablet con un PIN o con su DNI. Quien no tiene correo entra con su DNI.'],
             ['¿Puedo hacer los cuadrantes de turnos rotativos?', 'No. {nombre} no es un programa de cuadrantes: cada empleado tiene un horario fijo por tramos y días de la semana. Si cambias de turnos cada semana, ten en cuenta este límite antes de empezar.'],
             ['¿Cuánto cuesta para un negocio pequeño?', '{precio} € al mes con {incluidos} empleados incluidos y {extra} € al mes por cada empleado adicional, IVA incluido. 15 días de prueba gratis y sin permanencia.'],

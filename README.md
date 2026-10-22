@@ -59,15 +59,17 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.** (contacto: `info@achrono.es`).
 
 ### Fichaje
 
-- **Kiosco**: una tablet u ordenador fijo con una URL única por empresa (`/kiosko/{token}`), sin iniciar sesión. Alterna entrada/salida automáticamente. **Cada empresa elige cómo se identifican los empleados**: solo **PIN** de 6 dígitos (por defecto y lo más seguro), solo **DNI/NIE**, o **ambos** (con un enlace "¿No recuerdas tu PIN? Ficha con tu DNI"). El DNI se acepta sin importar mayúsculas, espacios ni puntos, solo para empleados activos de esa empresa, con mensajes genéricos y freno tras 10 fallos en 5 minutos. La primera vez que entra el admin, el panel le pregunta qué prefiere.
+- **Kiosco**: una tablet u ordenador fijo con una URL única por empresa (`/kiosko/{token}`), sin iniciar sesión. Alterna entrada/salida automáticamente. **Cada empresa elige cómo se identifican los empleados**: solo **PIN** de 6 dígitos (por defecto y lo más seguro), solo **DNI/NIE**, o **ambos** (con un enlace "¿No recuerdas tu PIN? Ficha con tu DNI"). El DNI se acepta sin importar mayúsculas, espacios ni puntos, solo para empleados activos de esa empresa, con mensajes genéricos. Tanto el PIN como el DNI se frenan tras 10 fallos en 5 minutos desde el mismo sitio. La primera vez que entra el admin, el panel le pregunta qué prefiere.
 - **Fichaje desde la cuenta**: los empleados pueden fichar desde `/mis-fichajes`. La empresa puede **desactivarlo** (ajuste en Empleados) para que solo se fiche en el kiosco; entonces esa pantalla es solo de consulta y el servidor rechaza el fichaje.
-- **Jornadas**: entrada y salida se muestran en una sola fila con las **horas trabajadas** ya calculadas (teniendo en cuenta las correcciones).
+- **Salidas olvidadas y doble toque**: si una entrada lleva más de 16 h abierta se da por olvidada y el siguiente fichaje vuelve a ser una entrada (el empleado ve un aviso para que su empresa la complete). Un segundo fichaje en menos de un minuto se ignora. Toda la lógica está en `RegistroFichajes`, común a web y kiosco.
+- **Jornadas**: entrada y salida se muestran en una sola fila con las **horas trabajadas** ya calculadas (teniendo en cuenta las correcciones). Un **turno de noche** (22:00 a 06:00) es una sola jornada del día en que empieza, también en los informes por fechas.
 - **Correcciones trazables**: el admin puede corregir la hora de un fichaje; el original **nunca se modifica**. La corrección queda en otra tabla con su motivo, su autor y la fecha.
+- **Añadir la salida olvidada**: si falta la salida entera, el admin la añade como fichaje nuevo con origen `empresa`, su nombre y el motivo (y queda en auditoría y en las notas de los informes).
 - **Exportación** de fichajes por empleado y rango de fechas en **CSV, Excel y PDF**.
 
 ### Horarios, incidencias y control horario
 
-- **Horario esperado opcional** por empleado: días laborables y hora de entrada/salida.
+- **Horario esperado opcional** por empleado: días laborables y hora de entrada/salida. El último tramo puede acabar pasada la medianoche (turnos de noche).
 - **Turno partido**: hasta 3 tramos al día (por ejemplo 09:00–14:00 y 16:00–19:00). Las horas esperadas son la suma de los tramos y los avisos se evalúan tramo a tramo.
 - **Avisos del panel** (con margen de 10 minutos): *retraso*, *sin fichar*, *fichaje sin cerrar* (pasados 10 minutos de la hora de salida), *no ha vuelto* y *horas de más*. No hay aviso de salida anticipada.
 - **Control horario**: pantalla con filtro por empleado y fechas (hasta 93 días) que resume, por empleado, retrasos, minutos de retraso, días sin fichar, fichajes sin cerrar y horas extra, con el detalle día a día.
@@ -92,7 +94,7 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.** (contacto: `info@achrono.es`).
 ### Cuenta, planes y facturación
 
 - **Registro público** de empresa (`/registro`) con aceptación de términos y encargo de tratamiento, o con **Google**. **Verificación de email** obligatoria para los administradores que se registran por su cuenta.
-- **Prueba gratuita de 15 días** al suscribirse (con tarjeta, sin cobro hasta que termina).
+- **Prueba gratuita de 15 días** al suscribirse por primera vez (con tarjeta, sin cobro hasta que termina). Quien ya fue cliente se vuelve a suscribir sin prueba. No se puede abrir una segunda suscripción ni un segundo pago mientras hay uno abierto.
 - **Suscripción por Stripe**: cuota base mensual + precio por empleado extra sobre los incluidos, todo **con IVA incluido** (porcentaje configurable). Checkout con dirección y NIF/CIF para la factura.
 - **Facturación**: portal de Stripe para gestionar tarjeta o cancelar, historial de facturas y descarga de PDF dentro de la app.
 - **Licencias gratuitas por código**: el super admin crea códigos (duración, usos, tope de empleados) y la empresa los canjea en Facturación para usar la app sin Stripe.
@@ -139,7 +141,7 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.** (contacto: `info@achrono.es`).
 | **empleado** | **DNI/NIE** + contraseña (o email si lo tiene) | Consultar y, si la empresa lo permite, fichar desde su cuenta; pedir ausencias, avisar de salidas, ver sus nóminas. En el kiosco ficha con PIN o DNI según el modo de su empresa. |
 | **contable** (permiso) | Como un empleado | Un empleado con el permiso `gestiona_nominas` puede subir y gestionar las nóminas de toda la empresa sin ser admin. |
 
-El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se busca por email, si no por DNI/NIE.
+El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se busca por email, si no por DNI/NIE. El DNI es único dentro de cada empresa, pero una persona puede estar en dos: entra en la cuenta cuya contraseña coincide (si coincide en varias, se le pide que use otra contraseña en una de ellas o su email).
 
 ## Stack tecnológico
 
@@ -159,12 +161,13 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 - `App\Support\Tenant` guarda el contexto. Si no se ha fijado explícitamente, **cae al `empresa_id` del usuario autenticado**: es necesario porque el *route-model binding* se ejecuta antes que el middleware de tenant.
 - El middleware `tenant` fija el contexto y lo **limpia en `terminate()`** para que no se filtre entre peticiones.
 
-### Servicios y utilidades (solo presentación, no persisten datos)
+### Servicios y utilidades
 
 | Pieza | Responsabilidad |
 |---|---|
-| `JornadasAgrupador` | Empareja entradas y salidas en jornadas y calcula horas (usando la hora corregida si existe). |
-| `IncidenciasCalculador` | Retrasos, sin fichar, sin cerrar, no ha vuelto y horas de más, por día o periodo, con turnos partidos y citas. |
+| `RegistroFichajes` | Registra un fichaje (web y kiosco): decide entrada o salida, da por olvidada una entrada de más de 16 h e ignora el doble toque. Es el único servicio de esta tabla que escribe. |
+| `JornadasAgrupador` | Empareja entradas y salidas en jornadas y calcula horas (usando la hora corregida si existe). No empareja una entrada y una salida separadas más de 16 h. |
+| `IncidenciasCalculador` | Retrasos, sin fichar, sin cerrar, no ha vuelto y horas de más, por día o periodo, con turnos partidos, turnos de noche y citas. |
 | `EstadoEquipoCalculador` | Estado actual de cada empleado (trabajando, fuera, vacaciones, baja, salida avisada). |
 | `AltaEmpresaService` | Crea empresa + administrador + aceptaciones legales; lo usan el alta manual del super admin y el registro público. |
 | `Support\Avisos` | Envía notificaciones por correo sin romper la acción si el SMTP falla, y construye el mensaje base con saludo y nombre de la empresa. |
@@ -195,8 +198,8 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 | Tabla | Descripción |
 |---|---|
 | `empresas` | Clientes (tenants). Entidad facturable de Cashier; guarda el token del kiosco, su modo (`kiosko_modo`), si se puede fichar desde la cuenta (`fichaje_web`) y su licencia. |
-| `users` | Usuarios de todos los roles (DNI/NIE único, PIN hasheado, horario y tramos, permiso de contable…). |
-| `fichajes` | Eventos de entrada/salida. **Append-only.** |
+| `users` | Usuarios de todos los roles (DNI/NIE único dentro de cada empresa, PIN hasheado, horario y tramos, permiso de contable…). |
+| `fichajes` | Eventos de entrada/salida (origen web, kiosco o empresa; los que añade la empresa llevan autor y motivo). **Append-only.** |
 | `fichaje_correcciones` | Correcciones de la hora de un fichaje, con motivo y autor. **Append-only.** |
 | `ausencias` | Vacaciones, bajas y otras, con estado pendiente/aprobada/rechazada. |
 | `citas` | Salidas avisadas dentro de la jornada (motivo libre y franja horaria). |
@@ -352,7 +355,7 @@ En hosting sin SSH, estos comandos (y `migrate`, `db:seed`, `storage:link`, las 
 php artisan test
 ```
 
-La suite (unas 230 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores.
+La suite (unas 270 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores.
 
 Las llamadas reales a Stripe, al SMTP y a IndexNow no se hacen en las pruebas. La lista de comprobaciones manuales antes de salir está en [`docs/lista-pruebas-salida.md`](docs/lista-pruebas-salida.md).
 
