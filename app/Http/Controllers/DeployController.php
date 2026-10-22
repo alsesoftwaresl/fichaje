@@ -31,6 +31,9 @@ class DeployController extends Controller
         'view:clear',
         'cache:clear',
         'optimize:clear',
+        // Cachea configuración, rutas, vistas y eventos: cada petición es más rápida.
+        // Tras cambiar el .env hay que volver a lanzarlo (o optimize:clear).
+        'optimize',
         // Modo mantenimiento: "down" exige una clave secreta (parametro
         // "secreto") para poder seguir entrando tu mientras el resto ve el 503.
         'down',

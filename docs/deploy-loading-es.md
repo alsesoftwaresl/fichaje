@@ -101,7 +101,7 @@ precios en Stripe) ni dar de alta empresas a mano.
 
 Comandos disponibles (cambia `cmd=`): `migrate`, `db:seed`, `storage:link`,
 `config:clear`, `route:clear`, `view:clear`, `cache:clear`,
-`optimize:clear`, `schedule:run` (tareas programadas), `correo:probar` (correo de prueba), `down` y `up` (mantenimiento). La ruta da 404
+`optimize` (activa las cachés de producción), `optimize:clear`, `schedule:run` (tareas programadas), `correo:probar` (correo de prueba), `down` y `up` (mantenimiento). La ruta da 404
 siempre si `DEPLOY_TOKEN` está vacío, así que no pasa nada por dejarla en el
 código — solo no compartas el token.
 
@@ -231,3 +231,16 @@ Detalles:
 - Prueba `/registro`, date de alta con una empresa de prueba, suscríbete (o
   cancela antes de que cobre) y confirma que el kiosco y el panel funcionan.
 - Borra la empresa de prueba desde `/super-admin/empresas` cuando termines.
+
+## Velocidad en producción: cachés
+
+Cuando la web esté configurada y estable, activa las cachés de Laravel (configuración, rutas,
+vistas y eventos). Cada petición deja de leer y compilar esos ficheros:
+
+```
+https://achrono.es/deploy/ejecutar?token=TU_TOKEN&cmd=optimize
+```
+
+Importante: con las cachés activas, **los cambios en el `.env` no se ven** hasta que vuelvas a
+lanzar `cmd=optimize` (o `cmd=optimize:clear` para quitarlas). Después de cada *Pull* con
+cambios, lanza `cmd=optimize` otra vez.

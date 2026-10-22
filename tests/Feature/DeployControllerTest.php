@@ -75,4 +75,25 @@ class DeployControllerTest extends TestCase
         $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=cache:clear')
             ->assertOk();
     }
+
+    public function test_permite_activar_las_caches_de_produccion(): void
+    {
+        config(['deploy.token' => 'el-token-correcto']);
+
+        // Se simula: el real escribiría bootstrap/cache y afectaría a las demás pruebas.
+        Artisan::shouldReceive('call')->once()->with('optimize', [])->andReturn(0);
+        Artisan::shouldReceive('output')->once()->andReturn('cacheado');
+
+        $this->get('/deploy/ejecutar?token=el-token-correcto&cmd=optimize')->assertOk()->assertSee('cacheado');
+    }
+
+    public function test_el_seeder_lee_el_super_admin_de_la_configuracion(): void
+    {
+        config(['plataforma.super_admin.email' => 'jefe@ejemplo.test', 'plataforma.super_admin.password' => 'una-clave-larga']);
+
+        $this->seed();
+
+        $this->assertDatabaseHas('users', ['email' => 'jefe@ejemplo.test', 'rol' => 'super_admin']);
+    }
 }
+
