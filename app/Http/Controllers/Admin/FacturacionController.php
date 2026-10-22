@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tarifa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Laravel\Cashier\Checkout;
@@ -56,7 +57,8 @@ class FacturacionController extends Controller
             'precioMensual' => $tarifa->calcularPrecioMensual($empleadosActivos) + $precioNominas,
             'empleadosExtra' => $tarifa->empleadosExtra($empleadosActivos),
             'suscripcion' => $empresa->subscription('default'),
-            'diasPrueba' => self::DIAS_PRUEBA_GRATIS,
+            // 0 si la empresa ya fue cliente: la prueba gratis es solo la primera vez.
+            'diasPrueba' => $empresa->puedeUsarPrueba() ? self::DIAS_PRUEBA_GRATIS : 0,
             // Historial de facturas (una por mes mientras la suscripción esté
             // activa). Vacío si la empresa nunca ha llegado a ser cliente en Stripe.
             'facturas' => $empresa->stripe_id ? $empresa->invoices() : collect(),
@@ -65,12 +67,34 @@ class FacturacionController extends Controller
 
     /**
      * Crea la sesión de Stripe Checkout con la cuota base y los empleados extra, con 15
-     * días de prueba. Falla con mensaje si las tarifas no se han sincronizado con Stripe.
+     * días de prueba solo si la empresa nunca ha sido cliente. Falla con mensaje si las
+     * tarifas no se han sincronizado con Stripe.
+     *
+     * Para no cobrar dos veces: no deja suscribirse a quien ya lo está, y si ya hay un pago
+     * abierto (otra pestaña, doble clic, volver atrás) reenvía a ese mismo en vez de abrir
+     * otro.
      */
     public function suscribir(): Checkout|RedirectResponse
     {
         $empresa = Auth::user()->empresa;
         $tarifa = Tarifa::actual();
+
+        // Puede haber pagado hace un momento y que el webhook aún no haya llegado.
+        if (! $empresa->subscribed('default') && $empresa->stripe_id) {
+            $empresa->sincronizarSuscripcionesDesdeStripe();
+            $empresa->unsetRelation('subscriptions');
+        }
+
+        if ($empresa->subscribed('default')) {
+            return redirect()->route('admin.facturacion.index')
+                ->with('status', 'Tu empresa ya tiene una suscripción activa.');
+        }
+
+        $claveCheckout = 'checkout-abierto:'.$empresa->id;
+
+        if ($url = Cache::get($claveCheckout)) {
+            return redirect()->away($url, 303);
+        }
 
         // Sin el tipo de IVA creado en Stripe no se desglosaría el IVA en la factura.
         $ivaPendiente = (float) $tarifa->iva_porcentaje > 0 && ! $tarifa->stripe_tax_rate_id;
@@ -84,15 +108,24 @@ class FacturacionController extends Controller
         $extra = $tarifa->empleadosExtra($empleadosActivos);
 
         $builder = $empresa->newSubscription('default')
-            ->price($tarifa->stripe_price_base_id, 1)
-            ->trialDays(self::DIAS_PRUEBA_GRATIS);
+            ->price($tarifa->stripe_price_base_id, 1);
+
+        if ($empresa->puedeUsarPrueba()) {
+            $builder->trialDays(self::DIAS_PRUEBA_GRATIS);
+        }
+
+        // Una suscripción nueva empieza sin el módulo de Nóminas (su precio no va en este
+        // pago). Si se quedara marcado de una suscripción anterior, saldría gratis.
+        if ($empresa->modulo_nominas) {
+            $empresa->forceFill(['modulo_nominas' => false])->save();
+        }
 
         if ($extra > 0) {
             $builder->price($tarifa->stripe_price_extra_id, $extra);
         }
 
         try {
-            return $builder->checkout([
+            $checkout = $builder->checkout([
                 'success_url' => route('admin.facturacion.index').'?suscripcion=ok',
                 'cancel_url' => route('admin.facturacion.index').'?suscripcion=cancelada',
                 // Datos fiscales de la empresa en la factura (dirección y NIF/CIF).
@@ -100,6 +133,10 @@ class FacturacionController extends Controller
                 'tax_id_collection' => ['enabled' => true],
                 'customer_update' => ['name' => 'auto', 'address' => 'auto'],
             ]);
+
+            Cache::put($claveCheckout, $checkout->url, now()->addMinutes(30));
+
+            return $checkout;
         } catch (ApiErrorException $e) {
             Log::warning('No se pudo crear el pago en Stripe: '.$e->getMessage());
 

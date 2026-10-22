@@ -158,6 +158,15 @@ class Empresa extends Model
         $this->forceFill(['modulo_nominas' => false])->save();
     }
 
+    /**
+     * La prueba gratis es solo para quien nunca ha tenido una suscripción (aunque la
+     * cancelara): así no se encadenan pruebas cancelando y volviendo a contratar.
+     */
+    public function puedeUsarPrueba(): bool
+    {
+        return ! $this->subscriptions()->exists();
+    }
+
     /** Puede usar la app: licencia gratuita vigente o suscripción activa. */
     public function tieneAcceso(): bool
     {

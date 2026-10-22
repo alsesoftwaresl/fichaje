@@ -124,14 +124,20 @@
             @else
                 <p class="text-sm text-slate-600 mb-4">
                     Todavía no tienes una suscripción activa.
-                    {{ $diasPrueba }} días gratis al suscribirte — después se te cobrará
-                    {{ number_format($precioMensual, 2) }}€/mes (IVA incluido) según el número de empleados activos.
-                    Puedes cancelar en cualquier momento antes de que acabe la prueba sin que se te
-                    cobre nada.
+                    @if ($diasPrueba > 0)
+                        {{ $diasPrueba }} días gratis al suscribirte — después se te cobrará
+                        {{ number_format($precioMensual, 2) }}€/mes (IVA incluido) según el número de empleados activos.
+                        Puedes cancelar en cualquier momento antes de que acabe la prueba sin que se te
+                        cobre nada.
+                    @else
+                        Ya disfrutaste de la prueba gratis: al suscribirte se cobrarán
+                        {{ number_format($precioMensual, 2) }}€/mes (IVA incluido) según el número de empleados activos.
+                        Puedes cancelar en cualquier momento.
+                    @endif
                 </p>
                 <form method="POST" action="{{ route('admin.facturacion.suscribir') }}">
                     @csrf
-                    <x-primary-button type="submit">Empezar prueba gratis de {{ $diasPrueba }} días</x-primary-button>
+                    <x-primary-button type="submit">{{ $diasPrueba > 0 ? 'Empezar prueba gratis de '.$diasPrueba.' días' : 'Suscribirme' }}</x-primary-button>
                 </form>
 
                 @unless ($empresa->tieneLicenciaActiva())
