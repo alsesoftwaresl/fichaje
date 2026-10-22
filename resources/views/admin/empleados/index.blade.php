@@ -41,7 +41,7 @@
         <x-card class="p-4">
             <p class="text-sm font-medium text-slate-700 mb-1">Enlace del kiosco</p>
             <p class="text-xs text-slate-500 mb-2">
-                Ábrelo en la tablet u ordenador fijo de la entrada para que los empleados fichen con su PIN.
+                Ábrelo en la tablet u ordenador fijo de la entrada para que los empleados fichen.
             </p>
             <div class="flex items-center gap-2">
                 <input type="text" readonly value="{{ $empresa->kioskoUrl() }}"
@@ -50,6 +50,25 @@
                     <x-secondary-button type="button">Abrir</x-secondary-button>
                 </a>
             </div>
+
+            <form method="POST" action="{{ route('admin.kiosko.modo') }}" class="mt-5 border-t border-slate-100 pt-4">
+                @csrf
+                @method('PATCH')
+                <p class="text-sm font-medium text-slate-700">¿Cómo ficha la gente en el kiosco?</p>
+                <div class="mt-2 space-y-2 text-sm">
+                    @foreach ([
+                        'pin' => ['Con su PIN de 6 números', 'El más seguro: el PIN es personal.'],
+                        'dni' => ['Con su DNI o NIE', 'Nadie tiene que recordar nada, pero cualquiera que conozca el DNI de un compañero podría fichar por él.'],
+                        'ambos' => ['PIN o DNI, como prefiera cada uno', 'Ficha con el PIN y, si lo ha olvidado, con su DNI. Tiene el mismo riesgo que el DNI.'],
+                    ] as $valor => [$titulo, $ayuda])
+                        <label class="flex items-start gap-3 rounded-lg border border-slate-200 p-3 hover:border-indigo-300">
+                            <input type="radio" name="kiosko_modo" value="{{ $valor }}" @checked($empresa->kiosko_modo === $valor) class="mt-1 text-indigo-600 focus:ring-indigo-500">
+                            <span><span class="font-medium text-slate-800">{{ $titulo }}</span><span class="block text-xs text-slate-500">{{ $ayuda }}</span></span>
+                        </label>
+                    @endforeach
+                </div>
+                <x-primary-button class="mt-3">Guardar</x-primary-button>
+            </form>
         </x-card>
 
         <x-card class="overflow-hidden">

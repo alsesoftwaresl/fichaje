@@ -21,6 +21,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistroCompletarController;
 use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\SuperAdmin\EmpresaController;
+use App\Http\Controllers\Admin\KioscoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SuperAdmin\MensajeController;
@@ -187,6 +188,7 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
             Route::patch('/empleados/{empleado}', [EmpleadoController::class, 'update'])->name('empleados.update');
             Route::patch('/empleados/{empleado}/activar', [EmpleadoController::class, 'activar'])->name('empleados.activar');
             Route::patch('/empleados/{empleado}/desactivar', [EmpleadoController::class, 'desactivar'])->name('empleados.desactivar');
+            Route::patch('/kiosko/modo', [KioscoController::class, 'modo'])->name('kiosko.modo');
             Route::patch('/empleados/{empleado}/regenerar-pin', [EmpleadoController::class, 'regenerarPin'])->name('empleados.regenerar-pin');
             Route::patch('/empleados/{empleado}/generar-acceso', [EmpleadoController::class, 'generarAcceso'])->name('empleados.generar-acceso');
 

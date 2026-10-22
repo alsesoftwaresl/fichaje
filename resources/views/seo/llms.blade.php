@@ -4,7 +4,7 @@
 
 ## Qué hace
 
-- Fichaje de entrada y salida desde la web o desde un kiosco compartido (tablet u ordenador) con PIN de 6 dígitos.
+- Fichaje de entrada y salida desde la web o desde un kiosco compartido (tablet u ordenador) con PIN de 6 dígitos o con su DNI/NIE, según lo que elija la empresa.
 - Registro de jornada inalterable: los fichajes no se editan ni se borran; los errores se corrigen con una corrección que guarda el motivo y quién la hizo.
 - Horarios por empleado (horario corrido o turno partido) y avisos de retrasos, falta de fichaje, jornadas sin cerrar y horas de más.
 - Vacaciones, bajas y otras ausencias con solicitud del empleado y aprobación del administrador, y avisos de salida dentro de la jornada (médico, gestiones).

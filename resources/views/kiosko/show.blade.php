@@ -32,55 +32,103 @@
         </div>
     @endif
 
+    @php
+        $modoKiosko = $empresa->kiosko_modo ?? 'pin';
+        // Se empieza por el DNI si es el único modo, o si venimos de un error al escribirlo.
+        $empiezaConDni = $modoKiosko === 'dni' || $errors->has('dni') || old('dni') !== null;
+    @endphp
+
     <div class="h-full flex flex-col items-center justify-center px-4"
          x-data="{
+            modo: '{{ $empiezaConDni ? 'dni' : 'pin' }}',
             pin: '',
             add(n) { if (this.pin.length < 6) { this.pin += n } },
             back() { this.pin = this.pin.slice(0, -1) },
             clear() { this.pin = '' },
+            cambiar(m) { this.modo = m; this.pin = ''; if (m === 'dni') { this.$nextTick(() => this.$refs.dni && this.$refs.dni.focus()) } },
          }"
          x-init="$watch('pin', value => { if (value.length === 6) { $nextTick(() => $refs.form.submit()) } })"
     >
         <p class="text-sm text-indigo-300 mb-1">{{ $empresa->nombre }}</p>
-        <h1 class="text-xl font-semibold mb-8">Introduce tu PIN para fichar</h1>
 
-        @error('pin')
-            <p class="mb-4 text-sm text-rose-400">{{ $message }}</p>
-        @enderror
+        {{-- ===== Con PIN ===== --}}
+        @if ($modoKiosko !== 'dni')
+            <div x-show="modo === 'pin'" class="flex flex-col items-center w-full">
+                <h1 class="text-xl font-semibold mb-8">Introduce tu PIN para fichar</h1>
 
-        <!-- Indicador de dígitos -->
-        <div class="flex gap-3 mb-10">
-            <template x-for="i in 6" :key="i">
-                <span class="h-4 w-4 rounded-full border-2 border-indigo-400"
-                      :class="pin.length >= i ? 'bg-accent-500 border-accent-500' : ''"></span>
-            </template>
-        </div>
+                @error('pin')
+                    <p class="mb-4 text-sm text-rose-400">{{ $message }}</p>
+                @enderror
 
-        <!-- Teclado -->
-        <div class="grid grid-cols-3 gap-4 w-full max-w-xs">
-            @foreach ([1,2,3,4,5,6,7,8,9] as $n)
-                <button type="button" @click="add('{{ $n }}')"
-                    class="h-16 rounded-xl bg-indigo-900 hover:bg-indigo-800 text-2xl font-semibold transition">
-                    {{ $n }}
-                </button>
-            @endforeach
-            <button type="button" @click="clear()" class="h-16 rounded-xl bg-indigo-900 hover:bg-indigo-800 text-sm font-medium transition">
-                Borrar
-            </button>
-            <button type="button" @click="add('0')" class="h-16 rounded-xl bg-indigo-900 hover:bg-indigo-800 text-2xl font-semibold transition">
-                0
-            </button>
-            <button type="button" @click="back()" class="h-16 rounded-xl bg-indigo-900 hover:bg-indigo-800 flex items-center justify-center transition">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l-7-7 7-7m-7 7h18" />
-                </svg>
-            </button>
-        </div>
+                <!-- Indicador de dígitos -->
+                <div class="flex gap-3 mb-10">
+                    <template x-for="i in 6" :key="i">
+                        <span class="h-4 w-4 rounded-full border-2 border-indigo-400"
+                              :class="pin.length >= i ? 'bg-accent-500 border-accent-500' : ''"></span>
+                    </template>
+                </div>
 
-        <form x-ref="form" method="POST" action="{{ route('kiosko.fichar', $empresa->kiosko_token) }}">
-            @csrf
-            <input type="hidden" name="pin" :value="pin">
-        </form>
+                <!-- Teclado -->
+                <div class="grid grid-cols-3 gap-4 w-full max-w-xs">
+                    @foreach ([1,2,3,4,5,6,7,8,9] as $n)
+                        <button type="button" @click="add('{{ $n }}')"
+                            class="h-16 rounded-xl bg-indigo-900 hover:bg-indigo-800 text-2xl font-semibold transition">
+                            {{ $n }}
+                        </button>
+                    @endforeach
+                    <button type="button" @click="clear()" class="h-16 rounded-xl bg-indigo-900 hover:bg-indigo-800 text-sm font-medium transition">
+                        Borrar
+                    </button>
+                    <button type="button" @click="add('0')" class="h-16 rounded-xl bg-indigo-900 hover:bg-indigo-800 text-2xl font-semibold transition">
+                        0
+                    </button>
+                    <button type="button" @click="back()" class="h-16 rounded-xl bg-indigo-900 hover:bg-indigo-800 flex items-center justify-center transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l-7-7 7-7m-7 7h18" />
+                        </svg>
+                    </button>
+                </div>
+
+                @if ($modoKiosko === 'ambos')
+                    <button type="button" @click="cambiar('dni')" class="mt-8 text-sm text-indigo-300 underline underline-offset-4 hover:text-white">
+                        ¿No recuerdas tu PIN? Ficha con tu DNI
+                    </button>
+                @endif
+
+                <form x-ref="form" method="POST" action="{{ route('kiosko.fichar', $empresa->kiosko_token) }}">
+                    @csrf
+                    <input type="hidden" name="pin" :value="pin">
+                </form>
+            </div>
+        @endif
+
+        {{-- ===== Con DNI o NIE ===== --}}
+        @if ($modoKiosko !== 'pin')
+            <div x-show="modo === 'dni'" @if ($modoKiosko === 'ambos' && ! $empiezaConDni) x-cloak @endif class="flex flex-col items-center w-full">
+                <h1 class="text-xl font-semibold mb-8">Escribe tu DNI o NIE para fichar</h1>
+
+                @error('dni')
+                    <p class="mb-4 text-sm text-rose-400" role="alert">{{ $message }}</p>
+                @enderror
+
+                <form method="POST" action="{{ route('kiosko.fichar', $empresa->kiosko_token) }}" class="w-full max-w-xs">
+                    @csrf
+                    <input x-ref="dni" type="text" name="dni" value="{{ old('dni') }}" required maxlength="14"
+                        autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"
+                        placeholder="12345678Z" aria-label="DNI o NIE"
+                        class="select-text block w-full rounded-xl border-2 border-indigo-700 bg-indigo-900 px-4 py-4 text-center text-2xl font-semibold uppercase tracking-widest text-white placeholder:text-indigo-400 focus:border-accent-500 focus:ring-accent-500">
+                    <button type="submit" class="mt-5 h-14 w-full rounded-xl bg-accent-500 text-lg font-semibold text-indigo-950 transition hover:bg-accent-400">
+                        Fichar
+                    </button>
+                </form>
+
+                @if ($modoKiosko === 'ambos')
+                    <button type="button" @click="cambiar('pin')" class="mt-8 text-sm text-indigo-300 underline underline-offset-4 hover:text-white">
+                        Prefiero usar mi PIN
+                    </button>
+                @endif
+            </div>
+        @endif
     </div>
 </body>
 </html>

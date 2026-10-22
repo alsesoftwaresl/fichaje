@@ -48,6 +48,7 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 
 - [ ] Fichar entrada y salida desde la web (móvil y ordenador): alternan bien.
 - [ ] Kiosco: abrir su enlace en una tablet, fichar con PIN correcto e incorrecto.
+- [ ] Kiosco con DNI: cambiar el modo en Empleados (solo DNI, y PIN o DNI) y comprobar que se ficha con DNI y que un DNI mal escrito o de otra empresa no ficha.
 - [ ] Un mismo empleado ficha entrada y salida y las horas salen bien en el historial.
 - [ ] El admin ve los fichajes de toda la empresa y filtra por empleado y fechas.
 - [ ] Corrección de un fichaje: queda el original, el motivo y quién la hizo; las horas usan la corregida.

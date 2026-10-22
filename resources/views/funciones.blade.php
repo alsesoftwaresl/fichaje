@@ -8,7 +8,7 @@
             'resumen' => 'Cada empleado ficha como le venga mejor, sin instalar nada.',
             'puntos' => [
                 'Desde el móvil o el ordenador, con un solo botón de entrada y salida.',
-                'En una tablet compartida en la entrada, con un PIN de 6 números para cada empleado.',
+                'En una tablet compartida en la entrada, con un PIN de 6 números o con el DNI, como prefiera la empresa.',
                 'Si alguien no tiene correo, entra con su DNI.',
                 'La hora la pone el sistema, no el empleado, así nadie puede cambiarla.',
             ],
