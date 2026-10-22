@@ -5,7 +5,7 @@
 <h3 align="center">Control horario y fichaje de empleados para empresas españolas</h3>
 
 <p align="center">
-  SaaS multiempresa · Registro de jornada conforme al RD-ley 8/2019 y al RGPD · Kiosco con PIN · Nóminas · Facturación con Stripe
+  SaaS multiempresa · Registro de jornada pensado para el RD-ley 8/2019 y el RGPD · Kiosco con PIN o DNI · Nóminas · Facturación con Stripe · App instalable
 </p>
 
 <p align="center">
@@ -15,6 +15,7 @@
   <img alt="Alpine.js" src="https://img.shields.io/badge/Alpine.js-3-8BC0D0?logo=alpinedotjs&logoColor=white">
   <img alt="Stripe" src="https://img.shields.io/badge/Stripe-Cashier-635BFF?logo=stripe&logoColor=white">
   <img alt="MySQL / MariaDB" src="https://img.shields.io/badge/MySQL%20%2F%20MariaDB-4479A1?logo=mysql&logoColor=white">
+  <img alt="PWA" src="https://img.shields.io/badge/PWA-instalable-5A0FC8?logo=pwa&logoColor=white">
 </p>
 
 ---
@@ -31,32 +32,35 @@
 8. [Instalación en local](#instalación-en-local)
 9. [Variables de entorno](#variables-de-entorno)
 10. [Base de datos endurecida (registro append-only)](#base-de-datos-endurecida-registro-append-only)
-11. [Facturación con Stripe](#facturación-con-stripe)
+11. [Facturación con Stripe, IVA y licencias](#facturación-con-stripe-iva-y-licencias)
 12. [Acceso con Google](#acceso-con-google)
-13. [Correo electrónico](#correo-electrónico)
-14. [Pruebas](#pruebas)
-15. [Despliegue](#despliegue)
-16. [Estructura del proyecto](#estructura-del-proyecto)
-17. [Convenciones de trabajo](#convenciones-de-trabajo)
-18. [Pendiente / hoja de ruta](#pendiente--hoja-de-ruta)
-19. [Licencia](#licencia)
+13. [Correo electrónico y avisos](#correo-electrónico-y-avisos)
+14. [Web pública, SEO y contenido](#web-pública-seo-y-contenido)
+15. [App instalable (PWA)](#app-instalable-pwa)
+16. [Comandos y tareas programadas](#comandos-y-tareas-programadas)
+17. [Pruebas](#pruebas)
+18. [Despliegue](#despliegue)
+19. [Estructura del proyecto](#estructura-del-proyecto)
+20. [Convenciones de trabajo](#convenciones-de-trabajo)
+21. [Pendiente / hoja de ruta](#pendiente--hoja-de-ruta)
+22. [Licencia](#licencia)
 
 ---
 
 ## Qué es Achrono
 
-Achrono es una aplicación web **SaaS multiempresa** para llevar el registro de jornada de los empleados de una empresa. Cada empresa cliente se registra por su cuenta, tiene su propio espacio (con los datos aislados del resto), da de alta a su plantilla y ficha desde una **tablet en la entrada** con un PIN, desde el móvil o desde el ordenador.
+Achrono es una aplicación web **SaaS multiempresa** para llevar el registro de jornada de los empleados de una empresa. Cada empresa cliente se registra por su cuenta, tiene su propio espacio (con los datos aislados del resto), da de alta a su plantilla y ficha desde una **tablet en la entrada** con un PIN o con el DNI, o desde el móvil y el ordenador si la empresa lo permite.
 
-Está pensada para el mercado español: el registro de jornada es **inalterable** (las correcciones se guardan aparte, con motivo y autor), se conserva el histórico y se puede **exportar** para nóminas o para una inspección de trabajo. Además incluye gestión de ausencias, horarios con avisos de retrasos y horas extra, nóminas descargables por cada empleado y cobro por suscripción.
+Está pensada para el mercado español: el registro de jornada es **inalterable** (las correcciones se guardan aparte, con motivo y autor), se conserva el histórico y se puede **exportar** para nóminas o para una inspección de trabajo. Además incluye gestión de ausencias, horarios con avisos de retrasos y horas extra, nóminas descargables por cada empleado, avisos por correo y cobro por suscripción. Se puede instalar en el móvil como una aplicación web (PWA).
 
-El proyecto lo desarrolla **ALSE SOFTWARE, S.L.**
+El proyecto lo desarrolla **ALSE SOFTWARE, S.L.** (contacto: `info@achrono.es`).
 
 ## Funcionalidades
 
 ### Fichaje
 
-- **Kiosco con PIN**: una tablet u ordenador fijo con una URL única por empresa (`/kiosko/{token}`). Cada empleado ficha con su PIN de 6 dígitos, sin iniciar sesión. Alterna entrada/salida automáticamente.
-- **Fichaje web**: los empleados también pueden fichar desde su cuenta (`/mis-fichajes`).
+- **Kiosco**: una tablet u ordenador fijo con una URL única por empresa (`/kiosko/{token}`), sin iniciar sesión. Alterna entrada/salida automáticamente. **Cada empresa elige cómo se identifican los empleados**: solo **PIN** de 6 dígitos (por defecto y lo más seguro), solo **DNI/NIE**, o **ambos** (con un enlace "¿No recuerdas tu PIN? Ficha con tu DNI"). El DNI se acepta sin importar mayúsculas, espacios ni puntos, solo para empleados activos de esa empresa, con mensajes genéricos y freno tras 10 fallos en 5 minutos. La primera vez que entra el admin, el panel le pregunta qué prefiere.
+- **Fichaje desde la cuenta**: los empleados pueden fichar desde `/mis-fichajes`. La empresa puede **desactivarlo** (ajuste en Empleados) para que solo se fiche en el kiosco; entonces esa pantalla es solo de consulta y el servidor rechaza el fichaje.
 - **Jornadas**: entrada y salida se muestran en una sola fila con las **horas trabajadas** ya calculadas (teniendo en cuenta las correcciones).
 - **Correcciones trazables**: el admin puede corregir la hora de un fichaje; el original **nunca se modifica**. La corrección queda en otra tabla con su motivo, su autor y la fecha.
 - **Exportación** de fichajes por empleado y rango de fechas en **CSV, Excel y PDF**.
@@ -65,45 +69,47 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.**
 
 - **Horario esperado opcional** por empleado: días laborables y hora de entrada/salida.
 - **Turno partido**: hasta 3 tramos al día (por ejemplo 09:00–14:00 y 16:00–19:00). Las horas esperadas son la suma de los tramos y los avisos se evalúan tramo a tramo.
-- **Avisos del panel** (con margen de 10 minutos): *retraso*, *sin fichar*, *fichaje sin cerrar*, *no ha vuelto* y *horas de más*.
+- **Avisos del panel** (con margen de 10 minutos): *retraso*, *sin fichar*, *fichaje sin cerrar* (pasados 10 minutos de la hora de salida), *no ha vuelto* y *horas de más*. No hay aviso de salida anticipada.
 - **Control horario**: pantalla con filtro por empleado y fechas (hasta 93 días) que resume, por empleado, retrasos, minutos de retraso, días sin fichar, fichajes sin cerrar y horas extra, con el detalle día a día.
-- **Contador en el menú** con las incidencias de hoy.
-- **Salidas avisadas** (médico, una gestión…): el empleado avisa de que sale dentro de su horario, explica el motivo y dice a qué hora vuelve. Surte efecto al momento, justifica la ausencia (no sale como retraso ni como fichaje sin cerrar), el admin lo ve en el panel y puede anularlo, y se avisa si no se vuelve a la hora prevista.
-- Los avisos son **solo dentro de la aplicación** (sin correo).
+- **Contador en el menú** con las incidencias de hoy y **resumen diario por correo** al administrador (laborables a las 11:00, solo si hay incidencias).
+- **Salidas avisadas** (médico, una gestión…): el empleado avisa de que sale dentro de su horario, explica el motivo y dice a qué hora vuelve. Justifica la ausencia (no sale como retraso ni como fichaje sin cerrar), el admin lo ve en el panel y puede anularlo, y se avisa si no se vuelve a la hora prevista.
 
 ### Equipo y ausencias
 
 - **Estado del equipo** en tiempo real: *trabajando*, *fuera*, *vacaciones*, *baja*, *salida avisada*. También visible en la lista de empleados.
-- **Vacaciones y bajas** con flujo de solicitud: el empleado solicita y el admin aprueba o rechaza (con motivo).
+- **Vacaciones y bajas** con flujo de solicitud: el empleado solicita y el admin aprueba o rechaza (con motivo). Ambos reciben un correo.
 - Alta de empleados **por DNI/NIE** (el email es opcional). Acceso a la web con **contraseña temporal** que se muestra una sola vez y que el empleado debe cambiar al primer acceso.
 - Los empleados **no se borran**: se desactivan, conservando su historial.
+- Cada empleado tiene **su espacio**: todos sus fichajes agrupados por jornada, sus ausencias, sus avisos de salida y sus nóminas.
 
 ### Nóminas
 
-- La empresa (admin o un empleado con permiso de **contable**) sube la nómina en PDF (máx. 5 MB) eligiendo empleado y mes, con descripción opcional (por ejemplo, paga extra).
+- La empresa (admin o un empleado con permiso de **contable**) sube la nómina en PDF (máx. 5 MB) eligiendo empleado y mes, con descripción opcional (por ejemplo, paga extra). El empleado recibe un correo si tiene email.
 - Cada empleado ve y descarga **sus** nóminas desde "Mis nóminas", con aviso de las nuevas.
 - Los archivos se guardan en un **disco privado** con nombre aleatorio y solo se sirven a su dueño o a quien las gestiona.
 - El empleado conserva el acceso a sus nóminas **aunque la empresa tenga la suscripción caducada**.
 
 ### Cuenta, planes y facturación
 
-- **Registro público** de empresa (`/registro`) con aceptación de términos y encargo de tratamiento, o con **Google**.
-- **Verificación de email** obligatoria para los administradores que se registran por su cuenta.
+- **Registro público** de empresa (`/registro`) con aceptación de términos y encargo de tratamiento, o con **Google**. **Verificación de email** obligatoria para los administradores que se registran por su cuenta.
 - **Prueba gratuita de 15 días** al suscribirse (con tarjeta, sin cobro hasta que termina).
-- **Suscripción por Stripe**: cuota base mensual + precio por empleado extra sobre los incluidos (configurable por el super admin). La cantidad de empleados extra se sincroniza con Stripe al dar de alta o desactivar empleados.
+- **Suscripción por Stripe**: cuota base mensual + precio por empleado extra sobre los incluidos, todo **con IVA incluido** (porcentaje configurable). Checkout con dirección y NIF/CIF para la factura.
 - **Facturación**: portal de Stripe para gestionar tarjeta o cancelar, historial de facturas y descarga de PDF dentro de la app.
-- **Bloqueo por suscripción**: sin suscripción activa, la empresa solo puede acceder a Facturación. El kiosco también se bloquea. Los empleados siguen accediendo a sus nóminas.
+- **Licencias gratuitas por código**: el super admin crea códigos (duración, usos, tope de empleados) y la empresa los canjea en Facturación para usar la app sin Stripe.
+- **Bloqueo por suscripción o licencia**: sin ninguna de las dos, la empresa solo puede acceder a Facturación. El kiosco también se bloquea. Los empleados siguen accediendo a sus nóminas.
 
 ### Administración de la plataforma (super admin)
 
 - Alta, activación y desactivación de empresas clientes.
-- Edición de la **tarifa** global (cuota base, empleados incluidos, precio por empleado extra) con sincronización de precios en Stripe.
+- **Tarifas** editables: plan directo (cuota base, empleados incluidos, precio por empleado extra, IVA) y **plan para asesorías** (precio por licencia, empleados por licencia, empleado extra, mínimo de licencias y precio recomendado al cliente final, con simulación de margen). Se sincronizan con Stripe.
+- **Licencias**: crear, activar/desactivar y ver quién canjeó cada código; retirar una licencia a una empresa.
+- **Mensajes de contacto** recibidos desde la web, con marcado de leído y los urgentes primero.
 
 ### Web pública
 
-- **Landing** optimizada para SEO (metadatos, Open Graph, JSON-LD), con precio dinámico leído de la base de datos.
-- Páginas legales: términos, privacidad, encargo de tratamiento y cookies.
-- Diseño **responsive** (móvil, tablet y escritorio): las tablas se convierten en tarjetas apiladas en móvil.
+- **Portada** con recorrido por pestañas del producto, sección para empleados, límites del producto, precio con ejemplos, formulario de contacto, preguntas frecuentes y datos estructurados.
+- Páginas de **funciones**, **guías** del registro de jornada, **plantilla gratuita** (Excel y PDF), **control horario por sector**, **contacto**, aviso legal y textos legales.
+- Diseño **responsive** (móvil, tablet y escritorio): las tablas se convierten en tarjetas apiladas en móvil, y la cabecera pública tiene menú desplegable.
 
 ## Cumplimiento legal y seguridad
 
@@ -111,23 +117,26 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.**
 |---|---|
 | **Registro de jornada fiable (RD-ley 8/2019)** | La tabla `fichajes` es *append-only*. Una segunda capa lo refuerza en la base de datos (ver más abajo). Las correcciones van en `fichaje_correcciones`. |
 | **Conservación 4 años** | Los fichajes no se borran. Empleados y empresas se desactivan en lugar de eliminarse. |
-| **RGPD** | Aceptación versionada de términos y encargo de tratamiento (`legal_aceptaciones`, con fecha e IP), registro de auditoría de acciones sensibles (`audit_logs`), datos de cada empresa aislados. |
+| **RGPD** | Aceptación versionada de términos y encargo de tratamiento (`legal_aceptaciones`, con fecha e IP), registro de auditoría de acciones sensibles (`audit_logs`), datos de cada empresa aislados, consentimiento en el formulario de contacto. |
 | **Aislamiento entre empresas** | Una sola base de datos con `empresa_id` y un *global scope* de Eloquent en todos los modelos de empresa. El contexto de tenant se limpia al terminar cada petición. Hay pruebas específicas de aislamiento. |
-| **PIN del kiosco** | 6 dígitos guardados como HMAC-SHA256 (no en claro), único por empresa, con URL del kiosco no adivinable y límite de intentos. |
+| **PIN y DNI del kiosco** | PIN de 6 dígitos guardado como HMAC-SHA256 (no en claro). URL del kiosco no adivinable, límite de intentos y freno por fallos de DNI. **Aviso:** con el modo DNI cualquiera que conozca el DNI de un compañero podría fichar por él; el panel lo explica al elegir. El enlace del kiosco sigue siendo usable desde fuera del local. |
 | **Contraseñas** | Hash con bcrypt. Las contraseñas temporales se muestran una sola vez y obligan a cambiarlas. |
 | **Nóminas** | Disco privado, nombre de archivo aleatorio, descarga solo para el dueño o quien gestiona nóminas de esa empresa. Los PDF **no van cifrados en el servidor**; se protegen con acceso privado y copias de seguridad. |
-| **Acceso** | Inicio de sesión limitado por intentos, CSRF, verificación de email, bloqueo de empleados y empresas inactivos. |
+| **Acceso** | Inicio de sesión limitado por intentos, CSRF, verificación de email, bloqueo de empleados y empresas inactivos, cookies de sesión seguras, `https` forzado en todas las URLs cuando `APP_URL` es https. |
 | **Ruta de despliegue** | `/deploy/ejecutar` está inerte (404) salvo que se configure `DEPLOY_TOKEN`, usa una lista cerrada de comandos y solo es necesaria en hosting sin SSH. |
+| **Indexación** | Solo las páginas públicas listadas se pueden indexar; el resto lleva `X-Robots-Tag: noindex` y `Disallow` en `robots.txt`. |
 
-> Los textos legales incluidos en `resources/views/legal/` son una **plantilla de partida**: deben ser revisados por un profesional antes de usarse con clientes reales.
+**Límites conocidos:** los datos personales (nombre, DNI, correo, fichajes) están en la base de datos sin cifrado a nivel de campo; no hay verificación en dos pasos; en producción el usuario de la base de datos suele ser único y con todos los permisos, así que el bloqueo de borrado de fichajes depende del código salvo que se monte la base de datos endurecida.
+
+> Los textos legales incluidos en `resources/views/legal/` y las guías son una **plantilla de partida**: deben ser revisados por un profesional antes de usarse con clientes reales.
 
 ## Roles y permisos
 
 | Rol | Cómo entra | Qué puede hacer |
 |---|---|---|
-| **super_admin** | Email + contraseña | Gestionar empresas, tarifas y códigos de licencia gratuita. No entra en rutas de empresa. |
-| **admin_empresa** | Email + contraseña, o Google | Todo lo de su empresa: empleados, fichajes y correcciones, ausencias, control horario, nóminas, facturación. |
-| **empleado** | **DNI/NIE** + contraseña (o email si lo tiene) | Fichar, ver su historial, pedir ausencias, avisar de salidas, ver sus nóminas. En el kiosco ficha solo con PIN. |
+| **super_admin** | Email + contraseña | Gestionar empresas, tarifas, códigos de licencia y mensajes de contacto. No entra en rutas de empresa. |
+| **admin_empresa** | Email + contraseña, o Google | Todo lo de su empresa: empleados, fichajes y correcciones, ausencias, control horario, nóminas, ajustes del kiosco, facturación. |
+| **empleado** | **DNI/NIE** + contraseña (o email si lo tiene) | Consultar y, si la empresa lo permite, fichar desde su cuenta; pedir ausencias, avisar de salidas, ver sus nóminas. En el kiosco ficha con PIN o DNI según el modo de su empresa. |
 | **contable** (permiso) | Como un empleado | Un empleado con el permiso `gestiona_nominas` puede subir y gestionar las nóminas de toda la empresa sin ser admin. |
 
 El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se busca por email, si no por DNI/NIE.
@@ -150,14 +159,16 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 - `App\Support\Tenant` guarda el contexto. Si no se ha fijado explícitamente, **cae al `empresa_id` del usuario autenticado**: es necesario porque el *route-model binding* se ejecuta antes que el middleware de tenant.
 - El middleware `tenant` fija el contexto y lo **limpia en `terminate()`** para que no se filtre entre peticiones.
 
-### Servicios de cálculo (solo presentación, no persisten datos)
+### Servicios y utilidades (solo presentación, no persisten datos)
 
-| Servicio | Responsabilidad |
+| Pieza | Responsabilidad |
 |---|---|
 | `JornadasAgrupador` | Empareja entradas y salidas en jornadas y calcula horas (usando la hora corregida si existe). |
 | `IncidenciasCalculador` | Retrasos, sin fichar, sin cerrar, no ha vuelto y horas de más, por día o periodo, con turnos partidos y citas. |
 | `EstadoEquipoCalculador` | Estado actual de cada empleado (trabajando, fuera, vacaciones, baja, salida avisada). |
 | `AltaEmpresaService` | Crea empresa + administrador + aceptaciones legales; lo usan el alta manual del super admin y el registro público. |
+| `Support\Avisos` | Envía notificaciones por correo sin romper la acción si el SMTP falla, y construye el mensaje base con saludo y nombre de la empresa. |
+| `Support\ContenidoWeb` | Preguntas frecuentes y funciones escritas una sola vez, para la portada, `/funciones` y `llms-full.txt`. |
 
 ### Middleware propios
 
@@ -166,23 +177,24 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 | `tenant` | Identifica y fija la empresa del usuario. |
 | `role:` | Restringe por rol. |
 | `verificado` | Exige email verificado solo a `admin_empresa` del registro público. |
-| `suscripcion` | Bloquea las funciones si la empresa no tiene suscripción activa (consultando a Stripe antes de bloquear). |
+| `suscripcion` | Bloquea las funciones si la empresa no tiene suscripción ni licencia activa (consultando a Stripe antes de bloquear). |
 | `gestor.nominas` | Admin o empleado con permiso de contable. |
 | *(global web)* `ForzarCambioPassword` | Obliga a elegir contraseña propia tras una temporal. |
+| *(global web)* `SeoRobots` | Añade `noindex` a todo lo que no sea una página pública indexable. |
 
 ### Rutas por área
 
-- Públicas: `/`, `/registro`, `/legal/*`, `/kiosko/{token}`, `/stripe/webhook`.
+- Públicas: `/`, `/funciones`, `/guia/*`, `/plantilla-registro-jornada`, `/control-horario/*`, `/contacto`, `/registro`, `/legal/*`, `/kiosko/{token}`, `/stripe/webhook`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt`.
 - Autenticadas (empleado y admin): `/mis-fichajes`, `/mis-ausencias`, `/mis-nominas`, `/profile`.
-- Administración de empresa: `/admin/*` (panel, fichajes, empleados, ausencias, incidencias, facturación).
+- Administración de empresa: `/admin/*` (panel, fichajes, empleados y kiosco, ausencias, incidencias, facturación).
 - Gestión de nóminas: `/gestion-nominas`.
-- Super admin: `/super-admin/*`.
+- Super admin: `/super-admin/*` (empresas, tarifas, licencias, mensajes).
 
 ## Modelo de datos
 
 | Tabla | Descripción |
 |---|---|
-| `empresas` | Clientes (tenants). Entidad facturable de Cashier; guarda el token del kiosco. |
+| `empresas` | Clientes (tenants). Entidad facturable de Cashier; guarda el token del kiosco, su modo (`kiosko_modo`), si se puede fichar desde la cuenta (`fichaje_web`) y su licencia. |
 | `users` | Usuarios de todos los roles (DNI/NIE único, PIN hasheado, horario y tramos, permiso de contable…). |
 | `fichajes` | Eventos de entrada/salida. **Append-only.** |
 | `fichaje_correcciones` | Correcciones de la hora de un fichaje, con motivo y autor. **Append-only.** |
@@ -191,8 +203,9 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 | `nominas` | Metadatos de las nóminas en PDF (el archivo vive en disco privado). |
 | `legal_aceptaciones` | Qué versión de qué documento aceptó cada empresa, cuándo y desde qué IP. |
 | `audit_logs` | Registro de acciones sensibles. |
-| `tarifas` | Fila única con la tarifa global y los IDs de precios en Stripe. |
-| `licencias` | Códigos de licencia gratuita (duración, usos, caducidad del código). La empresa que canjea uno usa la app sin Stripe; se guarda en `empresas.licencia_id` y `licencia_hasta`. |
+| `tarifas` | Fila única con la tarifa directa, la de asesorías, el IVA y los IDs de Stripe (producto, precios, IVA y modo test/live). |
+| `licencias` | Códigos de licencia gratuita (duración, usos, tope de empleados, caducidad del código). |
+| `contactos` | Mensajes del formulario público de contacto. |
 | `subscriptions`, `subscription_items` | Suscripciones de Cashier (la clave foránea es `empresa_id`). |
 
 ## Instalación en local
@@ -244,14 +257,16 @@ Todas están documentadas en [`.env.example`](.env.example). Las principales:
 
 | Variable | Para qué sirve |
 |---|---|
-| `APP_NAME`, `APP_URL`, `APP_TIMEZONE` | Nombre de la marca, URL pública y zona horaria (`Europe/Madrid`). |
+| `APP_NAME`, `APP_URL`, `APP_TIMEZONE` | Nombre de la marca, URL pública (con `https://` en producción) y zona horaria (`Europe/Madrid`). |
 | `DB_*` | Conexión de la aplicación. |
 | `DB_MIGRATIONS_USERNAME` / `DB_MIGRATIONS_PASSWORD` | Usuario con privilegios DDL, solo para migrar (conexión `mysql_migrations`). |
 | `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD` | Credenciales del super admin que crea el *seeder*. |
 | `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, `CASHIER_CURRENCY` | Stripe. Usa claves `sk_test_…` fuera de producción. |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` | Acceso con Google. |
+| `MAIL_*` | Correo. En local queda en `log`; en producción, SMTP del buzón (ver más abajo). |
+| `LEGAL_NOMBRE`, `LEGAL_NIF`, `LEGAL_DOMICILIO`, `LEGAL_EMAIL`, `LEGAL_TELEFONO`, `LEGAL_REGISTRO_MERCANTIL` | Datos del titular de la web (aviso legal, pie, correos y datos estructurados). Lo vacío no se muestra. |
+| `INDEXNOW_KEY` | Opcional: clave de IndexNow; si no se define se deriva de `APP_KEY`. |
 | `DEPLOY_TOKEN` | Solo en hosting sin SSH; vacío en cualquier otro caso. |
-| `MAIL_*` | Correo. En local queda en `log`. |
 
 > **Nunca subas `.env` al repositorio** (ya está en `.gitignore`).
 
@@ -264,10 +279,10 @@ Además de que el modelo `Fichaje` lanza una excepción si algo intenta editarlo
 
 Los scripts están en [`database/sql/`](database/sql) y el procedimiento completo en [`docs/db-hardening.md`](docs/db-hardening.md). Cada tabla nueva necesita su `GRANT` en `create_app_user.sql`.
 
-## Facturación con Stripe
+## Facturación con Stripe, IVA y licencias
 
-1. Crea las claves de **test** en el panel de Stripe y ponlas en `.env`.
-2. Entra como super admin en **Tarifas** y guarda la tarifa: se crean el producto y los dos precios (cuota base y empleado extra) en Stripe.
+1. Crea las claves de **test** en el panel de Stripe y ponlas en `.env`. Activa el **portal de clientes** y los datos de empresa en Stripe.
+2. Entra como super admin en **Tarifas** y guarda la tarifa: se crean el producto, los dos precios (cuota base y empleado extra) y el **IVA incluido** (tipo inclusivo) en Stripe.
 3. Para recibir eventos en local:
 
    ```bash
@@ -277,7 +292,10 @@ Los scripts están en [`database/sql/`](database/sql) y el procedimiento complet
    Copia el `whsec_…` que imprime a `STRIPE_WEBHOOK_SECRET`.
 4. Tarjeta de prueba: `4242 4242 4242 4242`.
 
-La app **no depende solo del webhook**: antes de bloquear a una empresa consulta a Stripe y copia la suscripción en local, porque el usuario vuelve del pago antes de que llegue el aviso. En producción hay que configurar el webhook en el panel de Stripe (modo *live*) apuntando a `https://tu-dominio/stripe/webhook`.
+- **Todos los precios incluyen IVA** (`tarifas.iva_porcentaje`, 21 % por defecto). La web, Facturación y la factura de Stripe desglosan base e IVA. Si el IVA aún no está creado en Stripe, no se deja suscribir.
+- **Modo test y real**: la app detecta el modo por la clave (`sk_test_` / `sk_live_`). Al pasar de uno a otro **olvida los productos, precios, clientes y suscripciones del modo anterior** y los recrea al guardar la tarifa.
+- La app **no depende solo del webhook**: antes de bloquear a una empresa consulta a Stripe y copia la suscripción en local, porque el usuario vuelve del pago antes de que llegue el aviso. En producción hay que configurar el webhook en el panel de Stripe apuntando a `https://tu-dominio/stripe/webhook`.
+- **Licencias y asesorías**: los códigos de licencia (`ACH-XXXX-XXXX`) dan acceso sin Stripe, con duración y tope de empleados. El plan para asesorías está **configurado pero aún no se cobra automáticamente**: hoy se vende con factura y se reparten códigos.
 
 ## Acceso con Google
 
@@ -287,9 +305,46 @@ Solo para administradores de empresa (login y alta). Se necesita un cliente OAut
 - **Authorized JavaScript origins**: `http://localhost:8000` (sin ruta).
 - Copia el Client ID y el Client Secret a `.env`.
 
-## Correo electrónico
+Si el correo de Google ya pertenece a otra cuenta (super admin o empleado), se rechaza con un mensaje en vez de intentar crear otra empresa.
 
-En local `MAIL_MAILER=log`: los correos (verificación de email, etc.) se escriben en `storage/logs/laravel.log`. Para producción hay que configurar un proveedor real (está pensado Resend o SMTP) y un dominio verificado.
+## Correo electrónico y avisos
+
+En local `MAIL_MAILER=log`. En producción se usa el SMTP del buzón de la empresa (por ejemplo `info@achrono.es`, puerto 465 con `smtps`). Los correos salen en español, con la marca de Achrono (cabecera con logo, botón en el color de la marca y pie con los datos del titular), saludo personal y el nombre de la empresa del destinatario.
+
+| Correo | Quién lo recibe |
+|---|---|
+| Verificación de email y restablecer contraseña | Quien se registra o la pide |
+| Solicitud de ausencia | Administradores de la empresa |
+| Aprobación o rechazo de ausencia | El empleado |
+| Nómina nueva (solo aviso, sin importes) | El empleado |
+| Resumen diario de incidencias (laborables, 11:00) | Administradores |
+| Mensaje del formulario de contacto | `LEGAL_EMAIL` |
+
+Si el servidor de correo falla, la acción sigue adelante y el fallo queda en el log; los mensajes de contacto además se guardan en la base de datos. Los empleados sin correo no reciben nada. Para comprobar el SMTP: `php artisan correo:probar` (o `cmd=correo:probar` en `/deploy/ejecutar`).
+
+## Web pública, SEO y contenido
+
+- **Datos estructurados** (JSON-LD): Organization, WebSite, SoftwareApplication con oferta (IVA incluido), FAQPage, Article, BreadcrumbList y ContactPage según la página.
+- **`robots.txt`, `sitemap.xml` (con `lastmod`), `llms.txt` y `llms-full.txt`** se generan desde `SeoController`. `robots.txt` permite expresamente a los rastreadores de IA (GPTBot, ClaudeBot, PerplexityBot, Google-Extended…) y bloquea paneles, login, kiosco y despliegue.
+- **IndexNow**: `php artisan seo:indexnow` avisa a Bing y otros buscadores de las páginas públicas; el fichero de verificación `/{clave}.txt` lo sirve la propia app.
+- **Contenido**: la portada, `/funciones` y `llms-full.txt` comparten texto (`Support\ContenidoWeb`); las páginas por sector se definen en `config/sectores.php`; la **plantilla gratuita** genera Excel (con fórmulas) y PDF al vuelo.
+- **Reglas de contenido**: no se publican cifras, opiniones ni logos inventados; todo lo que se afirma debe poder hacerse con la aplicación, y los límites (sin cuadrantes, sin geolocalización, necesita internet) se dicen.
+- Página `404` de marca y página `503` de mantenimiento con estilos en línea.
+
+## App instalable (PWA)
+
+La web se puede instalar en el móvil: aparece un banner "Instala Achrono en tu móvil" en las pantallas con sesión (botón nativo en Android/Chrome; instrucciones de *Compartir → Añadir a pantalla de inicio* en iPhone). Incluye `manifest.json` (iconos 192/512 y *maskable*, atajos a fichajes, nóminas y ausencias) y un *service worker* que **no guarda datos privados**: solo muestra `/offline.html` si no hay conexión. La lógica del botón está en `resources/js/app.js`.
+
+## Comandos y tareas programadas
+
+| Comando | Qué hace |
+|---|---|
+| `incidencias:resumen` | Envía a los admins el resumen de incidencias de hoy. Programado en `routes/console.php` (laborables, 11:00). |
+| `correo:probar` | Envía un correo de prueba a `LEGAL_EMAIL` y muestra la configuración SMTP (sin contraseña). |
+| `seo:indexnow` | Avisa a los buscadores IndexNow de las páginas públicas. |
+| `schedule:run` | Ejecuta lo programado; hay que llamarlo cada minuto (cron o tarea de Plesk). |
+
+En hosting sin SSH, estos comandos (y `migrate`, `db:seed`, `storage:link`, las limpiezas de caché, `down` y `up`) se lanzan desde `/deploy/ejecutar?token=…&cmd=…`; la tarea programada de Plesk llama a `cmd=schedule:run`.
 
 ## Pruebas
 
@@ -297,34 +352,40 @@ En local `MAIL_MAILER=log`: los correos (verificación de email, etc.) se escrib
 php artisan test
 ```
 
-La suite usa SQLite en memoria y cubre, entre otras cosas, el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco, los roles, el bloqueo por suscripción, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas y el acceso web de empleados.
+La suite (unas 230 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores.
 
-Las llamadas reales a Stripe no se hacen en las pruebas.
+Las llamadas reales a Stripe, al SMTP y a IndexNow no se hacen en las pruebas. La lista de comprobaciones manuales antes de salir está en [`docs/lista-pruebas-salida.md`](docs/lista-pruebas-salida.md).
 
 ## Despliegue
 
-La guía paso a paso para un **hosting compartido con Plesk y sin SSH** (Loading.es) está en [`docs/deploy-loading-es.md`](docs/deploy-loading-es.md): configuración de PHP, base de datos, subida por FTP o con el Laravel Toolkit de Plesk, migraciones sin terminal y paso a Stripe en modo *live*.
+La guía paso a paso para un **hosting compartido con Plesk y sin SSH** (Loading.es) está en [`docs/deploy-loading-es.md`](docs/deploy-loading-es.md): configuración de PHP, base de datos, despliegue desde Git, migraciones sin terminal, **modo mantenimiento** para pruebas, correo SMTP, tarea programada y paso a Stripe en modo *live*.
 
-Recordatorios para producción: `APP_ENV=production`, `APP_DEBUG=false`, HTTPS, claves *live* de Stripe, webhook configurado, correo real y copias de seguridad de la base de datos y de `storage/app/private` (nóminas).
+Flujo habitual de una actualización: `git push` → *Pull* en Plesk (Git) → `cmd=migrate` si hay migraciones nuevas → `cmd=config:clear` si cambió el `.env`.
+
+Recordatorios para producción: `APP_ENV=production`, `APP_DEBUG=false`, HTTPS, claves *live* de Stripe, webhook y portal configurados, correo real, copias de seguridad de la base de datos y de `storage/app/private` (nóminas), y `DEPLOY_TOKEN` vacío cuando ya no se necesite la ruta de despliegue.
 
 ## Estructura del proyecto
 
 ```
 app/
+  Console/Commands/      # incidencias:resumen, correo:probar, seo:indexnow
+  Exports/               # Excel de fichajes y plantilla de registro de jornada
   Http/Controllers/      # Controladores por área (Admin/, SuperAdmin/, Auth/…)
-  Http/Middleware/       # tenant, suscripción, verificación, nóminas, cambio de contraseña…
+  Http/Middleware/       # tenant, suscripción, verificación, nóminas, SEO, cambio de contraseña…
   Models/                # Modelos Eloquent (Concerns/BelongsToTenant, Scopes/EmpresaScope)
+  Notifications/         # Correos de ausencias, nóminas, resumen y contacto
   Services/              # Cálculo de jornadas, incidencias y estado del equipo; alta de empresa
-  Support/Tenant.php     # Contexto de empresa actual
-config/                  # legal.php (versiones de documentos), deploy.php…
+  Support/               # Tenant, Avisos, ContenidoWeb
+config/                  # legal.php (titular), seo.php, sectores.php, deploy.php…
 database/
   migrations/            # Esquema
   sql/                   # Usuario MySQL restringido y endurecimiento de fichajes
-docs/                    # Endurecimiento de la BD y guía de despliegue
-resources/views/         # Blade: landing, panel, kiosco, nóminas, legal…
-routes/                  # web.php y auth.php
+docs/                    # Endurecimiento de la BD, guía de despliegue y lista de pruebas
+lang/                    # Traducciones al español (incluye lang/es.json de los correos)
+resources/views/         # Blade: portada, funciones, sectores, plantilla, panel, kiosco, legal, correos…
+routes/                  # web.php, auth.php y console.php
 tests/                   # Pruebas de feature y unitarias
-public/images/           # Logo y favicon
+public/                  # Logo, iconos, manifest.json, sw.js, offline.html y build de Vite
 ```
 
 ## Convenciones de trabajo
@@ -334,15 +395,17 @@ public/images/           # Logo y favicon
 - Cada tabla nueva se añade al `GRANT` de `database/sql/create_app_user.sql`.
 - Las migraciones se ejecutan con la conexión `mysql_migrations` cuando se usa la base de datos endurecida.
 - Después de cambiar vistas con clases nuevas de Tailwind hay que ejecutar `npm run build` y **commitear `public/build`**: el hosting no tiene Node, así que los estilos compilados viajan en el repositorio.
+- En la web pública, nada de estadísticas, opiniones ni afirmaciones que la aplicación no cumpla.
 
 ## Pendiente / hoja de ruta
 
-- Configurar el **correo real** (Resend o SMTP) y verificar el dominio.
-- Publicar en producción con el dominio propio y el webhook de Stripe en modo *live*.
-- Exportar a CSV/Excel/PDF las incidencias del Control horario.
-- Histórico de horarios (hoy el control usa el horario actual de cada empleado).
-- Cifrado en reposo de las nóminas.
-- Revisión de los textos legales por un profesional.
+- **Antes de abrir al público**: Stripe en modo *live* (cuenta activada, webhook y portal), revisión de los textos legales por un profesional, copias de seguridad comprobadas, cambiar las credenciales que se hayan compartido y cerrar `/deploy/ejecutar`.
+- Informe mensual por empleado y pausas en el fichaje; saldo de vacaciones y festivos.
+- Aviso al empleado si se le olvida fichar la salida, y aviso de salida anticipada.
+- Verificación en dos pasos, cifrado de campos sensibles y de las nóminas, y exportación/anonimización de datos (RGPD).
+- Plan para asesorías completo: cobro mensual automático por licencia, panel de la asesoría y cobro del empleado extra (hoy solo están configurados los precios y los códigos).
+- Limitar el kiosco a la IP de la empresa, si algún cliente lo pide.
+- Exportar a CSV/Excel/PDF las incidencias del Control horario; histórico de horarios.
 
 ## Licencia
 
