@@ -50,6 +50,8 @@ Route::post('/contacto', [ContactoController::class, 'store'])->middleware('thro
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
+Route::get('/llms-full.txt', [SeoController::class, 'llmsFull'])->name('llms-full');
+Route::get('/{clave}.txt', [SeoController::class, 'claveIndexNow'])->where('clave', '[a-f0-9]{32}')->name('indexnow.clave');
 
 Route::get('/registro', [RegistroController::class, 'create'])->name('registro.create');
 Route::post('/registro', [RegistroController::class, 'store'])

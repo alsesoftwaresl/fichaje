@@ -40,6 +40,8 @@ class DeployController extends Controller
         'schedule:run',
         // Envía un correo de prueba al correo de contacto y muestra el error si el SMTP falla.
         'correo:probar',
+        // Avisa a Bing y otros buscadores (IndexNow) de las páginas públicas.
+        'seo:indexnow',
     ];
 
     /**

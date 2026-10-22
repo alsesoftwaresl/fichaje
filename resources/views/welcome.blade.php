@@ -1,19 +1,5 @@
 @php
-    $preguntas = [
-        ['¿Es obligatorio el registro de jornada en España?', 'Sí. Desde el Real Decreto-ley 8/2019 (artículo 34.9 del Estatuto de los Trabajadores) las empresas deben garantizar el registro diario de la jornada de cada persona trabajadora, con la hora de inicio y de fin, y conservarlo cuatro años a disposición de los trabajadores, sus representantes y la Inspección de Trabajo.'],
-        ['¿Cuánto cuesta '.config('app.name').'?', $tarifa->precioBaseTexto().' € al mes, IVA incluido, con '.$tarifa->empleados_incluidos.' empleados incluidos, más '.number_format((float) $tarifa->precio_empleado_extra, 2).' € al mes por cada empleado adicional (también con IVA incluido). Tiene 15 días de prueba gratis y no hay permanencia.'],
-        ['¿Mis empleados tienen que instalar una aplicación?', 'No. Pueden fichar desde el navegador del móvil o del ordenador, o en un kiosco compartido (una tablet o un PC en la entrada) tecleando su PIN de 6 dígitos o su DNI, según lo que elija la empresa. Si prefieres que solo se fiche en el kiosco, puedes desactivar el fichaje desde la cuenta.'],
-        ['¿Se pueden modificar o borrar los fichajes?', 'No. Los fichajes no se editan ni se borran. Si hay un error, el administrador registra una corrección con su motivo; queda guardado quién la hizo y el fichaje original se conserva.'],
-        ['¿Pueden fichar empleados que no tienen correo electrónico?', 'Sí. Cada empleado se identifica con su DNI o NIE; el correo es opcional.'],
-        ['¿Se pueden gestionar vacaciones, bajas y nóminas?', 'Sí. Los empleados solicitan vacaciones y bajas y el administrador las aprueba o rechaza. La empresa puede subir las nóminas en PDF y cada empleado las ve y descarga cuando quiera.'],
-        ['¿Puedo exportar los fichajes?', 'Sí, a CSV, Excel y PDF, filtrando por empleado y por fechas.'],
-        ['¿Qué puede ver y hacer cada empleado?', 'Cada empleado entra con su cuenta (con su DNI si no tiene correo) y ve todos sus fichajes agrupados por jornada, con las horas trabajadas y las correcciones que haya. También ve y descarga sus nóminas en PDF, pide vacaciones y bajas, y avisa de una salida dentro de la jornada, por ejemplo para ir al médico.'],
-        ['¿Necesito tarjeta para la prueba gratis?', 'Sí. Se pide una tarjeta para activar la prueba de 15 días, pero no se cobra nada durante ese tiempo. Si cancelas antes de que acabe, no pagas.'],
-        ['¿Funciona sin conexión a internet?', 'No. '.config('app.name').' es una aplicación web y necesita conexión para registrar los fichajes. Si en tu centro la conexión es poco fiable, ten en cuenta este punto antes de empezar.'],
-        ['¿Tiene aplicación móvil?', 'No está en las tiendas de aplicaciones (App Store o Google Play), pero se puede instalar desde el navegador con un toque: aparece como un icono en la pantalla de inicio y se abre a pantalla completa. También funciona directamente desde el navegador del móvil, la tablet o el ordenador.'],
-        ['¿Hay atención al cliente y cómo puedo contactar?', 'Sí. Ofrecemos atención al cliente en español, con atención personal. Puedes escribirnos a '.config('legal.titular.email').' o usar el formulario de contacto; si es una incidencia urgente, indícalo y la atendemos con prioridad.'],
-        ['¿Quién está detrás de '.config('app.name').'?', config('app.name').' es un producto de '.config('legal.titular.nombre').'. Los datos del titular están en el aviso legal.'],
-    ];
+    $preguntas = \App\Support\ContenidoWeb::preguntas($tarifa);
 @endphp
 <!DOCTYPE html>
 <html lang="es">

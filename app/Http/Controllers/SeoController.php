@@ -25,15 +25,24 @@ class SeoController extends Controller
         'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'Bingbot',
     ];
 
-    /** Páginas públicas que van al sitemap: ruta => prioridad. */
+    /** Páginas públicas que van al sitemap: ruta => [prioridad, vista cuya fecha marca el lastmod]. */
     protected const PAGINAS = [
-        'home' => '1.0',
-        'funciones' => '0.9',
-        'guia.registro-jornada' => '0.9',
-        'guia.registro-digital' => '0.8',
-        'registro.create' => '0.8',
-        'contacto.create' => '0.6',
+        'home' => ['1.0', 'welcome'],
+        'funciones' => ['0.9', 'funciones'],
+        'guia.registro-jornada' => ['0.9', 'guia/registro-jornada'],
+        'guia.registro-digital' => ['0.8', 'guia/registro-digital'],
+        'registro.create' => ['0.8', 'registro/create'],
+        'contacto.create' => ['0.6', 'contacto'],
     ];
+
+    /** URLs públicas (las del sitemap y los ficheros para IAs), por ejemplo para avisar a IndexNow. */
+    public static function urlsPublicas(): array
+    {
+        return array_merge(
+            array_map(fn ($ruta) => route($ruta), array_keys(self::PAGINAS)),
+            [route('llms'), route('llms-full')]
+        );
+    }
 
     public function robots(): Response
     {
@@ -52,11 +61,43 @@ class SeoController extends Controller
 
     public function sitemap(): Response
     {
-        $urls = collect(self::PAGINAS)->map(fn ($prioridad, $ruta) => "  <url>\n    <loc>".e(route($ruta))."</loc>\n    <priority>{$prioridad}</priority>\n  </url>")->implode("\n");
+        $urls = collect(self::PAGINAS)->map(function ($datos, $ruta) {
+            [$prioridad, $vista] = $datos;
+            $fichero = resource_path('views/'.$vista.'.blade.php');
+            $fecha = is_file($fichero) ? gmdate('Y-m-d', filemtime($fichero)) : null;
+
+            return "  <url>\n    <loc>".e(route($ruta))."</loc>\n".($fecha ? "    <lastmod>{$fecha}</lastmod>\n" : '')."    <priority>{$prioridad}</priority>\n  </url>";
+        })->implode("\n");
 
         $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n{$urls}\n</urlset>\n";
 
         return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+    }
+
+    /**
+     * Versión larga de llms.txt: todo el contenido de la web en texto plano (producto,
+     * funciones, límites, precio, preguntas, ley y contacto) para que un asistente de IA lo
+     * cite sin tener que rastrear página por página.
+     */
+    public function llmsFull(): Response
+    {
+        $tarifa = \App\Models\Tarifa::actual();
+
+        return response(view('seo.llms-full', [
+            'tarifa' => $tarifa,
+            'preguntas' => \App\Support\ContenidoWeb::preguntas($tarifa),
+            'funciones' => \App\Support\ContenidoWeb::funciones(),
+        ])->render(), 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+    }
+
+    /**
+     * Fichero de verificación de IndexNow: /{clave}.txt debe devolver la propia clave.
+     */
+    public function claveIndexNow(string $clave): Response
+    {
+        abort_unless(hash_equals((string) config('seo.indexnow_key'), $clave), 404);
+
+        return response($clave, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
 
     /**

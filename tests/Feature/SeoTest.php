@@ -166,5 +166,110 @@ class SeoTest extends TestCase
         $this->get('/')->assertSee('Fichar, controlar y tenerlo todo ordenado')->assertSee(route('funciones'));
         $this->get('/llms.txt')->assertSee(route('funciones'));
     }
+
+    public function test_llms_full_resume_toda_la_web_en_texto_plano_sin_entidades_html(): void
+    {
+        $respuesta = $this->get('/llms-full.txt')->assertOk();
+        $respuesta->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $texto = $respuesta->getContent();
+
+        foreach (['Funciones', 'Lo que no hace', 'Precio', 'Preguntas frecuentes', 'La ley, sin exageraciones', 'Contacto y datos del titular', 'IVA incluido', 'info@achrono.es'] as $trozo) {
+            $this->assertStringContainsString($trozo, $texto);
+        }
+
+        // Es texto plano: nada de &quot; ni &#039; de un escapado HTML.
+        $this->assertStringNotContainsString('&quot;', $texto);
+        $this->assertStringNotContainsString('&#039;', $texto);
+        $this->assertStringNotContainsString('S.L..', $texto);
+        $this->get('/llms.txt')->assertSee(route('llms-full'));
+    }
+
+    public function test_el_sitemap_lleva_la_fecha_de_ultima_modificacion(): void
+    {
+        $xml = $this->get('/sitemap.xml')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('#<lastmod>\\d{4}-\\d{2}-\\d{2}</lastmod>#', $xml);
+        $this->assertNotFalse(simplexml_load_string($xml));
+    }
+
+    public function test_el_fichero_de_verificacion_de_indexnow_devuelve_la_clave_y_solo_esa(): void
+    {
+        $clave = config('seo.indexnow_key');
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $clave);
+
+        $this->get("/{$clave}.txt")->assertOk()->assertSee($clave, false)->assertHeaderMissing('X-Robots-Tag');
+        $this->get('/'.str_repeat('a', 32).'.txt')->assertNotFound();
+    }
+
+    public function test_el_comando_indexnow_avisa_con_las_urls_publicas_y_la_clave(): void
+    {
+        config(['app.url' => 'https://achrono.es']);
+        \Illuminate\Support\Facades\URL::forceRootUrl('https://achrono.es');
+        \Illuminate\Support\Facades\URL::forceScheme('https');
+        \Illuminate\Support\Facades\Http::fake(['api.indexnow.org/*' => \Illuminate\Support\Facades\Http::response('', 200)]);
+
+        $this->artisan('seo:indexnow')->expectsOutputToContain('Aviso enviado.')->assertSuccessful();
+
+        \Illuminate\Support\Facades\Http::assertSent(function ($peticion) {
+            $datos = $peticion->data();
+
+            return $peticion->url() === 'https://api.indexnow.org/indexnow'
+                && $datos['host'] === 'achrono.es'
+                && $datos['key'] === config('seo.indexnow_key')
+                && str_ends_with($datos['keyLocation'], config('seo.indexnow_key').'.txt')
+                && in_array('https://achrono.es/funciones', $datos['urlList'], true)
+                && in_array('https://achrono.es/llms-full.txt', $datos['urlList'], true);
+        });
+    }
+
+    public function test_indexnow_no_avisa_desde_una_direccion_local(): void
+    {
+        \Illuminate\Support\Facades\Http::fake();
+        config(['app.url' => 'http://localhost:8000']);
+
+        $this->artisan('seo:indexnow')->expectsOutputToContain('no es una dirección pública')->assertFailed();
+        \Illuminate\Support\Facades\Http::assertNothingSent();
+    }
+
+    public function test_indexnow_informa_si_el_buscador_rechaza_el_aviso(): void
+    {
+        config(['app.url' => 'https://achrono.es']);
+        \Illuminate\Support\Facades\Http::fake(['api.indexnow.org/*' => \Illuminate\Support\Facades\Http::response('clave inválida', 403)]);
+
+        $this->artisan('seo:indexnow')->expectsOutputToContain('IndexNow no ha aceptado')->assertFailed();
+    }
+
+    public function test_la_pagina_404_es_de_la_marca_y_no_se_indexa(): void
+    {
+        $this->get('/esta-pagina-no-existe')
+            ->assertNotFound()
+            ->assertSee('No encontramos esa página')
+            ->assertSee(route('funciones'), false)
+            ->assertSee('noindex', false);
+    }
+
+    public function test_el_contenido_compartido_es_el_mismo_en_la_web_y_en_llms_full(): void
+    {
+        $tarifa = \App\Models\Tarifa::actual();
+        $primera = \App\Support\ContenidoWeb::preguntas($tarifa)[0][0];
+        $titulo = \App\Support\ContenidoWeb::funciones()[0]['titulo'];
+
+        $this->get('/')->assertSee($primera);
+        $this->get('/funciones')->assertSee($titulo);
+        $this->get('/llms-full.txt')->assertSee($primera, false)->assertSee($titulo, false);
+    }
+
+    public function test_con_app_url_https_todas_las_urls_generadas_salen_con_https(): void
+    {
+        config(['app.url' => 'https://achrono.es']);
+        (new \App\Providers\AppServiceProvider(app()))->boot();
+
+        $this->assertStringStartsWith('https://', route('home'));
+        $this->assertStringStartsWith('https://', route('funciones'));
+        $this->assertStringStartsWith('https://', url('/cualquier-cosa'));
+
+        // Restablece el esquema para no afectar a otras pruebas.
+        \Illuminate\Support\Facades\URL::forceScheme('http');
+    }
 }
 

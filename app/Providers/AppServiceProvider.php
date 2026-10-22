@@ -6,6 +6,7 @@ use App\Support\Avisos;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use App\Models\Empresa;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 
@@ -30,6 +31,13 @@ class AppServiceProvider extends ServiceProvider
         // Lo facturable es la empresa (tenant), no un usuario individual —
         // Cashier asume User por defecto.
         Cashier::useCustomerModel(Empresa::class);
+
+        // Si la web va por https, todos los enlaces que se generan lo usan, también fuera de una
+        // petición (tareas programadas, correos del resumen diario, avisos a buscadores): sin esto,
+        // en esos casos saldrían con http://.
+        if (str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
 
         // Los correos de contraseña y verificación llevan saludo personal y la empresa.
         ResetPassword::toMailUsing(function ($notifiable, $token) {

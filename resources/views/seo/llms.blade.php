@@ -22,6 +22,10 @@
 - {{ $tarifa->precioBaseTexto() }} €/mes con IVA incluido, con {{ $tarifa->empleados_incluidos }} empleados incluidos, y {{ number_format((float) $tarifa->precio_empleado_extra, 2) }} €/mes por cada empleado adicional.
 - 15 días de prueba gratis. Sin permanencia.
 
+## Versión completa
+
+- [llms-full.txt]({{ route('llms-full') }}): todo el contenido de la web en un solo texto (funciones, límites, precio, preguntas frecuentes, ley y contacto).
+
 ## Páginas
 
 - [Inicio]({{ route('home') }}): qué es, funciones, precio y preguntas frecuentes.
