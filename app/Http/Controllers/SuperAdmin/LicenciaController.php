@@ -37,6 +37,7 @@ class LicenciaController extends Controller
             'meses' => ['nullable', 'integer', 'min:1', 'max:120'],
             'max_usos' => ['required', 'integer', 'min:1', 'max:1000'],
             'max_empleados' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'incluye_nominas' => ['sometimes', 'boolean'],
             'canjeable_hasta' => ['nullable', 'date', 'after_or_equal:today'],
         ]);
 

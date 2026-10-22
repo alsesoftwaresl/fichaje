@@ -49,6 +49,32 @@
 
                 <div class="border-t border-slate-200 pt-6 space-y-4">
                     <div>
+                        <h3 class="font-medium text-slate-900">Módulo de Nóminas</h3>
+                        <p class="mt-1 text-xs text-slate-500">
+                            Apagado, subir y gestionar nóminas va incluido para todas las empresas (como ahora). Encendido, es un
+                            módulo opcional con una cuota fija al mes por empresa, que se añade a su suscripción. Durante la
+                            prueba gratis está incluido, y los empleados siempre pueden ver y descargar las nóminas que ya tienen.
+                        </p>
+                    </div>
+
+                    <div>
+                        <input type="hidden" name="nominas_modulo_activo" value="0">
+                        <label class="flex items-start gap-3 text-sm text-slate-700">
+                            <input type="checkbox" name="nominas_modulo_activo" value="1" @checked(old('nominas_modulo_activo', $tarifa->nominas_modulo_activo)) class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <span>Cobrar Nóminas como módulo aparte</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <x-input-label for="nominas_precio_mensual" value="Cuota del módulo por empresa (€/mes, IVA incluido)" />
+                        <x-text-input id="nominas_precio_mensual" name="nominas_precio_mensual" type="number" step="0.01" min="0"
+                            class="mt-1 block w-full" :value="old('nominas_precio_mensual', $tarifa->nominas_precio_mensual)" required />
+                        <x-input-error class="mt-2" :messages="$errors->get('nominas_precio_mensual')" />
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 pt-6 space-y-4">
+                    <div>
                         <h3 class="font-medium text-slate-900">Plan para asesorías (partners)</h3>
                         <p class="mt-1 text-xs text-slate-500">
                             Lo que paga una asesoría por cada licencia (empresa cliente) que reparte entre sus clientes.

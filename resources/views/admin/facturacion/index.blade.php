@@ -19,6 +19,9 @@
             <p><span class="text-slate-500">Cuota base:</span> <span class="text-slate-800">{{ number_format($tarifa->precio_base_mensual, 2) }}€/mes, IVA incluido (incluye {{ $tarifa->empleados_incluidos }} empleados)</span></p>
             <p><span class="text-slate-500">Empleados activos:</span> <span class="text-slate-800">{{ $empleadosActivos }}</span></p>
             <p><span class="text-slate-500">Empleados extra:</span> <span class="text-slate-800">{{ $empleadosExtra }} × {{ number_format($tarifa->precio_empleado_extra, 2) }}€</span></p>
+            @if ($precioNominas > 0)
+                <p><span class="text-slate-500">Módulo Nóminas:</span> <span class="text-slate-800">{{ number_format($precioNominas, 2) }}€/mes</span></p>
+            @endif
             <p class="pt-2 border-t border-slate-100"><span class="text-slate-500">Total estimado:</span> <span class="text-lg font-semibold text-slate-900">{{ number_format($precioMensual, 2) }}€/mes</span> <span class="text-slate-500">IVA incluido</span></p>
             @if ((float) $tarifa->iva_porcentaje > 0)
                 <p class="text-xs text-slate-500">
@@ -37,6 +40,49 @@
                         Incluye hasta {{ $empresa->licencia->max_empleados }} empleados (ahora tienes {{ $empleadosActivos }}).
                     @endif
                 </p>
+            </x-card>
+        @endif
+
+        {{-- Módulo de Nóminas: solo aparece si se cobra aparte --}}
+        @if ($tarifa->nominas_modulo_activo)
+            <x-card class="p-6 space-y-3 text-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="font-medium text-slate-900">Módulo de Nóminas</h3>
+                    <span class="font-semibold text-slate-900">{{ number_format((float) $tarifa->nominas_precio_mensual, 2) }}€/mes <span class="font-normal text-slate-500">IVA incluido</span></span>
+                </div>
+                <p class="text-slate-600">Sube las nóminas de tu equipo y cada empleado las descarga desde su cuenta, con aviso por correo.</p>
+
+                @php
+                    $incluidoPorLicencia = $empresa->tieneLicenciaActiva() && $empresa->licencia?->incluye_nominas;
+                    $enPrueba = (bool) $empresa->subscription('default')?->onTrial();
+                @endphp
+
+                @if ($empresa->modulo_nominas && $empresa->subscribed('default'))
+                    <div class="flex flex-wrap items-center gap-3">
+                        <x-badge tone="success">Activo</x-badge>
+                        <form method="POST" action="{{ route('admin.facturacion.nominas.desactivar') }}" onsubmit="return confirm('¿Quitar el módulo de Nóminas? Las nóminas ya subidas se conservan y tus empleados siguen viéndolas.')">
+                            @csrf
+                            @method('DELETE')
+                            <button class="text-xs font-medium text-rose-600 hover:text-rose-500">Quitar el módulo</button>
+                        </form>
+                    </div>
+                @elseif ($incluidoPorLicencia)
+                    <x-badge tone="success">Incluido en tu licencia</x-badge>
+                @else
+                    @if ($enPrueba)
+                        <x-badge tone="indigo">Incluido durante la prueba gratis</x-badge>
+                    @endif
+                    @if ($empresa->subscribed('default'))
+                        <form method="POST" action="{{ route('admin.facturacion.nominas.activar') }}">
+                            @csrf
+                            <x-primary-button type="submit">Activar el módulo de Nóminas</x-primary-button>
+                        </form>
+                    @else
+                        <p class="text-xs text-slate-500">Se activa desde aquí cuando tengas la suscripción en marcha.</p>
+                    @endif
+                @endif
+
+                <p class="text-xs text-slate-500">Si no lo tienes activo, tus empleados siguen pudiendo ver y descargar las nóminas que ya están subidas.</p>
             </x-card>
         @endif
 

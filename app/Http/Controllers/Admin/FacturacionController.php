@@ -44,11 +44,17 @@ class FacturacionController extends Controller
         $tarifa = Tarifa::actual();
         $empleadosActivos = $empresa->usuarios()->where('activo', true)->count();
 
+        // Cuota del módulo de Nóminas, solo si se cobra aparte y la empresa lo ha contratado.
+        $precioNominas = ($tarifa->nominas_modulo_activo && $empresa->modulo_nominas && $empresa->subscribed('default'))
+            ? (float) $tarifa->nominas_precio_mensual
+            : 0.0;
+
         return view('admin.facturacion.index', [
+            'precioNominas' => $precioNominas,
             'empresa' => $empresa,
             'tarifa' => $tarifa,
             'empleadosActivos' => $empleadosActivos,
-            'precioMensual' => $tarifa->calcularPrecioMensual($empleadosActivos),
+            'precioMensual' => $tarifa->calcularPrecioMensual($empleadosActivos) + $precioNominas,
             'empleadosExtra' => $tarifa->empleadosExtra($empleadosActivos),
             'suscripcion' => $empresa->subscription('default'),
             'diasPrueba' => self::DIAS_PRUEBA_GRATIS,

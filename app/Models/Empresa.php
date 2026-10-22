@@ -41,6 +41,7 @@ class Empresa extends Model
             'activa' => 'boolean',
             'fichaje_web' => 'boolean',
             'kiosko_modo_elegido' => 'boolean',
+            'modulo_nominas' => 'boolean',
             'licencia_hasta' => 'date',
         ];
     }
@@ -100,6 +101,61 @@ class Empresa extends Model
         }
 
         return $this->licencia?->max_empleados;
+    }
+
+    /**
+     * Puede subir y gestionar nóminas. Si el módulo no se cobra aparte (interruptor global
+     * apagado) siempre; si se cobra, cuando la licencia lo incluye, durante la prueba gratis o
+     * si la empresa lo ha contratado. Ver y descargar nóminas ya subidas NO depende de esto.
+     */
+    public function tieneModuloNominas(): bool
+    {
+        if (! Tarifa::actual()->nominas_modulo_activo) {
+            return true;
+        }
+
+        if ($this->tieneLicenciaActiva() && $this->licencia?->incluye_nominas) {
+            return true;
+        }
+
+        if ($this->modulo_nominas && $this->subscribed('default')) {
+            return true;
+        }
+
+        return (bool) $this->subscription('default')?->onTrial();
+    }
+
+    /** Contrata el módulo: añade su precio a la suscripción de Stripe y lo marca como activo. */
+    public function activarModuloNominas(): void
+    {
+        $precio = Tarifa::actual()->stripe_price_nominas_id;
+
+        // En las pruebas no se llama a Stripe.
+        if (! app()->environment('testing')) {
+            $suscripcion = $this->subscription('default');
+
+            if (! $suscripcion->hasPrice($precio)) {
+                $suscripcion->addPrice($precio);
+            }
+        }
+
+        $this->forceFill(['modulo_nominas' => true])->save();
+    }
+
+    /** Quita el módulo de la suscripción. Las nóminas ya subidas se conservan. */
+    public function desactivarModuloNominas(): void
+    {
+        $precio = Tarifa::actual()->stripe_price_nominas_id;
+
+        if (! app()->environment('testing') && $precio && $this->subscribed('default')) {
+            $suscripcion = $this->subscription('default');
+
+            if ($suscripcion->hasPrice($precio)) {
+                $suscripcion->removePrice($precio);
+            }
+        }
+
+        $this->forceFill(['modulo_nominas' => false])->save();
     }
 
     /** Puede usar la app: licencia gratuita vigente o suscripción activa. */

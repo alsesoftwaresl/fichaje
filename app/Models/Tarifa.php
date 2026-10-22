@@ -28,6 +28,9 @@ class Tarifa extends Model
         'iva_porcentaje',
         'stripe_tax_rate_id',
         'stripe_modo',
+        'nominas_modulo_activo',
+        'nominas_precio_mensual',
+        'stripe_price_nominas_id',
         'actualizado_por',
         'stripe_product_id',
         'stripe_price_base_id',
@@ -49,6 +52,8 @@ class Tarifa extends Model
             'partner_licencias_minimas' => 'integer',
             'partner_pvp_recomendado' => 'decimal:2',
             'iva_porcentaje' => 'decimal:2',
+            'nominas_modulo_activo' => 'boolean',
+            'nominas_precio_mensual' => 'decimal:2',
         ];
     }
 
@@ -166,7 +171,7 @@ class Tarifa extends Model
             ])->id;
         }
 
-        foreach (array_filter([$this->stripe_price_base_id, $this->stripe_price_extra_id]) as $precioAntiguo) {
+        foreach (array_filter([$this->stripe_price_base_id, $this->stripe_price_extra_id, $this->stripe_price_nominas_id]) as $precioAntiguo) {
             $stripe->prices->update($precioAntiguo, ['active' => false]);
         }
 
@@ -184,6 +189,15 @@ class Tarifa extends Model
             'currency' => 'eur',
             'recurring' => ['interval' => 'month'],
             'nickname' => 'Empleado extra',
+        ])->id;
+
+        // Cuota fija mensual del módulo de Nóminas (solo se cobra si el interruptor global está encendido).
+        $this->stripe_price_nominas_id = $stripe->prices->create([
+            'product' => $this->stripe_product_id,
+            'unit_amount' => (int) round(((float) $this->nominas_precio_mensual) * 100),
+            'currency' => 'eur',
+            'recurring' => ['interval' => 'month'],
+            'nickname' => 'Módulo Nóminas',
         ])->id;
 
         $this->sincronizarIvaConStripe($stripe);
@@ -211,6 +225,7 @@ class Tarifa extends Model
             'stripe_price_base_id' => null,
             'stripe_price_extra_id' => null,
             'stripe_tax_rate_id' => null,
+            'stripe_price_nominas_id' => null,
         ]);
 
         \Illuminate\Support\Facades\DB::transaction(function () {
@@ -221,6 +236,7 @@ class Tarifa extends Model
                 'pm_type' => null,
                 'pm_last_four' => null,
                 'trial_ends_at' => null,
+                'modulo_nominas' => false,
             ]);
         });
     }

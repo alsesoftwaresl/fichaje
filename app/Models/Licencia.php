@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
  */
 class Licencia extends Model
 {
-    protected $fillable = ['codigo', 'nota', 'meses', 'max_usos', 'max_empleados', 'canjeable_hasta', 'activa'];
+    protected $fillable = ['codigo', 'nota', 'meses', 'max_usos', 'max_empleados', 'incluye_nominas', 'canjeable_hasta', 'activa'];
 
     /**
      * Tipos de cada columna.
@@ -25,6 +25,7 @@ class Licencia extends Model
             'meses' => 'integer',
             'max_usos' => 'integer',
             'max_empleados' => 'integer',
+            'incluye_nominas' => 'boolean',
             'usos' => 'integer',
             'canjeable_hasta' => 'date',
             'activa' => 'boolean',

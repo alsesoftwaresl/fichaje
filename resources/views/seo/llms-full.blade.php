@@ -34,6 +34,9 @@
 
 - {!! $tarifa->precioBaseTexto() !!} €/mes con IVA incluido, con {!! $tarifa->empleados_incluidos !!} empleados incluidos.
 - {!! number_format((float) $tarifa->precio_empleado_extra, 2, ',', '.') !!} €/mes con IVA incluido por cada empleado adicional.
+@if ($tarifa->nominas_modulo_activo)
+- Módulo opcional de Nóminas: {!! number_format((float) $tarifa->nominas_precio_mensual, 2, ',', '.') !!} €/mes por empresa con IVA incluido; incluido en la prueba gratis. Sin el módulo, los empleados siguen viendo las nóminas ya subidas.
+@endif
 - 15 días de prueba gratis (se pide tarjeta, pero no se cobra nada durante la prueba). Sin permanencia; se cancela cuando se quiera.
 - Ejemplos al mes, con IVA incluido:
 @foreach ([$tarifa->empleados_incluidos, 10, 20, 50] as $n)

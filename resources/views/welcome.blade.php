@@ -572,6 +572,9 @@
                             <span class="text-indigo-300">/mes</span>
                         </p>
                         <p class="mt-1 text-sm text-indigo-300">IVA incluido · + {{ number_format((float) $tarifa->precio_empleado_extra, 2) }}€/mes por cada empleado adicional</p>
+                        @if ($tarifa->nominas_modulo_activo)
+                            <p class="mt-1 text-sm text-indigo-300">Módulo Nóminas (opcional): +{{ number_format((float) $tarifa->nominas_precio_mensual, 2) }}€/mes · incluido en la prueba</p>
+                        @endif
                         @if ((float) $tarifa->iva_porcentaje > 0)
                             <p class="mt-1 text-xs text-indigo-300/80">{{ number_format($tarifa->baseImponible((float) $tarifa->precio_base_mensual), 2, ',', '.') }} € + {{ number_format($tarifa->ivaIncluido((float) $tarifa->precio_base_mensual), 2, ',', '.') }} € de IVA ({{ $tarifa->ivaTexto() }} %)</p>
                         @endif

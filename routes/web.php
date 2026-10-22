@@ -22,6 +22,7 @@ use App\Http\Controllers\RegistroCompletarController;
 use App\Http\Controllers\RegistroController;
 use App\Http\Controllers\SuperAdmin\EmpresaController;
 use App\Http\Controllers\Admin\KioscoController;
+use App\Http\Controllers\Admin\ModuloNominasController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\PlantillaController;
 use App\Http\Controllers\SectorController;
@@ -156,7 +157,7 @@ Route::middleware(['auth', 'tenant', 'verificado'])->group(function () {
 });
 
 // Subir y gestionar nóminas: admin_empresa o quien tenga el permiso de contable.
-Route::middleware(['auth', 'tenant', 'verificado', 'suscripcion', 'gestor.nominas'])
+Route::middleware(['auth', 'tenant', 'verificado', 'suscripcion', 'gestor.nominas', 'modulo.nominas'])
     ->prefix('gestion-nominas')
     ->name('nominas.gestion.')
     ->group(function () {
@@ -178,6 +179,8 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
         // porque es desde donde se suscriben.
         Route::get('/facturacion', [FacturacionController::class, 'index'])->name('facturacion.index');
         Route::post('/facturacion/suscribir', [FacturacionController::class, 'suscribir'])->name('facturacion.suscribir');
+        Route::post('/facturacion/nominas/activar', [ModuloNominasController::class, 'activar'])->name('facturacion.nominas.activar');
+        Route::delete('/facturacion/nominas', [ModuloNominasController::class, 'desactivar'])->name('facturacion.nominas.desactivar');
         Route::post('/facturacion/licencia', [AdminLicenciaController::class, 'canjear'])->name('facturacion.licencia');
         Route::get('/facturacion/portal', [FacturacionController::class, 'portal'])->name('facturacion.portal');
         Route::get('/facturacion/facturas/{factura}', [FacturacionController::class, 'descargarFactura'])->name('facturacion.facturas.descargar');

@@ -17,7 +17,7 @@ class ContenidoWeb
      */
     public static function preguntas(Tarifa $tarifa): array
     {
-        return [
+        $preguntas = [
         ['¿Es obligatorio el registro de jornada en España?', 'Sí. Desde el Real Decreto-ley 8/2019 (artículo 34.9 del Estatuto de los Trabajadores) las empresas deben garantizar el registro diario de la jornada de cada persona trabajadora, con la hora de inicio y de fin, y conservarlo cuatro años a disposición de los trabajadores, sus representantes y la Inspección de Trabajo.'],
         ['¿Cuánto cuesta '.config('app.name').'?', $tarifa->precioBaseTexto().' € al mes, IVA incluido, con '.$tarifa->empleados_incluidos.' empleados incluidos, más '.number_format((float) $tarifa->precio_empleado_extra, 2).' € al mes por cada empleado adicional (también con IVA incluido). Tiene 15 días de prueba gratis y no hay permanencia.'],
         ['¿Mis empleados tienen que instalar una aplicación?', 'No. Pueden fichar desde el navegador del móvil o del ordenador, o en un kiosco compartido (una tablet o un PC en la entrada) tecleando su PIN de 6 dígitos o su DNI, según lo que elija la empresa. Si prefieres que solo se fiche en el kiosco, puedes desactivar el fichaje desde la cuenta.'],
@@ -32,6 +32,13 @@ class ContenidoWeb
         ['¿Hay atención al cliente y cómo puedo contactar?', 'Sí. Ofrecemos atención al cliente en español, con atención personal. Puedes escribirnos a '.config('legal.titular.email').' o usar el formulario de contacto; si es una incidencia urgente, indícalo y la atendemos con prioridad.'],
         ['¿Quién está detrás de '.config('app.name').'?', config('app.name').' es un producto de '.rtrim(config('legal.titular.nombre'), '.').'. Los datos del titular están en el aviso legal.'],
     ];
+
+        // Si Nóminas se cobra como módulo aparte, se explica (y solo entonces).
+        if ($tarifa->nominas_modulo_activo) {
+            array_splice($preguntas, 6, 0, [['¿Las nóminas se pagan aparte?', 'El módulo de Nóminas es opcional: '.number_format((float) $tarifa->nominas_precio_mensual, 2, ',', '.').' € al mes por empresa, IVA incluido, que se suma a tu cuota. Durante la prueba de 15 días está incluido. Si no lo contratas, tus empleados siguen pudiendo ver y descargar las nóminas que ya estén subidas.']]);
+        }
+
+        return $preguntas;
     }
 
     /**
@@ -41,7 +48,7 @@ class ContenidoWeb
      */
     public static function funciones(): array
     {
-        return [
+        $bloques = [
         [
             'id' => 'fichar',
             'titulo' => 'Fichar es tocar un botón',
@@ -120,5 +127,19 @@ class ContenidoWeb
             ],
         ],
     ];
+
+        // Si Nóminas se cobra como módulo aparte, el bloque de nóminas lo dice.
+        $tarifa = Tarifa::actual();
+
+        if ($tarifa->nominas_modulo_activo) {
+            foreach ($bloques as &$bloque) {
+                if ($bloque['id'] === 'nominas') {
+                    $bloque['puntos'][] = 'Es un módulo opcional ('.number_format((float) $tarifa->nominas_precio_mensual, 2, ',', '.').' € al mes por empresa, IVA incluido), incluido durante la prueba gratis. Si no lo contratas, tus empleados siguen viendo las nóminas ya subidas.';
+                }
+            }
+            unset($bloque);
+        }
+
+        return $bloques;
     }
 }

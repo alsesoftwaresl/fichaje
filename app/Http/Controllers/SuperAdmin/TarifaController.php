@@ -38,6 +38,9 @@ class TarifaController extends Controller
             'empleados_incluidos' => ['required', 'integer', 'min:0'],
             'precio_empleado_extra' => ['required', 'numeric', 'min:0', 'max:9999.99'],
             'iva_porcentaje' => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            // Módulo de Nóminas: interruptor global y cuota fija mensual.
+            'nominas_modulo_activo' => ['sometimes', 'boolean'],
+            'nominas_precio_mensual' => ['sometimes', 'numeric', 'min:0', 'max:9999.99'],
             // Plan para asesorías: opcionales para no romper formularios antiguos.
             'partner_precio_licencia' => ['sometimes', 'numeric', 'min:0', 'max:9999.99'],
             'partner_empleados_incluidos' => ['sometimes', 'integer', 'min:1', 'max:100000'],

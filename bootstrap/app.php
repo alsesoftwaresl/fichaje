@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'suscripcion' => \App\Http\Middleware\RequireSuscripcion::class,
             'verificado' => \App\Http\Middleware\RequireEmailVerificado::class,
             'gestor.nominas' => \App\Http\Middleware\PuedeGestionarNominas::class,
+            'modulo.nominas' => \App\Http\Middleware\ModuloNominas::class,
         ]);
 
         // En modo mantenimiento solo pasa quien tenga la clave secreta, salvo el
