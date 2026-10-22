@@ -27,9 +27,22 @@ class KioscoController extends Controller
         $empresa = Auth::user()->empresa;
         $anterior = $empresa->kiosko_modo;
 
-        $empresa->forceFill(['kiosko_modo' => $data['kiosko_modo']])->save();
+        $cambios = ['kiosko_modo' => $data['kiosko_modo']];
 
-        AuditLog::registrar('kiosko_modo_cambiado', $empresa, ['anterior' => $anterior, 'nuevo' => $data['kiosko_modo']]);
+        // Solo se toca si el formulario lo envía (así no se pisa en peticiones antiguas).
+        if ($request->has('fichaje_web')) {
+            $cambios['fichaje_web'] = $request->boolean('fichaje_web');
+        }
+
+        $webAnterior = $empresa->fichaje_web;
+        $empresa->forceFill($cambios)->save();
+
+        AuditLog::registrar('kiosko_modo_cambiado', $empresa, [
+            'anterior' => $anterior,
+            'nuevo' => $data['kiosko_modo'],
+            'fichaje_web_anterior' => $webAnterior,
+            'fichaje_web_nuevo' => $empresa->fichaje_web,
+        ]);
 
         return back()->with('status', 'Kiosco actualizado.');
     }

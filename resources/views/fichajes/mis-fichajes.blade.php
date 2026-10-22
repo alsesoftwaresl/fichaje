@@ -4,6 +4,11 @@
     </x-slot>
 
     <div class="space-y-6">
+        @error('fichaje')
+            <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{{ $message }}</div>
+        @enderror
+
+        @if ($fichajeWeb)
         <x-card class="p-8 text-center">
             <p class="text-sm text-slate-500 mb-4">Próximo fichaje</p>
             <form method="POST" action="{{ route('fichajes.store') }}">
@@ -19,6 +24,12 @@
                 </button>
             </form>
         </x-card>
+        @else
+            <x-card class="p-6 text-center">
+                <p class="font-medium text-slate-800">Aquí solo puedes consultar tus fichajes</p>
+                <p class="mt-1 text-sm text-slate-500">Tu empresa solo permite fichar en el kiosco del centro de trabajo.</p>
+            </x-card>
+        @endif
 
         <x-card class="overflow-hidden">
             <div class="overflow-x-auto"><table class="tabla-apilada min-w-full divide-y divide-slate-200 text-sm">

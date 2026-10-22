@@ -31,7 +31,9 @@ class FichajeController extends Controller
 
         $siguienteTipo = $fichajes->last()?->tipo === 'entrada' ? 'salida' : 'entrada';
 
-        return view('fichajes.mis-fichajes', compact('jornadas', 'siguienteTipo'));
+        $fichajeWeb = Auth::user()->empresa->fichaje_web;
+
+        return view('fichajes.mis-fichajes', compact('jornadas', 'siguienteTipo', 'fichajeWeb'));
     }
 
     /**
@@ -40,6 +42,12 @@ class FichajeController extends Controller
      */
     public function store(): RedirectResponse
     {
+        // La empresa puede exigir que se fiche solo en el kiosco (p. ej. para que nadie ficha desde casa).
+        if (! Auth::user()->empresa->fichaje_web) {
+            return redirect()->route('fichajes.mis')
+                ->withErrors(['fichaje' => 'Tu empresa solo permite fichar en el kiosco.']);
+        }
+
         $ultimoFichaje = Fichaje::where('user_id', Auth::id())
             ->orderByDesc('fecha_hora')
             ->first();

@@ -2,7 +2,7 @@
     $preguntas = [
         ['¿Es obligatorio el registro de jornada en España?', 'Sí. Desde el Real Decreto-ley 8/2019 (artículo 34.9 del Estatuto de los Trabajadores) las empresas deben garantizar el registro diario de la jornada de cada persona trabajadora, con la hora de inicio y de fin, y conservarlo cuatro años a disposición de los trabajadores, sus representantes y la Inspección de Trabajo.'],
         ['¿Cuánto cuesta '.config('app.name').'?', $tarifa->precioBaseTexto().' € al mes, IVA incluido, con '.$tarifa->empleados_incluidos.' empleados incluidos, más '.number_format((float) $tarifa->precio_empleado_extra, 2).' € al mes por cada empleado adicional (también con IVA incluido). Tiene 15 días de prueba gratis y no hay permanencia.'],
-        ['¿Mis empleados tienen que instalar una aplicación?', 'No. Pueden fichar desde el navegador del móvil o del ordenador, o en un kiosco compartido (una tablet o un PC en la entrada) tecleando su PIN de 6 dígitos o su DNI, según lo que elija la empresa.'],
+        ['¿Mis empleados tienen que instalar una aplicación?', 'No. Pueden fichar desde el navegador del móvil o del ordenador, o en un kiosco compartido (una tablet o un PC en la entrada) tecleando su PIN de 6 dígitos o su DNI, según lo que elija la empresa. Si prefieres que solo se fiche en el kiosco, puedes desactivar el fichaje desde la cuenta.'],
         ['¿Se pueden modificar o borrar los fichajes?', 'No. Los fichajes no se editan ni se borran. Si hay un error, el administrador registra una corrección con su motivo; queda guardado quién la hizo y el fichaje original se conserva.'],
         ['¿Pueden fichar empleados que no tienen correo electrónico?', 'Sí. Cada empleado se identifica con su DNI o NIE; el correo es opcional.'],
         ['¿Se pueden gestionar vacaciones, bajas y nóminas?', 'Sí. Los empleados solicitan vacaciones y bajas y el administrador las aprueba o rechaza. La empresa puede subir las nóminas en PDF y cada empleado las ve y descarga cuando quiera.'],
@@ -314,7 +314,7 @@
                         <h3 class="font-display text-2xl font-bold text-indigo-950">Fichar sin complicaciones</h3>
                         <p class="mt-3 text-slate-600">Cada empleado ficha como le resulte más cómodo, sin instalar nada.</p>
                         <ul class="mt-5 space-y-2.5 text-sm text-slate-700">
-                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Desde el navegador del móvil o del ordenador, con un botón de entrada y salida.</li>
+                            <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Desde el navegador del móvil o del ordenador, con un botón de entrada y salida (si la empresa lo permite).</li>
                             <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Kiosco compartido: una tablet en la entrada donde cada uno ficha con su PIN de 6 dígitos o con su DNI.</li>
                             <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Quien no tiene correo entra con su DNI o NIE.</li>
                         </ul>

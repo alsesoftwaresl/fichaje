@@ -177,4 +177,53 @@ class KioskoDniTest extends TestCase
         $this->actingAs($admin)->get(route('admin.empleados.index'))
             ->assertOk()->assertSee('¿Cómo ficha la gente en el kiosco?')->assertSee('podría fichar por él');
     }
+
+    public function test_si_la_empresa_solo_permite_el_kiosco_no_se_ficha_desde_la_cuenta(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $empleado = User::factory()->for($empresa)->create();
+
+        // Por defecto se puede fichar desde la cuenta.
+        $this->actingAs($empleado)->post(route('fichajes.store'))->assertRedirect(route('fichajes.mis'))->assertSessionHasNoErrors();
+        $this->assertSame(1, $this->totalFichajes($empresa));
+
+        $empresa->forceFill(['fichaje_web' => false])->save();
+        $empleado = $empleado->fresh(); // en una petición real la empresa se carga de nuevo
+
+        $this->actingAs($empleado)->post(route('fichajes.store'))
+            ->assertRedirect(route('fichajes.mis'))
+            ->assertSessionHasErrors(['fichaje' => 'Tu empresa solo permite fichar en el kiosco.']);
+        $this->assertSame(1, $this->totalFichajes($empresa));
+
+        $this->actingAs($empleado)->get(route('fichajes.mis'))
+            ->assertOk()
+            ->assertSee('Aquí solo puedes consultar tus fichajes')
+            ->assertDontSee('Fichar entrada')->assertDontSee('Fichar salida');
+    }
+
+    public function test_el_kiosco_sigue_funcionando_con_el_fichaje_web_desactivado(): void
+    {
+        [$empresa, , $pin] = $this->empresaConEmpleado('pin');
+        $empresa->forceFill(['fichaje_web' => false])->save();
+
+        $this->fichar($empresa->fresh(), ['pin' => $pin])->assertSessionHas('resultado');
+        $this->assertSame(1, $this->totalFichajes($empresa));
+    }
+
+    public function test_el_admin_activa_y_desactiva_el_fichaje_desde_la_cuenta(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $admin = User::factory()->adminEmpresa()->for($empresa)->create();
+
+        $this->actingAs($admin)->patch(route('admin.kiosko.modo'), ['kiosko_modo' => 'pin', 'fichaje_web' => '0'])->assertRedirect();
+        $this->assertFalse($empresa->fresh()->fichaje_web);
+
+        // Una petición que no envía el campo no lo cambia.
+        $this->actingAs($admin)->patch(route('admin.kiosko.modo'), ['kiosko_modo' => 'dni'])->assertRedirect();
+        $this->assertFalse($empresa->fresh()->fichaje_web);
+
+        $this->actingAs($admin)->patch(route('admin.kiosko.modo'), ['kiosko_modo' => 'dni', 'fichaje_web' => '1'])->assertRedirect();
+        $this->assertTrue($empresa->fresh()->fichaje_web);
+    }
 }
+

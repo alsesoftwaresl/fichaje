@@ -67,6 +67,14 @@
                         </label>
                     @endforeach
                 </div>
+
+                <p class="mt-4 text-sm font-medium text-slate-700">¿Pueden fichar también desde su cuenta?</p>
+                <input type="hidden" name="fichaje_web" value="0">
+                <label class="mt-2 flex items-start gap-3 rounded-lg border border-slate-200 p-3 text-sm">
+                    <input type="checkbox" name="fichaje_web" value="1" @checked($empresa->fichaje_web) class="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                    <span><span class="font-medium text-slate-800">Permitir fichar desde el móvil u ordenador</span><span class="block text-xs text-slate-500">Si lo desmarcas, solo se ficha en el kiosco y los empleados solo consultan sus fichajes. Ojo: quien tenga el enlace del kiosco y su PIN o DNI también podría usarlo desde fuera.</span></span>
+                </label>
+
                 <x-primary-button class="mt-3">Guardar</x-primary-button>
             </form>
         </x-card>

@@ -39,6 +39,7 @@ class Empresa extends Model
     {
         return [
             'activa' => 'boolean',
+            'fichaje_web' => 'boolean',
             'licencia_hasta' => 'date',
         ];
     }
