@@ -4,6 +4,8 @@ namespace App\Notifications;
 
 use App\Models\Ausencia;
 use App\Support\Avisos;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,8 +13,11 @@ use Illuminate\Notifications\Notification;
  * Aviso al admin de empresa: un empleado ha pedido una ausencia y espera su
  * aprobación.
  */
-class AusenciaSolicitada extends Notification
+class AusenciaSolicitada extends Notification implements ShouldQueue
 {
+    // En cola si hay un worker (QUEUE_CONNECTION=database/redis); con 'sync' se envía al momento.
+    use Queueable;
+
     public function __construct(protected Ausencia $ausencia) {}
 
     /** Solo por correo (no se guarda en la base de datos). */

@@ -4,6 +4,8 @@ namespace App\Notifications;
 
 use App\Models\Nomina;
 use App\Support\Avisos;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,8 +13,11 @@ use Illuminate\Notifications\Notification;
  * Aviso al empleado: tiene una nómina nueva. El correo no lleva el PDF ni
  * ningún dato salarial: solo un enlace para entrar y descargarla.
  */
-class NominaDisponible extends Notification
+class NominaDisponible extends Notification implements ShouldQueue
 {
+    // En cola si hay un worker (QUEUE_CONNECTION=database/redis); con 'sync' se envía al momento.
+    use Queueable;
+
     public function __construct(protected Nomina $nomina) {}
 
     /** Solo por correo (no se guarda en la base de datos). */

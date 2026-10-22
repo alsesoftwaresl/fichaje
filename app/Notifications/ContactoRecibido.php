@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\Contacto;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -10,8 +12,11 @@ use Illuminate\Notifications\Notification;
  * Correo al equipo (info@) cuando alguien rellena el formulario de contacto.
  * Lleva "responder a" con el correo de quien escribe, para contestarle directamente.
  */
-class ContactoRecibido extends Notification
+class ContactoRecibido extends Notification implements ShouldQueue
 {
+    // En cola si hay un worker (QUEUE_CONNECTION=database/redis); con 'sync' se envía al momento.
+    use Queueable;
+
     public function __construct(protected Contacto $contacto) {}
 
     /** Solo por correo (no se guarda en la base de datos). */

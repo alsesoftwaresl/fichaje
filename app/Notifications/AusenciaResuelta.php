@@ -4,6 +4,8 @@ namespace App\Notifications;
 
 use App\Models\Ausencia;
 use App\Support\Avisos;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,8 +13,11 @@ use Illuminate\Notifications\Notification;
  * Aviso al empleado: su solicitud de ausencia ha sido aprobada o rechazada
  * (con el motivo, si el admin lo escribió).
  */
-class AusenciaResuelta extends Notification
+class AusenciaResuelta extends Notification implements ShouldQueue
 {
+    // En cola si hay un worker (QUEUE_CONNECTION=database/redis); con 'sync' se envía al momento.
+    use Queueable;
+
     public function __construct(protected Ausencia $ausencia) {}
 
     /** Solo por correo (no se guarda en la base de datos). */
