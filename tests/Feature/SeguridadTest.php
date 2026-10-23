@@ -76,4 +76,14 @@ class SeguridadTest extends TestCase
         $this->assertNotNull($admin->fresh()->email_verified_at);
         Notification::assertNothingSent();
     }
+
+    public function test_el_admin_no_puede_darse_de_baja_a_si_mismo(): void
+    {
+        $admin = User::factory()->adminEmpresa()->for(Empresa::factory())->create();
+
+        $this->actingAs($admin)->patch(route('admin.empleados.desactivar', $admin))
+            ->assertSessionHas('status', 'No puedes darte de baja a ti mismo.');
+
+        $this->assertTrue($admin->fresh()->activo);
+    }
 }

@@ -228,6 +228,11 @@ class EmpleadoController extends Controller
     {
         $this->autorizarMismaEmpresa($empleado);
 
+        // Darse de baja a uno mismo dejaría a la empresa sin nadie que pueda entrar a gestionarla.
+        if ($empleado->is(Auth::user())) {
+            return back()->with('status', 'No puedes darte de baja a ti mismo.');
+        }
+
         $empleado->update(['activo' => false]);
         AuditLog::registrar('empleado_desactivado', $empleado);
         $this->sincronizarFacturacion();

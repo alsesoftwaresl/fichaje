@@ -132,7 +132,9 @@
                                         <button class="text-xs font-medium text-indigo-600 hover:text-indigo-500">Acceso web</button>
                                     </form>
                                 @endif
-                                @if ($empleado->activo)
+                                @if ($empleado->is(auth()->user()))
+                                    {{-- Uno mismo no se da de baja: la empresa se quedaría sin quien la gestione. --}}
+                                @elseif ($empleado->activo)
                                     <form method="POST" action="{{ route('admin.empleados.desactivar', $empleado) }}" class="inline">
                                         @csrf
                                         @method('PATCH')
