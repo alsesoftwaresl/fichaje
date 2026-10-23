@@ -128,6 +128,9 @@ class Tarifa extends Model
         return round($conIva - $this->baseImponible($conIva), 2);
     }
 
+    /**
+     * Empleados por encima de los incluidos en la cuota base (0 si no se pasa).
+     */
     public function empleadosExtra(int $empleadosActivos): int
     {
         return max(0, $empleadosActivos - $this->empleados_incluidos);

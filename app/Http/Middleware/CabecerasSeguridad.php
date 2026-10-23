@@ -27,6 +27,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CabecerasSeguridad
 {
+    /**
+     * Añade las cabeceras a la respuesta, sea cual sea (página, descarga, error o
+     * mantenimiento).
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $respuesta = $next($request);

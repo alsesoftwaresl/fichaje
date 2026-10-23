@@ -66,6 +66,9 @@ class RegistroFichajes
         }
     }
 
+    /**
+     * El registro en sí, ya con el bloqueo del empleado tomado (ver registrar()).
+     */
     protected static function registrarSinBloqueo(User $usuario, string $origen, Request $request): array
     {
         $ultimo = Fichaje::where('user_id', $usuario->id)

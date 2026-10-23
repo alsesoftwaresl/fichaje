@@ -366,6 +366,10 @@ class EmpleadoController extends Controller
         return Rule::unique('users', 'dni_nie')->where('empresa_id', Auth::user()->empresa_id);
     }
 
+    /**
+     * Ajusta en Stripe el número de empleados facturados; si Stripe falla se anota y la
+     * acción sigue.
+     */
     protected function sincronizarFacturacion(): void
     {
         try {

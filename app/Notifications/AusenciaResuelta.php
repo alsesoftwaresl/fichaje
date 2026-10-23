@@ -18,6 +18,9 @@ class AusenciaResuelta extends Notification implements ShouldQueue
     // En cola si hay un worker (QUEUE_CONNECTION=database/redis); con 'sync' se envía al momento.
     use Queueable;
 
+    /**
+     * Ausencia ya aprobada o rechazada.
+     */
     public function __construct(protected Ausencia $ausencia) {}
 
     /** Solo por correo (no se guarda en la base de datos). */
@@ -26,6 +29,9 @@ class AusenciaResuelta extends Notification implements ShouldQueue
         return ['mail'];
     }
 
+    /**
+     * Correo al empleado con la resolución (y el motivo, si se rechazó).
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $a = $this->ausencia;

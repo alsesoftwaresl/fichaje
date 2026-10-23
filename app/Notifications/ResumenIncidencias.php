@@ -24,6 +24,9 @@ class ResumenIncidencias extends Notification
         return ['mail'];
     }
 
+    /**
+     * Correo al admin con la lista de incidencias del día y un enlace a Incidencias.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $mensaje = Avisos::mensaje($notifiable)

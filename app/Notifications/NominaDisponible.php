@@ -18,6 +18,9 @@ class NominaDisponible extends Notification implements ShouldQueue
     // En cola si hay un worker (QUEUE_CONNECTION=database/redis); con 'sync' se envía al momento.
     use Queueable;
 
+    /**
+     * Nómina recién subida para el empleado.
+     */
     public function __construct(protected Nomina $nomina) {}
 
     /** Solo por correo (no se guarda en la base de datos). */
@@ -26,6 +29,10 @@ class NominaDisponible extends Notification implements ShouldQueue
         return ['mail'];
     }
 
+    /**
+     * Correo al empleado avisando de que tiene una nómina nueva (sin adjuntarla: se
+     * descarga entrando).
+     */
     public function toMail(object $notifiable): MailMessage
     {
         return Avisos::mensaje($notifiable)

@@ -16,6 +16,9 @@ class ProbarCorreo extends Command
 
     protected $description = 'Envía un correo de prueba y muestra la configuración SMTP (sin contraseña)';
 
+    /**
+     * Muestra la configuración de correo (sin contraseña) y envía un correo de prueba.
+     */
     public function handle(): int
     {
         $destino = $this->argument('destino') ?: config('legal.titular.email');

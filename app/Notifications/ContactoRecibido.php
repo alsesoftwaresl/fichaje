@@ -17,6 +17,9 @@ class ContactoRecibido extends Notification implements ShouldQueue
     // En cola si hay un worker (QUEUE_CONNECTION=database/redis); con 'sync' se envía al momento.
     use Queueable;
 
+    /**
+     * Mensaje que alguien ha enviado desde el formulario de contacto.
+     */
     public function __construct(protected Contacto $contacto) {}
 
     /** Solo por correo (no se guarda en la base de datos). */
@@ -25,6 +28,10 @@ class ContactoRecibido extends Notification implements ShouldQueue
         return ['mail'];
     }
 
+    /**
+     * Correo al buzón de soporte con los datos y el mensaje; "Responder" va a quien
+     * escribió.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $c = $this->contacto;

@@ -20,6 +20,11 @@ use Illuminate\Validation\ValidationException;
  */
 class SalidaOlvidadaController extends Controller
 {
+    /**
+     * Añade la salida de la entrada $fichaje a la hora indicada, si tiene sentido
+     * (posterior a la entrada, no futura, antes del siguiente fichaje y dentro del máximo
+     * de jornada).
+     */
     public function store(Request $request, Fichaje $fichaje): RedirectResponse
     {
         // $fichaje ya viene filtrado por empresa (scope de tenant en el route-model-binding).

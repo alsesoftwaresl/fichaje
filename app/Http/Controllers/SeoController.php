@@ -49,6 +49,10 @@ class SeoController extends Controller
         );
     }
 
+    /**
+     * robots.txt: deja entrar a buscadores e IAs en la parte pública y les cierra los
+     * paneles.
+     */
     public function robots(): Response
     {
         $bloque = "Allow: /\n".collect(self::RUTAS_PRIVADAS)->map(fn ($r) => "Disallow: {$r}")->implode("\n");
@@ -64,6 +68,9 @@ class SeoController extends Controller
         return response($texto, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
 
+    /**
+     * sitemap.xml con las páginas públicas y su fecha de última modificación.
+     */
     public function sitemap(): Response
     {
         $entradas = collect(self::PAGINAS)->map(fn ($datos, $ruta) => [

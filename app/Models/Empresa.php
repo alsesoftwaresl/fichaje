@@ -29,12 +29,13 @@ class Empresa extends Model
         'activa',
     ];
 
-    /**
-     * La marca de activa es booleana y la fecha de fin de licencia es Carbon.
-     */
     /** Formas de identificarse en el kiosco: solo PIN, solo DNI o ambas. */
     const MODOS_KIOSKO = ['pin', 'dni', 'ambos'];
 
+    /**
+     * Tipos de las columnas: interruptores como booleanos y la fecha de fin de licencia
+     * como Carbon.
+     */
     protected function casts(): array
     {
         return [

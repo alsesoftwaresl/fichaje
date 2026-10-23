@@ -21,6 +21,10 @@ class EnviarResumenIncidencias extends Command
 
     protected $description = 'Envía por correo a los admins el resumen de incidencias de hoy';
 
+    /**
+     * Recorre las empresas con acceso y manda a sus admins las incidencias del día (si
+     * hay).
+     */
     public function handle(): int
     {
         $enviados = 0;

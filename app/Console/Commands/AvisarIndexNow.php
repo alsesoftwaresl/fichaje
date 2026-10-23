@@ -18,6 +18,10 @@ class AvisarIndexNow extends Command
 
     protected $description = 'Avisa a Bing y otros buscadores (IndexNow) de las páginas públicas';
 
+    /**
+     * Envía a IndexNow las URL públicas del sitemap (no hace nada si la web no es
+     * pública).
+     */
     public function handle(): int
     {
         $host = parse_url((string) config('app.url'), PHP_URL_HOST);

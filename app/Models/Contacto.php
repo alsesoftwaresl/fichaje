@@ -22,6 +22,9 @@ class Contacto extends Model
 
     protected $fillable = ['nombre', 'email', 'empresa', 'asunto', 'mensaje', 'ip_address', 'leido_en'];
 
+    /**
+     * leido_en es una fecha (null mientras el mensaje está sin leer).
+     */
     protected function casts(): array
     {
         return [

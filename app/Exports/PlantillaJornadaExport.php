@@ -28,13 +28,22 @@ class PlantillaJornadaExport implements FromArray, WithColumnFormatting, WithCol
 
     protected const MESES = [1 => 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
+    /**
+     * Mes (cualquier día de él) para el que se genera la plantilla.
+     */
     public function __construct(protected Carbon $mes) {}
 
+    /**
+     * Nombre del mes en español con el año, p. ej. "Noviembre 2026".
+     */
     public static function nombreDelMes(Carbon $mes): string
     {
         return self::MESES[$mes->month].' '.$mes->year;
     }
 
+    /**
+     * Nombre de la hoja de Excel.
+     */
     public function title(): string
     {
         return 'Registro de jornada';
@@ -46,6 +55,10 @@ class PlantillaJornadaExport implements FromArray, WithColumnFormatting, WithCol
         return self::PRIMERA_FILA + $this->mes->daysInMonth - 1;
     }
 
+    /**
+     * Filas de la hoja: cabecera con los datos a rellenar y una fila por día del mes con
+     * la fórmula de horas.
+     */
     public function array(): array
     {
         $filas = [
@@ -82,11 +95,17 @@ class PlantillaJornadaExport implements FromArray, WithColumnFormatting, WithCol
         return $filas;
     }
 
+    /**
+     * Ancho de cada columna (en caracteres).
+     */
     public function columnWidths(): array
     {
         return ['A' => 22, 'B' => 12, 'C' => 12, 'D' => 14, 'E' => 18, 'F' => 38];
     }
 
+    /**
+     * Formato de las celdas: horas como hh:mm y total con decimales.
+     */
     public function columnFormats(): array
     {
         return [
@@ -97,6 +116,9 @@ class PlantillaJornadaExport implements FromArray, WithColumnFormatting, WithCol
         ];
     }
 
+    /**
+     * Estilos: títulos en negrita, cabecera de la tabla con fondo y bordes.
+     */
     public function styles(Worksheet $hoja): array
     {
         $ultima = $this->ultimaFila();
