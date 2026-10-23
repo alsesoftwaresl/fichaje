@@ -3,9 +3,10 @@ import forms from '@tailwindcss/forms';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    // Solo ficheros del repositorio: las vistas compiladas de storage/ cambian en cada
+    // equipo y harían que public/build saliera distinto aquí que en GitHub Actions.
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-        './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
 
