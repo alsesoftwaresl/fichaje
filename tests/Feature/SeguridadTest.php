@@ -86,4 +86,19 @@ class SeguridadTest extends TestCase
 
         $this->assertTrue($admin->fresh()->activo);
     }
+
+    public function test_no_se_aceptan_contrasenas_sin_letras_o_sin_numeros(): void
+    {
+        $usuario = User::factory()->adminEmpresa()->for(Empresa::factory())->create();
+
+        foreach (['aaaaaaaa', '12345678', 'abc1'] as $debil) {
+            $this->actingAs($usuario)
+                ->put(route('password.update'), ['current_password' => 'password', 'password' => $debil, 'password_confirmation' => $debil])
+                ->assertSessionHasErrorsIn('updatePassword', 'password');
+        }
+
+        $this->actingAs($usuario)
+            ->put(route('password.update'), ['current_password' => 'password', 'password' => 'Clave2026', 'password_confirmation' => 'Clave2026'])
+            ->assertSessionHasNoErrors();
+    }
 }

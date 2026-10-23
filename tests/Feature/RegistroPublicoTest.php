@@ -18,8 +18,8 @@ class RegistroPublicoTest extends TestCase
             'email_contacto' => 'contacto@mi-empresa.test',
             'admin_name' => 'Persona Admin',
             'admin_email' => 'admin@mi-empresa.test',
-            'admin_password' => 'password-seguro',
-            'admin_password_confirmation' => 'password-seguro',
+            'admin_password' => 'password-seguro1',
+            'admin_password_confirmation' => 'password-seguro1',
         ], $overrides);
     }
 

@@ -8,6 +8,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use Laravel\Cashier\Cashier;
 
 /**
@@ -31,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
         // Lo facturable es la empresa (tenant), no un usuario individual —
         // Cashier asume User por defecto.
         Cashier::useCustomerModel(Empresa::class);
+
+        // Contraseñas de todo el sistema (registro, cambio, recuperación, empleados): mínimo
+        // 8 caracteres con letras y números, para que no valgan "aaaaaaaa" ni "12345678".
+        Password::defaults(fn () => Password::min(8)->letters()->numbers());
 
         // Si la web va por https, todos los enlaces que se generan lo usan, también fuera de una
         // petición (tareas programadas, correos del resumen diario, avisos a buscadores): sin esto,

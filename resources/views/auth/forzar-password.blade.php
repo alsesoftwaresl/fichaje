@@ -11,6 +11,7 @@
         <div>
             <x-input-label for="password" value="Nueva contraseña" />
             <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autofocus autocomplete="new-password" />
+            <p class="mt-1 text-xs text-slate-500">Mínimo 8 caracteres, con letras y números.</p>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 

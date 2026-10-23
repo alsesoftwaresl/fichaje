@@ -102,6 +102,7 @@
                                 <div>
                                     <x-input-label for="admin_password" value="Contraseña" />
                                     <x-text-input id="admin_password" name="admin_password" type="password" class="mt-1 block w-full" required autocomplete="new-password" />
+                                    <p class="mt-1 text-xs text-slate-500">Mínimo 8 caracteres, con letras y números.</p>
                                     <x-input-error class="mt-2" :messages="$errors->get('admin_password')" />
                                 </div>
 

@@ -19,8 +19,8 @@ class LegalAceptacionTest extends TestCase
             'email_contacto' => 'contacto@empresa-prueba.test',
             'admin_name' => 'Admin Prueba',
             'admin_email' => 'admin@empresa-prueba.test',
-            'admin_password' => 'password-seguro',
-            'admin_password_confirmation' => 'password-seguro',
+            'admin_password' => 'password-seguro1',
+            'admin_password_confirmation' => 'password-seguro1',
         ], $overrides);
     }
 

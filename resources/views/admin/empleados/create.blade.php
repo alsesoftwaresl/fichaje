@@ -31,6 +31,7 @@
                 <div>
                     <x-input-label for="password" value="Contraseña inicial (opcional)" />
                     <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" />
+                    <p class="mt-1 text-xs text-slate-500">Mínimo 8 caracteres, con letras y números.</p>
                     <x-input-error class="mt-2" :messages="$errors->get('password')" />
                 </div>
 
