@@ -1,5 +1,6 @@
 # Integración continua: en cada push y pull request a main se comprueba el estilo del
-# código (Laravel Pint) y se ejecuta toda la suite de pruebas (SQLite en memoria).
+# código (Laravel Pint), que los estilos compilados (public/build) están al día y se
+# ejecuta toda la suite de pruebas (SQLite en memoria).
 name: Pruebas
 
 on:
@@ -41,3 +42,17 @@ jobs:
 
       - name: Pruebas
         run: php artisan test
+
+      # El hosting no tiene Node: public/build va en el repositorio. Si una vista usa clases
+      # nuevas de Tailwind y no se recompiló, en producción saldrían sin estilo.
+      - name: Node para compilar los estilos
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Estilos compilados al día
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          git diff --exit-code -- public/build || { echo "public/build no está al día: ejecuta npm run build y haz commit"; exit 1; }
