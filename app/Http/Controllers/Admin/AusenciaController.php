@@ -24,8 +24,11 @@ class AusenciaController extends Controller
      */
     public function index(Request $request): View
     {
+        // Solo un estado conocido; cualquier otra cosa (URL tocada a mano) muestra todas.
+        $estado = in_array($request->query('estado'), ['pendiente', 'aprobada', 'rechazada'], true) ? $request->query('estado') : '';
+
         $ausencias = Ausencia::with('usuario')
-            ->when($request->filled('estado'), fn ($q) => $q->where('estado', $request->string('estado')))
+            ->when($estado !== '', fn ($q) => $q->where('estado', $estado))
             ->orderByRaw("estado = 'pendiente' desc")
             ->orderByDesc('fecha_inicio')
             ->paginate(20)
@@ -33,7 +36,7 @@ class AusenciaController extends Controller
 
         return view('admin.ausencias.index', [
             'ausencias' => $ausencias,
-            'estado' => $request->string('estado')->toString(),
+            'estado' => $estado,
         ]);
     }
 

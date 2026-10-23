@@ -10,9 +10,11 @@ use App\Models\User;
 use App\Services\JornadasAgrupador;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response as ResponseFacade;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,7 +42,7 @@ class AdminFichajeController extends Controller
         return view('admin.fichajes.index', [
             'jornadas' => $jornadas,
             'empleados' => $empleados,
-            'filtros' => $request->only(['user_id', 'desde', 'hasta']),
+            'filtros' => $this->filtros($request),
         ]);
     }
 
@@ -58,7 +60,7 @@ class AdminFichajeController extends Controller
             'pdf' => Pdf::loadView('admin.fichajes.pdf', [
                 'jornadas' => $jornadas,
                 'empresa' => Auth::user()->empresa,
-                'filtros' => $request->only(['user_id', 'desde', 'hasta']),
+                'filtros' => $this->filtros($request),
             ])->setPaper('a4', 'landscape')->download("{$nombreArchivo}.pdf"),
             default => $this->exportarCsv($jornadas, $nombreArchivo),
         };
@@ -105,8 +107,8 @@ class AdminFichajeController extends Controller
      */
     protected function jornadasFiltradas(Request $request): Collection
     {
-        $desde = $request->filled('desde') ? $request->date('desde')->startOfDay() : null;
-        $hasta = $request->filled('hasta') ? $request->date('hasta')->endOfDay() : null;
+        $desde = $this->fechaDelFiltro($request, 'desde')?->startOfDay();
+        $hasta = $this->fechaDelFiltro($request, 'hasta')?->endOfDay();
 
         $fichajes = Fichaje::query()
             ->with(['usuario', 'correcciones'])
@@ -123,5 +125,29 @@ class AdminFichajeController extends Controller
                 return (! $desde || $inicio->gte($desde)) && (! $hasta || $inicio->lte($hasta));
             })
             ->values();
+    }
+
+    /**
+     * Fecha de un filtro (AAAA-MM-DD, como la envía el formulario). Un valor mal escrito o
+     * inexistente (URL tocada a mano) se ignora en vez de romper la página.
+     */
+    protected function fechaDelFiltro(Request $request, string $campo): ?Carbon
+    {
+        $valor = is_string($request->input($campo)) ? $request->input($campo) : '';
+
+        if ($valor === '' || Validator::make([$campo => $valor], [$campo => 'date_format:Y-m-d'])->fails()) {
+            return null;
+        }
+
+        return Carbon::createFromFormat('Y-m-d', $valor);
+    }
+
+    /**
+     * Filtros para volver a pintarlos en el formulario y en los enlaces de exportar: solo
+     * los que llegan como texto.
+     */
+    protected function filtros(Request $request): array
+    {
+        return array_filter($request->only(['user_id', 'desde', 'hasta']), 'is_string');
     }
 }

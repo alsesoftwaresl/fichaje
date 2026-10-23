@@ -24,7 +24,7 @@ class ContactoController extends Controller
     {
         return view('contacto', [
             'asuntos' => Contacto::ASUNTOS,
-            'asuntoInicial' => array_key_exists($request->query('asunto', ''), Contacto::ASUNTOS) ? $request->query('asunto') : null,
+            'asuntoInicial' => is_string($request->query('asunto')) && array_key_exists($request->query('asunto'), Contacto::ASUNTOS) ? $request->query('asunto') : null,
         ]);
     }
 

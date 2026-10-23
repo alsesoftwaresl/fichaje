@@ -33,6 +33,12 @@ class FacturacionController extends Controller
     {
         $empresa = Auth::user()->empresa;
 
+        // Si canceló el pago, el siguiente intento abre uno nuevo (con los empleados de ahora)
+        // en vez de reenviar al que dejó a medias.
+        if (request()->query('suscripcion') === 'cancelada') {
+            Cache::forget('checkout-abierto:'.$empresa->id);
+        }
+
         // Al volver del Checkout de Stripe puede que el webhook aún no haya
         // llegado: se copia la suscripción desde Stripe para no mostrar
         // "sin suscripción" a quien acaba de contratar.

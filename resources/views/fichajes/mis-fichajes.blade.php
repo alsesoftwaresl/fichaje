@@ -53,7 +53,11 @@
                                 @if ($jornada['salida'])
                                     {{ $jornada['salida']->fecha_hora->format('H:i:s') }}
                                 @else
-                                    <x-badge tone="indigo">En curso</x-badge>
+                                    @if (App\Services\RegistroFichajes::entradaOlvidada($jornada['entrada']))
+                                        <x-badge tone="warning">Sin salida</x-badge>
+                                    @else
+                                        <x-badge tone="indigo">En curso</x-badge>
+                                    @endif
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-slate-700">

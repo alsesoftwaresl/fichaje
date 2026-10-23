@@ -92,4 +92,15 @@ class SuscripcionCobroTest extends TestCase
 
         $this->assertFalse($empresa->fresh()->modulo_nominas);
     }
+
+    public function test_si_cancela_el_pago_el_siguiente_intento_abre_uno_nuevo(): void
+    {
+        $empresa = Empresa::factory()->sinSuscripcion()->create();
+        $admin = User::factory()->adminEmpresa()->for($empresa)->create();
+        Cache::put('checkout-abierto:'.$empresa->id, 'https://checkout.stripe.com/c/pay/viejo', now()->addMinutes(30));
+
+        $this->actingAs($admin)->get(route('admin.facturacion.index', ['suscripcion' => 'cancelada']))->assertOk();
+
+        $this->assertFalse(Cache::has('checkout-abierto:'.$empresa->id));
+    }
 }

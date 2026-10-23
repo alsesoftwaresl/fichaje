@@ -42,7 +42,7 @@
                     <td>{{ $jornada['usuario']->dni_nie ?? '—' }}</td>
                     <td>{{ $fichajeRef->fecha_hora->format('d/m/Y') }}</td>
                     <td>{{ $jornada['entrada']?->fecha_hora->format('H:i:s') ?? '—' }}</td>
-                    <td>{{ $jornada['salida']?->fecha_hora->format('H:i:s') ?? 'En curso' }}</td>
+                    <td>{{ $jornada['salida']?->fecha_hora->format('H:i:s') ?? (App\Services\RegistroFichajes::entradaOlvidada($jornada['entrada']) ? 'Sin salida' : 'En curso') }}</td>
                     <td>{{ $jornada['horas'] !== null ? number_format($jornada['horas'], 2).' h' : '—' }}</td>
                     <td>{{ $jornada['notas'] ?: '—' }}</td>
                 </tr>

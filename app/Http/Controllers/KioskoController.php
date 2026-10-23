@@ -120,7 +120,7 @@ class KioskoController extends Controller
      */
     protected function empleadoPorDni(Request $request, Empresa $empresa): ?User
     {
-        $dni = Str::upper(preg_replace('/[\s\-\.]/', '', (string) $request->input('dni')));
+        $dni = is_string($request->input('dni')) ? Str::upper(preg_replace('/[\s\-\.]/', '', $request->input('dni'))) : '';
 
         return preg_match('/^(\d{8}|[XYZ]\d{7})[A-Z]$/', $dni)
             ? User::where('empresa_id', $empresa->id)->where('dni_nie', $dni)->where('activo', true)->first()

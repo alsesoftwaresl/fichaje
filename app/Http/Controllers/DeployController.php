@@ -56,9 +56,9 @@ class DeployController extends Controller
         $token = config('deploy.token');
 
         abort_if(! $token, 404);
-        abort_unless(hash_equals($token, (string) $request->query('token')), 404);
+        abort_unless(is_string($request->query('token')) && hash_equals($token, $request->query('token')), 404);
 
-        $comando = (string) $request->query('cmd', 'migrate');
+        $comando = is_string($request->query('cmd')) ? $request->query('cmd') : 'migrate';
 
         abort_unless(in_array($comando, self::COMANDOS_PERMITIDOS, true), 422, 'Comando no permitido.');
 
@@ -88,7 +88,7 @@ class DeployController extends Controller
      */
     protected function secretoDeMantenimiento(Request $request): string
     {
-        $secreto = (string) $request->query('secreto');
+        $secreto = is_string($request->query('secreto')) ? $request->query('secreto') : '';
 
         // Va en la URL de acceso: solo caracteres seguros y lo bastante largo
         // para que no se pueda adivinar.

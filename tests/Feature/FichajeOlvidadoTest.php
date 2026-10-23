@@ -194,4 +194,16 @@ class FichajeOlvidadoTest extends TestCase
         $this->assertCount(2, $jornadas);
         $this->assertSame([null, null], $jornadas->pluck('horas')->all());
     }
+
+    public function test_el_empleado_ve_su_entrada_olvidada_como_sin_salida(): void
+    {
+        $this->travelTo(now()->setTime(9, 0));
+        $empleado = User::factory()->for(Empresa::factory())->create();
+        $this->actingAs($empleado)->post(route('fichajes.store'));
+
+        $this->actingAs($empleado)->get(route('fichajes.mis'))->assertSee('En curso')->assertDontSee('Sin salida');
+
+        $this->travel(1)->days();
+        $this->actingAs($empleado)->get(route('fichajes.mis'))->assertSee('Sin salida')->assertSee('Fichar entrada');
+    }
 }
