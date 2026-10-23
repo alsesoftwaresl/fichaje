@@ -121,14 +121,16 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.** (contacto: `info@achrono.es`).
 | **Conservación 4 años** | Los fichajes no se borran. Empleados y empresas se desactivan en lugar de eliminarse. |
 | **RGPD** | Aceptación versionada de términos y encargo de tratamiento (`legal_aceptaciones`, con fecha e IP), registro de auditoría de acciones sensibles (`audit_logs`), datos de cada empresa aislados, consentimiento en el formulario de contacto. |
 | **Aislamiento entre empresas** | Una sola base de datos con `empresa_id` y un *global scope* de Eloquent en todos los modelos de empresa. El contexto de tenant se limpia al terminar cada petición. Hay pruebas específicas de aislamiento. |
-| **PIN y DNI del kiosco** | PIN de 6 dígitos guardado como HMAC-SHA256 (no en claro). URL del kiosco no adivinable, límite de intentos y freno por fallos de DNI. **Aviso:** con el modo DNI cualquiera que conozca el DNI de un compañero podría fichar por él; el panel lo explica al elegir. El enlace del kiosco sigue siendo usable desde fuera del local. |
-| **Contraseñas** | Hash con bcrypt. Las contraseñas temporales se muestran una sola vez y obligan a cambiarlas. |
+| **PIN y DNI del kiosco** | PIN de 6 dígitos guardado como HMAC-SHA256 (no en claro). URL del kiosco no adivinable y freno tras 10 fallos de PIN o DNI en 5 minutos desde el mismo sitio. **Aviso:** con el modo DNI cualquiera que conozca el DNI de un compañero podría fichar por él; el panel lo explica al elegir. El enlace del kiosco sigue siendo usable desde fuera del local. |
+| **Contraseñas** | Hash con bcrypt (se re-cifra al entrar si sube el coste). Mínimo 8 caracteres con letras y números en todo el sistema. Las contraseñas temporales se muestran una sola vez y obligan a cambiarlas. |
 | **Nóminas** | Disco privado, nombre de archivo aleatorio, descarga solo para el dueño o quien gestiona nóminas de esa empresa. Los PDF **no van cifrados en el servidor**; se protegen con acceso privado y copias de seguridad. |
-| **Acceso** | Inicio de sesión limitado por intentos, CSRF, verificación de email, bloqueo de empleados y empresas inactivos, cookies de sesión seguras, `https` forzado en todas las URLs cuando `APP_URL` es https. |
+| **Acceso** | Inicio de sesión limitado por intentos, CSRF, verificación de email (también al cambiar de correo en el perfil), bloqueo de empleados y empresas inactivos, cookie de sesión `secure` y `httponly` cuando la web es https, `https` forzado en todas las URLs cuando `APP_URL` es https. El admin no puede darse de baja a sí mismo. |
+| **Cabeceras de seguridad** | En todas las respuestas (también errores y mantenimiento): `X-Content-Type-Options`, anti-iframe (`X-Frame-Options` y `frame-ancestors`), `form-action` limitado a la web y Stripe, `base-uri`, `object-src`, `Referrer-Policy`, `Permissions-Policy` y HSTS en producción. Ver `CabecerasSeguridad`. |
+| **Entradas raras** | Filtros y parámetros de la URL con valores imposibles (fechas, listas en lugar de texto) se ignoran en vez de dar error; hay pruebas que lo comprueban. |
 | **Ruta de despliegue** | `/deploy/ejecutar` está inerte (404) salvo que se configure `DEPLOY_TOKEN`, usa una lista cerrada de comandos y solo es necesaria en hosting sin SSH. |
 | **Indexación** | Solo las páginas públicas listadas se pueden indexar; el resto lleva `X-Robots-Tag: noindex` y `Disallow` en `robots.txt`. |
 
-**Límites conocidos:** los datos personales (nombre, DNI, correo, fichajes) están en la base de datos sin cifrado a nivel de campo; no hay verificación en dos pasos; en producción el usuario de la base de datos suele ser único y con todos los permisos, así que el bloqueo de borrado de fichajes depende del código salvo que se monte la base de datos endurecida.
+**Límites conocidos:** los datos personales (nombre, DNI, correo, fichajes) están en la base de datos sin cifrado a nivel de campo; no hay verificación en dos pasos; en producción el usuario de la base de datos suele ser único y con todos los permisos, así que el bloqueo de borrado de fichajes depende del código salvo que se monte la base de datos endurecida. No se limita `script-src` en la CSP porque Alpine.js lo necesita. **`APP_KEY` no se puede cambiar en producción**: los PIN del kiosco se calculan con ella y dejarían de funcionar todos.
 
 > Los textos legales incluidos en `resources/views/legal/` y las guías son una **plantilla de partida**: deben ser revisados por un profesional antes de usarse con clientes reales.
 
@@ -182,6 +184,7 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 | `verificado` | Exige email verificado solo a `admin_empresa` del registro público. |
 | `suscripcion` | Bloquea las funciones si la empresa no tiene suscripción ni licencia activa (consultando a Stripe antes de bloquear). |
 | `gestor.nominas` | Admin o empleado con permiso de contable. |
+| *(global, la primera)* `CabecerasSeguridad` | Cabeceras de seguridad en todas las respuestas. |
 | *(global web)* `ForzarCambioPassword` | Obliga a elegir contraseña propia tras una temporal. |
 | *(global web)* `SeoRobots` | Añade `noindex` a todo lo que no sea una página pública indexable. |
 
@@ -261,6 +264,8 @@ Todas están documentadas en [`.env.example`](.env.example). Las principales:
 | Variable | Para qué sirve |
 |---|---|
 | `APP_NAME`, `APP_URL`, `APP_TIMEZONE` | Nombre de la marca, URL pública (con `https://` en producción) y zona horaria (`Europe/Madrid`). |
+| `APP_KEY` | Clave de cifrado. Se genera una vez y **no se cambia**: los PIN del kiosco, las sesiones y la clave de IndexNow dependen de ella. |
+| `APP_ENV`, `APP_DEBUG` | En producción, `production` y `false` (con `true` se verían detalles internos en los errores). |
 | `DB_*` | Conexión de la aplicación. |
 | `DB_MIGRATIONS_USERNAME` / `DB_MIGRATIONS_PASSWORD` | Usuario con privilegios DDL, solo para migrar (conexión `mysql_migrations`). |
 | `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD` | Credenciales del super admin que crea el *seeder*. |
@@ -355,11 +360,11 @@ En hosting sin SSH, estos comandos (y `migrate`, `db:seed`, `storage:link`, las 
 php artisan test
 ```
 
-La suite (unas 270 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores.
+La suite (unas 290 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores, los turnos de noche, las salidas olvidadas y el doble toque, el cobro (una sola prueba gratis, sin suscripciones dobles), las cabeceras de seguridad, la política de contraseñas y los parámetros raros en la URL.
 
 Las llamadas reales a Stripe, al SMTP y a IndexNow no se hacen en las pruebas. La lista de comprobaciones manuales antes de salir está en [`docs/lista-pruebas-salida.md`](docs/lista-pruebas-salida.md).
 
-La guía para ampliar el código sin romper nada (capas, reglas, cómo añadir funciones y módulos de pago, y por dónde escalar) está en [`docs/arquitectura.md`](docs/arquitectura.md). GitHub Actions ejecuta Pint y las pruebas en cada push.
+La guía para ampliar el código sin romper nada (capas, reglas, cómo añadir funciones y módulos de pago, y por dónde escalar) está en [`docs/arquitectura.md`](docs/arquitectura.md). GitHub Actions ejecuta en cada push Pint, las pruebas y una compilación de los estilos que falla si `public/build` no está al día.
 
 ## Despliegue
 
@@ -406,7 +411,8 @@ public/                  # Logo, iconos, manifest.json, sw.js, offline.html y bu
 
 - **Antes de abrir al público**: Stripe en modo *live* (cuenta activada, webhook y portal), revisión de los textos legales por un profesional, copias de seguridad comprobadas, cambiar las credenciales que se hayan compartido y cerrar `/deploy/ejecutar`.
 - Informe mensual por empleado y pausas en el fichaje; saldo de vacaciones y festivos.
-- Aviso al empleado si se le olvida fichar la salida, y aviso de salida anticipada.
+- Aviso por correo al empleado si se le olvida fichar la salida (hoy se le avisa al fichar la siguiente vez y la empresa la completa), y aviso de salida anticipada.
+- Pasar a Tailwind 4 (queda un aviso moderado de `npm audit` en una dependencia de compilación de Tailwind 3; no llega al servidor).
 - Verificación en dos pasos, cifrado de campos sensibles y de las nóminas, y exportación/anonimización de datos (RGPD).
 - Plan para asesorías completo: cobro mensual automático por licencia, panel de la asesoría y cobro del empleado extra (hoy solo están configurados los precios y los códigos).
 - Limitar el kiosco a la IP de la empresa, si algún cliente lo pide.

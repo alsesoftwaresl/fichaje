@@ -54,6 +54,9 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 - [ ] Corrección de un fichaje: queda el original, el motivo y quién la hizo; las horas usan la corregida.
 - [ ] Un fichaje no se puede editar ni borrar (ni por la web ni a mano).
 - [ ] Exportar a CSV, Excel y PDF: los tres abren bien y los datos coinciden.
+- [ ] Doble toque: fichar dos veces seguidas en el kiosco solo registra un fichaje (sale "Ya has fichado hace un momento").
+- [ ] Salida olvidada: si una entrada lleva más de 16 h abierta, el siguiente fichaje es una entrada y sale el aviso; en Fichajes aparece "Sin salida" y el admin la completa con "Añadir salida" (queda su nombre y el motivo).
+- [ ] Turno de noche: un empleado con horario de 22:00 a 06:00 ficha a las 22:00 y a las 06:00; sale como una sola jornada de 8 h y de madrugada aparece "trabajando" en el panel.
 
 ## E. Horarios, incidencias y ausencias
 
@@ -91,6 +94,8 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 - [ ] "Gestionar facturación" abre el portal; cancelar deja "Cancelada — activa hasta el…".
 - [ ] Una empresa sin suscripción ni licencia queda bloqueada (el admin va a Facturación, el empleado ve la pantalla de bloqueo).
 - [ ] Canjear un código de licencia (super admin → Licencias): activa la app, respeta el tope de empleados y se puede retirar.
+- [ ] Tras cancelar y terminar la suscripción, volver a suscribirse ya no da 15 días gratis (el botón dice "Suscribirme").
+- [ ] Pulsar "Empezar prueba gratis" en dos pestañas lleva al mismo pago, no a dos.
 
 ## H. Seguridad y aislamiento
 
@@ -101,6 +106,9 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 - [ ] El kiosco de una empresa desactivada o sin suscripción no ficha.
 - [ ] Las páginas privadas no aparecen en Google (cabecera noindex).
 - [ ] `/deploy/ejecutar` sin token responde 404 (y al final, con el token vacío, queda cerrada).
+- [ ] 10 PIN incorrectos seguidos frenan el kiosco 5 minutos.
+- [ ] Las cabeceras de seguridad llegan en producción: en https://securityheaders.com, `achrono.es` debe dar al menos una A.
+- [ ] Un mismo DNI se puede dar de alta en dos empresas de prueba y cada uno entra en la suya con su contraseña.
 
 ## I. Web pública y contacto
 
