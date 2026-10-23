@@ -21,8 +21,9 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            // Un empleado puede no tener correo (entra con su DNI).
             'email' => [
-                'required',
+                $this->user()->esEmpleado() ? 'nullable' : 'required',
                 'string',
                 'lowercase',
                 'email',

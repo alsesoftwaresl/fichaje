@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CabecerasSeguridad;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\ForzarCambioPassword;
 use App\Http\Middleware\IdentifyTenant;
@@ -19,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Primera de todas: así también la página de mantenimiento y las de error llevan
+        // las cabeceras de seguridad.
+        $middleware->prepend(CabecerasSeguridad::class);
+
         $middleware->alias([
             'tenant' => IdentifyTenant::class,
             'role' => EnsureRole::class,

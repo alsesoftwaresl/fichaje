@@ -33,7 +33,7 @@
                 'availableLanguage' => 'Spanish',
             ],
         ],
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
     </script>
 
     <link rel="preconnect" href="https://fonts.bunny.net">

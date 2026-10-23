@@ -21,7 +21,12 @@
 
         <div>
             <x-input-label for="email" :value="__('Correo electrónico')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" :required="! $user->esEmpleado()" autocomplete="username" />
+            @if ($user->esEmpleado())
+                <p class="mt-1 text-xs text-slate-500">Opcional. Si lo pones, también podrás entrar con él y recuperar tu contraseña por correo.</p>
+            @elseif ($user->esAdminEmpresa())
+                <p class="mt-1 text-xs text-slate-500">Si lo cambias, te enviaremos un enlace al nuevo correo para confirmarlo.</p>
+            @endif
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
         </div>
 
