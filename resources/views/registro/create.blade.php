@@ -14,12 +14,13 @@
 <body class="bg-slate-50 text-slate-900 antialiased font-sans">
     <div class="min-h-screen flex flex-col">
         <header class="border-b border-slate-200 bg-white">
-            <div class="max-w-3xl mx-auto w-full px-6 py-5 flex justify-between items-center">
-                <a href="{{ route('home') }}" class="flex items-center">
-                    <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }}" class="h-7 sm:h-8 w-auto">
+            <div class="max-w-3xl mx-auto w-full px-4 sm:px-6 py-5 flex justify-between items-center gap-4">
+                <a href="{{ route('home') }}" class="flex shrink-0 items-center">
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }}" class="h-6 sm:h-8 w-auto">
                 </a>
-                <a href="{{ route('login') }}" class="text-sm text-slate-600 hover:text-slate-900 hover:underline">
-                    ¿Ya tienes cuenta? Inicia sesión
+                {{-- En el móvil solo "Inicia sesión", para que no se pegue al logo. --}}
+                <a href="{{ route('login') }}" class="text-sm text-right text-slate-600 hover:text-slate-900 hover:underline">
+                    <span class="hidden sm:inline">¿Ya tienes cuenta?</span> Inicia sesión
                 </a>
             </div>
         </header>
