@@ -54,5 +54,15 @@
                 </div>
             </form>
         </x-card>
+
+        {{-- Para atender una petición de acceso o portabilidad (arts. 15 y 20 RGPD). --}}
+        <x-card class="p-6 text-sm text-slate-600">
+            <h3 class="font-medium text-slate-900">Datos personales</h3>
+            <p class="mt-1">
+                Si {{ $empleado->name }} te pide sus datos (tiene derecho a ello), descárgalos aquí y entrégaselos.
+                El plazo para responder es de un mes. También puede descargarlos él desde su perfil.
+            </p>
+            <a href="{{ route('admin.empleados.datos', $empleado) }}" class="mt-3 inline-block font-medium text-indigo-600 underline hover:text-indigo-500">Descargar sus datos (JSON)</a>
+        </x-card>
     </div>
 </x-app-layout>

@@ -134,6 +134,7 @@ Route::get('/dashboard', DashboardController::class)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/mis-datos', [ProfileController::class, 'datos'])->middleware('throttle:5,1')->name('profile.datos');
 });
 
 // Empleado y admin_empresa (cualquier usuario con empresa): fichar y ver su
@@ -215,6 +216,7 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
             Route::patch('/kiosko/modo', [KioscoController::class, 'modo'])->name('kiosko.modo');
             Route::patch('/empleados/{empleado}/regenerar-pin', [EmpleadoController::class, 'regenerarPin'])->name('empleados.regenerar-pin');
             Route::patch('/empleados/{empleado}/generar-acceso', [EmpleadoController::class, 'generarAcceso'])->name('empleados.generar-acceso');
+            Route::get('/empleados/{empleado}/datos', [EmpleadoController::class, 'datos'])->name('empleados.datos');
 
             Route::get('/ausencias', [AdminAusenciaController::class, 'index'])->name('ausencias.index');
             Route::patch('/ausencias/{ausencia}/aprobar', [AdminAusenciaController::class, 'aprobar'])->name('ausencias.aprobar');

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\AuditLog;
+use App\Services\DatosPersonales;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -54,5 +57,19 @@ class ProfileController extends Controller
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Descarga de todos sus datos personales en JSON (derechos de acceso y portabilidad,
+     * arts. 15 y 20 RGPD; ver DatosPersonales). Queda en la auditoría.
+     */
+    public function datos(Request $request): JsonResponse
+    {
+        $usuario = $request->user();
+        AuditLog::registrar('datos_personales_descargados', $usuario, ['por' => 'la propia persona']);
+
+        return response()->json(DatosPersonales::de($usuario), 200, [
+            'Content-Disposition' => 'attachment; filename="mis-datos-'.now()->format('Y-m-d').'.json"',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }

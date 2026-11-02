@@ -17,6 +17,8 @@
                 <div>
                     <x-input-label value="¿Por qué sales?" />
                     <x-text-input name="motivo" type="text" class="mt-1 block w-full" :value="old('motivo')" maxlength="500" placeholder="Ej.: Cita con el médico, trámite en el banco…" required />
+                    {{-- Minimización de datos de salud (art. 9 RGPD): basta con decir que es médico. --}}
+                    <p class="mt-1 text-xs text-slate-500">Basta con "cita médica": no escribas diagnósticos ni datos de salud.</p>
                     <x-input-error class="mt-2" :messages="$errors->get('motivo')" />
                 </div>
 
@@ -93,6 +95,7 @@
                 <div>
                     <x-input-label value="Motivo (opcional)" />
                     <textarea name="motivo" rows="2" class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('motivo') }}</textarea>
+                    <p class="mt-1 text-xs text-slate-500">Si es una baja, no hace falta el diagnóstico: no escribas datos de salud.</p>
                     <x-input-error class="mt-2" :messages="$errors->get('motivo')" />
                 </div>
 

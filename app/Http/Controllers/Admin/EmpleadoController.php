@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\DatosPersonales;
 use App\Services\EstadoEquipoCalculador;
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -237,6 +239,20 @@ class EmpleadoController extends Controller
         $this->sincronizarFacturacion();
 
         return back()->with('status', 'Empleado desactivado.');
+    }
+
+    /**
+     * Datos personales de un empleado en JSON, para atender una petición de acceso o
+     * portabilidad que le haga a la empresa (que es la responsable del tratamiento).
+     */
+    public function datos(User $empleado): JsonResponse
+    {
+        $this->autorizarMismaEmpresa($empleado);
+        AuditLog::registrar('datos_personales_descargados', $empleado, ['por' => 'admin']);
+
+        return response()->json(DatosPersonales::de($empleado), 200, [
+            'Content-Disposition' => 'attachment; filename="datos-'.str($empleado->name)->slug().'-'.now()->format('Y-m-d').'.json"',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**

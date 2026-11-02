@@ -47,7 +47,9 @@ return [
     |
     */
 
-    'encrypt' => env('SESSION_ENCRYPT', false),
+    // Cifrada por defecto: los ficheros de sesión del servidor no se pueden leer aunque
+    // alguien acceda a la carpeta storage.
+    'encrypt' => env('SESSION_ENCRYPT', true),
 
     /*
     |--------------------------------------------------------------------------
