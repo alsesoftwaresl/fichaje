@@ -79,7 +79,7 @@ class TurnoPartidoYCitasTest extends TestCase
             'dias_laborables' => ['1', '2', '3', '4', '5'],
         ])->assertRedirect(route('admin.empleados.index'));
 
-        $e = User::where('dni_nie', '11111111H')->firstOrFail();
+        $e = User::conDni('11111111H')->firstOrFail();
 
         $this->assertSame('09:00:00', $e->hora_entrada_esperada);
         $this->assertSame('19:00:00', $e->hora_salida_esperada);

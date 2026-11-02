@@ -75,7 +75,7 @@ class HorarioEmpleadoTest extends TestCase
             'dni_nie' => '11223344b',
         ])->assertRedirect(route('admin.empleados.index'));
 
-        $empleado = User::where('dni_nie', '11223344B')->first();
+        $empleado = User::conDni('11223344B')->first();
 
         $this->assertNotNull($empleado);
         $this->assertNull($empleado->email);

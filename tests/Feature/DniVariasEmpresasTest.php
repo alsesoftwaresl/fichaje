@@ -36,7 +36,7 @@ class DniVariasEmpresasTest extends TestCase
             ->assertSessionHasNoErrors()
             ->assertRedirect(route('admin.empleados.index'));
 
-        $this->assertSame(2, User::where('dni_nie', '12345678Z')->count());
+        $this->assertSame(2, User::conDni('12345678Z')->count());
     }
 
     public function test_en_la_misma_empresa_el_dni_no_se_repite(): void

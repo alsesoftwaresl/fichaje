@@ -49,7 +49,8 @@ class NominaController extends Controller
             $nomina->update(['descargada_en' => now()]);
         }
 
-        return Storage::disk(Nomina::DISCO)->download($nomina->ruta, $nomina->nombreDescarga(), [
+        // Se descifra solo en memoria para esta descarga; el navegador no debe guardarla en caché.
+        return response()->streamDownload(fn () => print $nomina->contenido(), $nomina->nombreDescarga(), [
             'Content-Type' => 'application/pdf',
             'Cache-Control' => 'private, no-store',
         ]);

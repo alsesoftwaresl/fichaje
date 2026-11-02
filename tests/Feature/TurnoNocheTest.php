@@ -64,7 +64,7 @@ class TurnoNocheTest extends TestCase
             'dias_laborables' => ['5', '6'],
         ])->assertSessionHasNoErrors();
 
-        $this->assertSame([['entrada' => '22:00', 'salida' => '06:00']], User::where('dni_nie', '11223344B')->first()->tramos());
+        $this->assertSame([['entrada' => '22:00', 'salida' => '06:00']], User::conDni('11223344B')->first()->tramos());
     }
 
     public function test_solo_el_ultimo_tramo_puede_cruzar_la_medianoche(): void

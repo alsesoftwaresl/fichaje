@@ -100,7 +100,7 @@ class LoginRequest extends FormRequest
      */
     protected function usuarioPorDni(string $dni): ?User
     {
-        $coinciden = User::where('dni_nie', $dni)
+        $coinciden = User::conDni($dni)
             ->where('activo', true)
             ->get()
             ->filter(fn (User $usuario) => $this->puedeEntrar($usuario));

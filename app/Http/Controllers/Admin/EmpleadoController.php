@@ -6,15 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Services\EstadoEquipoCalculador;
+use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\Rules\Unique;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Stripe\Exception\ApiErrorException;
@@ -166,7 +165,7 @@ class EmpleadoController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'dni_nie' => ['required', 'string', 'max:20', 'regex:'.self::REGEX_DNI_NIE, $this->dniUnicoEnLaEmpresa()->ignore($empleado->id)],
+            'dni_nie' => ['required', 'string', 'max:20', 'regex:'.self::REGEX_DNI_NIE, $this->dniUnicoEnLaEmpresa($empleado->id)],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email,'.$empleado->id],
             // Opcional: en blanco deja la contraseña actual sin tocar. Es la
             // forma de darle acceso a la web más adelante a un empleado que
@@ -359,11 +358,23 @@ class EmpleadoController extends Controller
 
     /**
      * El DNI/NIE no se puede repetir dentro de la empresa; en otra empresa sí (la misma
-     * persona puede trabajar en dos clientes), y no se revela si existe en otra.
+     * persona puede trabajar en dos clientes), y no se revela si existe en otra. Se compara
+     * por la huella (dni_hash) porque el DNI está cifrado; también con los dados de baja,
+     * que siguen ocupando ese DNI en la empresa.
      */
-    protected function dniUnicoEnLaEmpresa(): Unique
+    protected function dniUnicoEnLaEmpresa(?int $ignorar = null): Closure
     {
-        return Rule::unique('users', 'dni_nie')->where('empresa_id', Auth::user()->empresa_id);
+        return function (string $atributo, mixed $valor, Closure $fallo) use ($ignorar) {
+            $repetido = is_string($valor) && User::withTrashed()
+                ->where('empresa_id', Auth::user()->empresa_id)
+                ->conDni($valor)
+                ->when($ignorar, fn ($q) => $q->whereKeyNot($ignorar))
+                ->exists();
+
+            if ($repetido) {
+                $fallo('Ya hay otra persona con ese DNI/NIE en tu empresa.');
+            }
+        };
     }
 
     /**

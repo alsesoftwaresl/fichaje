@@ -6,6 +6,8 @@ use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -37,6 +39,7 @@ class Nomina extends Model
         'tamano',
         'subida_por',
         'descargada_en',
+        'cifrada',
     ];
 
     /**
@@ -47,6 +50,7 @@ class Nomina extends Model
         return [
             'periodo' => 'date',
             'descargada_en' => 'datetime',
+            'cifrada' => 'boolean',
         ];
     }
 
@@ -82,6 +86,31 @@ class Nomina extends Model
     public function nombreDescarga(): string
     {
         return 'Nomina '.$this->periodo->format('Y-m').' - '.str($this->empleado->name)->slug().'.pdf';
+    }
+
+    /**
+     * Guarda el PDF subido cifrado (AES-256 con la APP_KEY) en el disco privado, con un
+     * nombre aleatorio: el nombre original podría llevar el DNI o el nombre del empleado.
+     * Aunque alguien copie la carpeta del servidor, no puede abrir las nóminas.
+     * Devuelve la ruta dentro del disco.
+     */
+    public static function guardarArchivo(UploadedFile $archivo, string $carpeta): string
+    {
+        $ruta = $carpeta.'/'.str()->uuid().'.pdf.enc';
+
+        Storage::disk(static::DISCO)->put($ruta, Crypt::encryptString($archivo->get()));
+
+        return $ruta;
+    }
+
+    /**
+     * Contenido del PDF ya descifrado (las nóminas subidas antes de cifrar se leen tal cual).
+     */
+    public function contenido(): string
+    {
+        $guardado = Storage::disk(static::DISCO)->get($this->ruta);
+
+        return $this->cifrada ? Crypt::decryptString($guardado) : $guardado;
     }
 
     /**

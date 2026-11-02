@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
 // MustVerifyEmail es a nivel de clase, pero NO todos los usuarios tienen que
@@ -62,6 +64,8 @@ class User extends Authenticatable implements MustVerifyEmailContract
     protected $hidden = [
         'password',
         'remember_token',
+        'pin_hash',
+        'dni_hash',
     ];
 
     /**
@@ -91,16 +95,62 @@ class User extends Authenticatable implements MustVerifyEmailContract
     }
 
     /**
-     * Se guarda siempre en mayúsculas: es el identificador que se usa para
-     * iniciar sesión (junto con el email), y así "12345678z" y "12345678Z"
-     * se tratan como el mismo DNI tanto al comparar como al validar que sea
-     * único.
+     * DNI/NIE cifrado en la base de datos (AES-256 con la APP_KEY): si alguien se lleva una
+     * copia de la tabla no puede leerlo. Al guardarlo se normaliza (mayúsculas, sin espacios,
+     * guiones ni puntos) y se calcula a la vez su huella (dni_hash), que es lo que se usa
+     * para buscar (login, kiosco) y para que no se repita dentro de una empresa, sin tener
+     * que descifrar nada.
      */
     protected function dniNie(): Attribute
     {
         return Attribute::make(
-            set: fn (?string $value) => $value !== null ? Str::upper(trim($value)) : null,
+            get: function (?string $valor) {
+                if ($valor === null) {
+                    return null;
+                }
+
+                try {
+                    return Crypt::decryptString($valor);
+                } catch (DecryptException) {
+                    // Valor guardado antes de cifrar (no debería quedar ninguno tras migrar).
+                    return $valor;
+                }
+            },
+            set: function (?string $valor) {
+                if ($valor === null || trim($valor) === '') {
+                    return ['dni_nie' => null, 'dni_hash' => null];
+                }
+
+                $dni = static::normalizarDni($valor);
+
+                return ['dni_nie' => Crypt::encryptString($dni), 'dni_hash' => static::huellaDni($dni)];
+            },
         );
+    }
+
+    /**
+     * DNI/NIE en su forma canónica: " 12.345.678-z " → "12345678Z".
+     */
+    public static function normalizarDni(string $dni): string
+    {
+        return Str::upper(preg_replace('/[\s\-\.]/', '', $dni));
+    }
+
+    /**
+     * Huella del DNI para buscarlo: HMAC-SHA256 con una clave derivada de la APP_KEY. Es la
+     * misma para el mismo DNI, pero no permite saber qué DNI es.
+     */
+    public static function huellaDni(string $dni): string
+    {
+        return hash_hmac('sha256', static::normalizarDni($dni), hash_hmac('sha256', 'achrono:dni', (string) config('app.key')));
+    }
+
+    /**
+     * Usuarios con ese DNI/NIE (escrito como sea).
+     */
+    public function scopeConDni(Builder $query, string $dni): Builder
+    {
+        return $query->where('dni_hash', static::huellaDni($dni));
     }
 
     /**

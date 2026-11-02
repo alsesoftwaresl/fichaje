@@ -10,7 +10,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -120,10 +119,10 @@ class KioskoController extends Controller
      */
     protected function empleadoPorDni(Request $request, Empresa $empresa): ?User
     {
-        $dni = is_string($request->input('dni')) ? Str::upper(preg_replace('/[\s\-\.]/', '', $request->input('dni'))) : '';
+        $dni = is_string($request->input('dni')) ? User::normalizarDni($request->input('dni')) : '';
 
         return preg_match('/^(\d{8}|[XYZ]\d{7})[A-Z]$/', $dni)
-            ? User::where('empresa_id', $empresa->id)->where('dni_nie', $dni)->where('activo', true)->first()
+            ? User::where('empresa_id', $empresa->id)->conDni($dni)->where('activo', true)->first()
             : null;
     }
 

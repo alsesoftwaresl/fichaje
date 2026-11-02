@@ -32,7 +32,7 @@ class AccesoWebEmpleadoTest extends TestCase
         $this->assertSame('12345678Z', $acceso['dni']);
         $this->assertSame(10, strlen($acceso['password']));
 
-        $empleado = User::where('dni_nie', '12345678Z')->firstOrFail();
+        $empleado = User::conDni('12345678Z')->firstOrFail();
         $this->assertTrue($empleado->debe_cambiar_password);
 
         $this->get(route('admin.empleados.index'))->assertSee($acceso['password']);
@@ -62,7 +62,7 @@ class AccesoWebEmpleadoTest extends TestCase
             ->assertRedirect(route('dashboard'));
 
         $this->get(route('fichajes.mis'))->assertOk();
-        $this->assertFalse(User::where('dni_nie', '12345678Z')->first()->debe_cambiar_password);
+        $this->assertFalse(User::conDni('12345678Z')->first()->debe_cambiar_password);
 
         // La temporal ya no vale; la nueva sí.
         Auth::logout();
@@ -87,7 +87,7 @@ class AccesoWebEmpleadoTest extends TestCase
         $this->altaConAcceso($admin, ['dar_acceso' => '0']);
 
         $this->assertNull(session('acceso_generado'));
-        $empleado = User::where('dni_nie', '12345678Z')->firstOrFail();
+        $empleado = User::conDni('12345678Z')->firstOrFail();
         $this->assertFalse($empleado->debe_cambiar_password);
         $this->assertNotNull($empleado->pin_hash);
     }
@@ -99,7 +99,7 @@ class AccesoWebEmpleadoTest extends TestCase
         $this->altaConAcceso($admin, ['password' => 'Provisional123', 'password_confirmation' => 'Provisional123']);
 
         $this->assertNull(session('acceso_generado')); // el admin ya la conoce
-        $this->assertTrue(User::where('dni_nie', '12345678Z')->first()->debe_cambiar_password);
+        $this->assertTrue(User::conDni('12345678Z')->first()->debe_cambiar_password);
     }
 
     public function test_el_admin_puede_generar_otra_contrasena_temporal_desde_la_lista(): void

@@ -68,19 +68,15 @@ class GestionNominaController extends Controller
 
         $archivo = $request->file('archivo');
 
-        // Nombre aleatorio en disco: el nombre original nunca forma parte de
-        // la ruta (podría llevar el DNI o el nombre del empleado).
-        $ruta = $archivo->storeAs(
-            'nominas/'.$empresaId.'/'.$data['user_id'],
-            str()->uuid().'.pdf',
-            Nomina::DISCO
-        );
+        // Cifrada y con nombre aleatorio (ver Nomina::guardarArchivo).
+        $ruta = Nomina::guardarArchivo($archivo, 'nominas/'.$empresaId.'/'.$data['user_id']);
 
         $nomina = Nomina::create([
             'user_id' => $data['user_id'],
             'periodo' => Carbon::createFromFormat('Y-m', $data['mes'])->startOfMonth(),
             'descripcion' => $data['descripcion'] ?? null,
             'ruta' => $ruta,
+            'cifrada' => true,
             'nombre_original' => $archivo->getClientOriginalName(),
             'tamano' => $archivo->getSize(),
             'subida_por' => Auth::id(),
