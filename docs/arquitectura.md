@@ -35,6 +35,13 @@ por dónde crecer cuando haya más empresas, más empleados o más módulos.
    `env()` devuelve `null` en el resto del código. Se añade una clave a un fichero de `config/`
    y se lee con `config()`.
 6. **La web pública no promete lo que la app no hace**, ni lleva cifras, opiniones o logos inventados.
+7. **Datos sensibles cifrados.** Un dato personal sensible nuevo se guarda cifrado (cast `encrypted`
+   o `Crypt`); si hay que buscarlo, con una huella HMAC aparte, como `dni_hash`. Nada de datos de
+   salud más allá de lo imprescindible. Una tabla nueva con horas legales usa `dateTime`, nunca
+   `timestamp` (en MySQL/MariaDB la primera `TIMESTAMP` se actualiza sola en cada UPDATE).
+8. **Lo que saca datos personales queda en la auditoría** (`AuditLog::registrar`): exportaciones,
+   descargas de documentos ajenos, cambios de permisos. Ver `docs/cumplimiento-legal.md` y
+   `docs/seguridad.md`.
 
 ## 3. Cómo añadir una funcionalidad
 

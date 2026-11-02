@@ -45,6 +45,8 @@ class DeployController extends Controller
         'correo:probar',
         // Avisa a Bing y otros buscadores (IndexNow) de las páginas públicas.
         'seo:indexnow',
+        // Solo lectura: comprueba el sello de integridad del registro de todas las empresas.
+        'registro:verificar',
     ];
 
     /**

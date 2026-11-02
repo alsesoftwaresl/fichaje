@@ -65,7 +65,9 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.** (contacto: `info@achrono.es`).
 - **Jornadas**: entrada y salida se muestran en una sola fila con las **horas trabajadas** ya calculadas (teniendo en cuenta las correcciones). Un **turno de noche** (22:00 a 06:00) es una sola jornada del día en que empieza, también en los informes por fechas.
 - **Correcciones trazables**: el admin puede corregir la hora de un fichaje; el original **nunca se modifica**. La corrección queda en otra tabla con su motivo, su autor y la fecha.
 - **Añadir la salida olvidada**: si falta la salida entera, el admin la añade como fichaje nuevo con origen `empresa`, su nombre y el motivo (y queda en auditoría y en las notas de los informes).
-- **Exportación** de fichajes por empleado y rango de fechas en **CSV, Excel y PDF**.
+- **Exportación** de fichajes por empleado y rango de fechas en **CSV, Excel y PDF**. CSV y Excel son la exportación completa para la Inspección: hora registrada y hora válida, origen, correcciones con fecha, autor y motivo, y sello de integridad.
+- **Informes mensuales** (Admin → Informes): por persona, día a día, con el total del mes, las horas previstas por su horario, las que pasan de ese horario y espacio para firmar (arts. 34.9, 12.4.c y 35.5 ET). Cada empleado descarga el suyo desde *Mis fichajes*, aunque la empresa no pague.
+- **Sello de integridad**: cada fichaje y cada corrección llevan una huella HMAC encadenada; *Comprobar integridad* (en Fichajes) y `registro:verificar` detectan cualquier cambio o borrado hecho fuera de la app.
 
 ### Horarios, incidencias y control horario
 
@@ -88,7 +90,7 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.** (contacto: `info@achrono.es`).
 
 - La empresa (admin o un empleado con permiso de **contable**) sube la nómina en PDF (máx. 5 MB) eligiendo empleado y mes, con descripción opcional (por ejemplo, paga extra). El empleado recibe un correo si tiene email.
 - Cada empleado ve y descarga **sus** nóminas desde "Mis nóminas", con aviso de las nuevas.
-- Los archivos se guardan en un **disco privado** con nombre aleatorio y solo se sirven a su dueño o a quien las gestiona.
+- Los archivos se guardan **cifrados** en un **disco privado** con nombre aleatorio y solo se descifran para su dueño o para quien las gestiona (y si es otra persona, queda en la auditoría).
 - El empleado conserva el acceso a sus nóminas **aunque la empresa tenga la suscripción caducada**.
 
 ### Cuenta, planes y facturación
@@ -117,20 +119,22 @@ El proyecto lo desarrolla **ALSE SOFTWARE, S.L.** (contacto: `info@achrono.es`).
 
 | Aspecto | Cómo se resuelve |
 |---|---|
-| **Registro de jornada fiable (RD-ley 8/2019)** | La tabla `fichajes` es *append-only*. Una segunda capa lo refuerza en la base de datos (ver más abajo). Las correcciones van en `fichaje_correcciones`. |
+| **Registro de jornada fiable (art. 34.9 ET)** | La tabla `fichajes` es *append-only* y cada fichaje y corrección lleva un **sello de integridad** encadenado (`IntegridadRegistro`) que delata cualquier cambio o borrado hecho en la base de datos. Las horas legales son `DATETIME` (no cambian solas). Las correcciones van en `fichaje_correcciones`. |
+| **Acceso al registro y resúmenes** | Exportación completa para la Inspección y los representantes; informe mensual por persona (tiempo parcial, horas por encima del horario); cada empleado descarga el suyo. |
 | **Conservación 4 años** | Los fichajes no se borran. Empleados y empresas se desactivan en lugar de eliminarse. |
-| **RGPD** | Aceptación versionada de términos y encargo de tratamiento (`legal_aceptaciones`, con fecha e IP), registro de auditoría de acciones sensibles (`audit_logs`), datos de cada empresa aislados, consentimiento en el formulario de contacto. |
+| **RGPD** | Aceptación versionada de términos y encargo de tratamiento (`legal_aceptaciones`, con fecha e IP), auditoría de acciones sensibles (`audit_logs`: correcciones, exportaciones, informes, descargas de datos y de nóminas de terceros), descarga de **todos los datos personales** en JSON (el empleado desde su perfil, el admin desde la ficha; arts. 15 y 20), sin datos de salud en informes, mensajes de contacto borrados a los 12 meses, datos de cada empresa aislados. Detalle en [`docs/cumplimiento-legal.md`](docs/cumplimiento-legal.md). |
+| **Cifrado en reposo** | DNI/NIE (con huella `dni_hash` para buscarlo), PDF de las nóminas, secretos de la verificación en dos pasos y sesiones. |
 | **Aislamiento entre empresas** | Una sola base de datos con `empresa_id` y un *global scope* de Eloquent en todos los modelos de empresa. El contexto de tenant se limpia al terminar cada petición. Hay pruebas específicas de aislamiento. |
 | **PIN y DNI del kiosco** | PIN de 6 dígitos guardado como HMAC-SHA256 (no en claro). URL del kiosco no adivinable y freno tras 10 fallos de PIN o DNI en 5 minutos desde el mismo sitio. **Aviso:** con el modo DNI cualquiera que conozca el DNI de un compañero podría fichar por él; el panel lo explica al elegir. El enlace del kiosco sigue siendo usable desde fuera del local. |
-| **Contraseñas** | Hash con bcrypt (se re-cifra al entrar si sube el coste). Mínimo 8 caracteres con letras y números en todo el sistema. Las contraseñas temporales se muestran una sola vez y obligan a cambiarlas. |
-| **Nóminas** | Disco privado, nombre de archivo aleatorio, descarga solo para el dueño o quien gestiona nóminas de esa empresa. Los PDF **no van cifrados en el servidor**; se protegen con acceso privado y copias de seguridad. |
-| **Acceso** | Inicio de sesión limitado por intentos, CSRF, verificación de email (también al cambiar de correo en el perfil), bloqueo de empleados y empresas inactivos, cookie de sesión `secure` y `httponly` cuando la web es https, `https` forzado en todas las URLs cuando `APP_URL` es https. El admin no puede darse de baja a sí mismo. |
+| **Contraseñas y acceso** | Hash con bcrypt (se re-cifra al entrar si sube el coste). Mínimo 8 caracteres con letras y números. Contraseñas temporales que se muestran una vez y obligan a cambiarse. **Verificación en dos pasos** (TOTP con QR y 8 códigos de recuperación). Al cambiar la contraseña se cierran las demás sesiones. |
+| **Nóminas** | Cifradas en el disco privado, nombre de archivo aleatorio, descarga solo para el dueño o quien gestiona nóminas de esa empresa. |
+| **Acceso** | Inicio de sesión limitado por intentos, CSRF, verificación de email (también al cambiar de correo en el perfil), bloqueo de empleados y empresas inactivos, cookie de sesión `secure` y `httponly` cuando la web es https, `https` forzado en todas las URLs cuando `APP_URL` es https. El admin no puede darse de baja a sí mismo. Google solo deja entrar a admins activos. |
 | **Cabeceras de seguridad** | En todas las respuestas (también errores y mantenimiento): `X-Content-Type-Options`, anti-iframe (`X-Frame-Options` y `frame-ancestors`), `form-action` limitado a la web y Stripe, `base-uri`, `object-src`, `Referrer-Policy`, `Permissions-Policy` y HSTS en producción. Ver `CabecerasSeguridad`. |
 | **Entradas raras** | Filtros y parámetros de la URL con valores imposibles (fechas, listas en lugar de texto) se ignoran en vez de dar error; hay pruebas que lo comprueban. |
 | **Ruta de despliegue** | `/deploy/ejecutar` está inerte (404) salvo que se configure `DEPLOY_TOKEN`, usa una lista cerrada de comandos y solo es necesaria en hosting sin SSH. |
 | **Indexación** | Solo las páginas públicas listadas se pueden indexar; el resto lleva `X-Robots-Tag: noindex` y `Disallow` en `robots.txt`. |
 
-**Límites conocidos:** los datos personales (nombre, DNI, correo, fichajes) están en la base de datos sin cifrado a nivel de campo; no hay verificación en dos pasos; en producción el usuario de la base de datos suele ser único y con todos los permisos, así que el bloqueo de borrado de fichajes depende del código salvo que se monte la base de datos endurecida. No se limita `script-src` en la CSP porque Alpine.js lo necesita. **`APP_KEY` no se puede cambiar en producción**: los PIN del kiosco se calculan con ella y dejarían de funcionar todos.
+**Límites conocidos:** el nombre y el correo no van cifrados; la verificación en dos pasos es opcional; en producción el usuario de la base de datos suele ser único y con todos los permisos, así que un cambio directo en la base de datos no se puede impedir, solo **detectar** con el sello de integridad. No se limita `script-src` en la CSP porque Alpine.js lo necesita. **`APP_KEY` no se puede cambiar en producción** y hay que guardarla aparte: con ella se descifran los DNI, las nóminas y los secretos de dos pasos, y se calculan los PIN y los sellos. Medidas y procedimiento ante brechas en [`docs/seguridad.md`](docs/seguridad.md).
 
 > Los textos legales incluidos en `resources/views/legal/` y las guías son una **plantilla de partida**: deben ser revisados por un profesional antes de usarse con clientes reales.
 
@@ -169,11 +173,16 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 |---|---|
 | `RegistroFichajes` | Registra un fichaje (web y kiosco): decide entrada o salida, da por olvidada una entrada de más de 16 h e ignora el doble toque. Es el único servicio de esta tabla que escribe. |
 | `JornadasAgrupador` | Empareja entradas y salidas en jornadas y calcula horas (usando la hora corregida si existe). No empareja una entrada y una salida separadas más de 16 h. |
+| `IntegridadRegistro` | Sello HMAC encadenado de fichajes y correcciones, y su comprobación. |
+| `InformeMensual` | Resumen mensual por persona (día a día, total, previstas y por encima del horario). |
+| `DatosPersonales` | Todos los datos de una persona en JSON (derechos de acceso y portabilidad). |
 | `IncidenciasCalculador` | Retrasos, sin fichar, sin cerrar, no ha vuelto y horas de más, por día o periodo, con turnos partidos, turnos de noche y citas. |
 | `EstadoEquipoCalculador` | Estado actual de cada empleado (trabajando, fuera, vacaciones, baja, salida avisada). |
 | `AltaEmpresaService` | Crea empresa + administrador + aceptaciones legales; lo usan el alta manual del super admin y el registro público. |
 | `Support\Avisos` | Envía notificaciones por correo sin romper la acción si el SMTP falla, y construye el mensaje base con saludo y nombre de la empresa. |
 | `Support\ContenidoWeb` | Preguntas frecuentes y funciones escritas una sola vez, para la portada, `/funciones` y `llms-full.txt`. |
+| `Support\Totp` | Códigos de la verificación en dos pasos (RFC 6238). |
+| `Support\InicioSesion` | Último paso de cualquier login: entra o pide el código de dos pasos. |
 
 ### Middleware propios
 
@@ -185,6 +194,7 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 | `suscripcion` | Bloquea las funciones si la empresa no tiene suscripción ni licencia activa (consultando a Stripe antes de bloquear). |
 | `gestor.nominas` | Admin o empleado con permiso de contable. |
 | *(global, la primera)* `CabecerasSeguridad` | Cabeceras de seguridad en todas las respuestas. |
+| *(global web)* `AuthenticateSession` | Cierra las sesiones de otros dispositivos al cambiar la contraseña. |
 | *(global web)* `ForzarCambioPassword` | Obliga a elegir contraseña propia tras una temporal. |
 | *(global web)* `SeoRobots` | Añade `noindex` a todo lo que no sea una página pública indexable. |
 
@@ -192,7 +202,8 @@ El campo de inicio de sesión acepta **email o DNI/NIE**: si contiene `@` se bus
 
 - Públicas: `/`, `/funciones`, `/guia/*`, `/plantilla-registro-jornada`, `/control-horario/*`, `/contacto`, `/registro`, `/legal/*`, `/kiosko/{token}`, `/stripe/webhook`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt`.
 - Autenticadas (empleado y admin): `/mis-fichajes`, `/mis-ausencias`, `/mis-nominas`, `/profile`.
-- Administración de empresa: `/admin/*` (panel, fichajes, empleados y kiosco, ausencias, incidencias, facturación).
+- Administración de empresa: `/admin/*` (panel, fichajes e integridad, informes, empleados y kiosco, ausencias, incidencias, facturación).
+- Verificación en dos pasos: `/dos-pasos` (segundo paso del login) y `/profile/dos-pasos/*`.
 - Gestión de nóminas: `/gestion-nominas`.
 - Super admin: `/super-admin/*` (empresas, tarifas, licencias, mensajes).
 
@@ -350,6 +361,8 @@ La web se puede instalar en el móvil: aparece un banner "Instala Achrono en tu 
 | `incidencias:resumen` | Envía a los admins el resumen de incidencias de hoy. Programado en `routes/console.php` (laborables, 11:00). |
 | `correo:probar` | Envía un correo de prueba a `LEGAL_EMAIL` y muestra la configuración SMTP (sin contraseña). |
 | `seo:indexnow` | Avisa a los buscadores IndexNow de las páginas públicas. |
+| `registro:verificar` | Comprueba el sello de integridad del registro de todas las empresas (o `--empresa=`). |
+| `contactos:purgar` | Borra los mensajes de contacto con más de 12 meses. Programado una vez al mes. |
 | `schedule:run` | Ejecuta lo programado; hay que llamarlo cada minuto (cron o tarea de Plesk). |
 
 En hosting sin SSH, estos comandos (y `migrate`, `db:seed`, `storage:link`, las limpiezas de caché, `down` y `up`) se lanzan desde `/deploy/ejecutar?token=…&cmd=…`; la tarea programada de Plesk llama a `cmd=schedule:run`.
@@ -360,9 +373,11 @@ En hosting sin SSH, estos comandos (y `migrate`, `db:seed`, `storage:link`, las 
 php artisan test
 ```
 
-La suite (unas 290 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores, los turnos de noche, las salidas olvidadas y el doble toque, el cobro (una sola prueba gratis, sin suscripciones dobles), las cabeceras de seguridad, la política de contraseñas y los parámetros raros en la URL.
+La suite (unas 320 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores, los turnos de noche, las salidas olvidadas y el doble toque, el cobro (una sola prueba gratis, sin suscripciones dobles), las cabeceras de seguridad, la política de contraseñas, los parámetros raros en la URL, el sello de integridad (cambios y borrados en la base de datos), el informe mensual, el cifrado del DNI y de las nóminas, la verificación en dos pasos (vectores del RFC 6238), la descarga de datos personales y los plazos de conservación.
 
 Las llamadas reales a Stripe, al SMTP y a IndexNow no se hacen en las pruebas. La lista de comprobaciones manuales antes de salir está en [`docs/lista-pruebas-salida.md`](docs/lista-pruebas-salida.md).
+
+El cumplimiento normativo está en [`docs/cumplimiento-legal.md`](docs/cumplimiento-legal.md) y las medidas de seguridad, el mantenimiento y qué hacer ante una brecha en [`docs/seguridad.md`](docs/seguridad.md).
 
 La guía para ampliar el código sin romper nada (capas, reglas, cómo añadir funciones y módulos de pago, y por dónde escalar) está en [`docs/arquitectura.md`](docs/arquitectura.md). GitHub Actions ejecuta en cada push Pint, las pruebas y una compilación de los estilos que falla si `public/build` no está al día.
 
@@ -410,10 +425,10 @@ public/                  # Logo, iconos, manifest.json, sw.js, offline.html y bu
 ## Pendiente / hoja de ruta
 
 - **Antes de abrir al público**: Stripe en modo *live* (cuenta activada, webhook y portal), revisión de los textos legales por un profesional, copias de seguridad comprobadas, cambiar las credenciales que se hayan compartido y cerrar `/deploy/ejecutar`.
-- Informe mensual por empleado y pausas en el fichaje; saldo de vacaciones y festivos.
+- Pausas como tipo de fichaje propio (hoy una pausa se registra como salida y entrada); saldo de vacaciones y festivos; modalidad presencial/teletrabajo en cada fichaje si el real decreto de registro digital llega a aprobarse.
 - Aviso por correo al empleado si se le olvida fichar la salida (hoy se le avisa al fichar la siguiente vez y la empresa la completa), y aviso de salida anticipada.
 - Pasar a Tailwind 4 (queda un aviso moderado de `npm audit` en una dependencia de compilación de Tailwind 3; no llega al servidor).
-- Verificación en dos pasos, cifrado de campos sensibles y de las nóminas, y exportación/anonimización de datos (RGPD).
+- Hacer obligatoria la verificación en dos pasos para el super admin; acceso de solo lectura con enlace temporal para la Inspección o los representantes.
 - Plan para asesorías completo: cobro mensual automático por licencia, panel de la asesoría y cobro del empleado extra (hoy solo están configurados los precios y los códigos).
 - Limitar el kiosco a la IP de la empresa, si algún cliente lo pide.
 - Exportar a CSV/Excel/PDF las incidencias del Control horario; histórico de horarios.

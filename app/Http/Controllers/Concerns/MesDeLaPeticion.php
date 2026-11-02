@@ -11,6 +11,9 @@ use Illuminate\Support\Carbon;
  */
 trait MesDeLaPeticion
 {
+    /**
+     * Primer día del mes pedido, o del actual si no viene uno válido.
+     */
     protected function mes(Request $request): Carbon
     {
         $valor = is_string($request->query('mes')) ? $request->query('mes') : '';

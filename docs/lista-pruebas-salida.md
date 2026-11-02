@@ -108,6 +108,21 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 - [ ] `/deploy/ejecutar` sin token responde 404 (y al final, con el token vacío, queda cerrada).
 - [ ] 10 PIN incorrectos seguidos frenan el kiosco 5 minutos.
 - [ ] Las cabeceras de seguridad llegan en producción: en https://securityheaders.com, `achrono.es` debe dar al menos una A.
+- [ ] **Antes de migrar**: copia de seguridad hecha en Plesk y `APP_KEY` guardada aparte.
+- [ ] Tras migrar, `cmd=registro:verificar` dice «correcto» en todas las empresas.
+- [ ] Activar la verificación en dos pasos en tu cuenta de super admin y en la de admin de tu empresa; guardar los códigos de recuperación; probar a entrar con el código y con un código de recuperación.
+- [ ] Cambiar la contraseña en un navegador cierra la sesión abierta en otro.
+- [ ] En `.env`: `SESSION_ENCRYPT=true`, `SESSION_SECURE_COOKIE=true`, `APP_DEBUG=false`.
+
+## H2. Registro, informes y RGPD
+
+- [ ] Admin → Fichajes → *Comprobar integridad*: sale «Correcto».
+- [ ] Exportar a CSV y Excel: salen la hora registrada, la válida, las correcciones con autor y motivo, y el sello.
+- [ ] Admin → Informes: el informe del mes de una persona cuadra con sus fichajes; el PDF tiene los totales y las firmas.
+- [ ] Un empleado descarga «Mi registro del mes» desde *Mis fichajes*.
+- [ ] Perfil → *Descargar mis datos* da un archivo con sus datos y sin contraseñas ni PIN; el admin puede descargar los de un empleado desde su ficha.
+- [ ] Al subir una nómina, en el servidor el archivo termina en `.pdf.enc` y no se abre como PDF; desde la app se descarga bien.
+- [ ] Los textos legales (privacidad, encargo, términos, cookies) revisados por un profesional.
 - [ ] Un mismo DNI se puede dar de alta en dos empresas de prueba y cada uno entra en la suya con su contraseña.
 
 ## I. Web pública y contacto

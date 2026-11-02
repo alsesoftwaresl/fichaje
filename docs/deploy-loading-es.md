@@ -101,7 +101,12 @@ precios en Stripe) ni dar de alta empresas a mano.
 
 Comandos disponibles (cambia `cmd=`): `migrate`, `db:seed`, `storage:link`,
 `config:clear`, `route:clear`, `view:clear`, `cache:clear`,
-`optimize` (activa las cachés de producción), `optimize:clear`, `schedule:run` (tareas programadas), `correo:probar` (correo de prueba), `down` y `up` (mantenimiento). La ruta da 404
+`optimize` (activa las cachés de producción), `optimize:clear`, `schedule:run` (tareas programadas), `correo:probar` (correo de prueba), `registro:verificar` (comprueba el sello de integridad del registro), `down` y `up` (mantenimiento).
+
+> **Haz una copia de seguridad (Plesk → Copias de seguridad) antes de cada `migrate`.** Algunas
+> migraciones reescriben datos: la de noviembre de 2026 cifra los DNI y las nóminas ya subidas y
+> sella el registro. Y guarda la `APP_KEY` del `.env` aparte: sin ella esos datos no se pueden
+> descifrar (ver `docs/seguridad.md`). La ruta da 404
 siempre si `DEPLOY_TOKEN` está vacío, así que no pasa nada por dejarla en el
 código — solo no compartas el token.
 
