@@ -31,6 +31,18 @@
             </x-card>
         @endif
 
+        {{-- Su propio registro en PDF (art. 34.9 ET: tiene derecho a consultarlo). --}}
+        <x-card class="p-4">
+            <form method="GET" action="{{ route('fichajes.informe') }}" class="flex flex-wrap items-end gap-3">
+                <div>
+                    <x-input-label for="mes" value="Mi registro del mes" />
+                    <input id="mes" type="month" name="mes" value="{{ now()->format('Y-m') }}" max="{{ now()->format('Y-m') }}"
+                        class="rounded-lg border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                <x-secondary-button type="submit">Descargar PDF</x-secondary-button>
+            </form>
+        </x-card>
+
         <x-card class="overflow-hidden">
             <div class="overflow-x-auto"><table class="tabla-apilada min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50">

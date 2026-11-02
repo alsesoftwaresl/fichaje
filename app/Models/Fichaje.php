@@ -97,4 +97,12 @@ class Fichaje extends Model
     {
         return $this->hasMany(FichajeCorreccion::class, 'fichaje_original_id');
     }
+
+    /**
+     * Quién de la empresa añadió este fichaje (solo en los de origen "empresa").
+     */
+    public function registradoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'registrado_por');
+    }
 }

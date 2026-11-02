@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\EmpleadoController;
 use App\Http\Controllers\Admin\FacturacionController;
 use App\Http\Controllers\Admin\FichajeCorreccionController;
 use App\Http\Controllers\Admin\IncidenciaController;
+use App\Http\Controllers\Admin\InformeController;
 use App\Http\Controllers\Admin\IntegridadController;
 use App\Http\Controllers\Admin\KioscoController;
 use App\Http\Controllers\Admin\LicenciaController as AdminLicenciaController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\DeployController;
 use App\Http\Controllers\FichajeController;
 use App\Http\Controllers\GestionNominaController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InformeMensualController;
 use App\Http\Controllers\KioskoController;
 use App\Http\Controllers\NominaController;
 use App\Http\Controllers\PlantillaController;
@@ -155,6 +157,8 @@ Route::middleware(['auth', 'tenant', 'verificado', 'suscripcion'])->group(functi
 // que la empresa deje de pagar no debe quitarle sus propios documentos.
 Route::middleware(['auth', 'tenant', 'verificado'])->group(function () {
     Route::get('/mis-nominas', [NominaController::class, 'mis'])->name('nominas.mis');
+    // Su registro de jornada en PDF: tampoco depende de que la empresa pague (art. 34.9 ET).
+    Route::get('/mis-fichajes/informe', [InformeMensualController::class, 'propio'])->name('fichajes.informe');
     Route::get('/nominas/{nomina}/descargar', [NominaController::class, 'descargar'])->name('nominas.descargar');
 });
 
@@ -198,6 +202,8 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
             Route::post('/fichajes/{fichaje}/correcciones', [FichajeCorreccionController::class, 'store'])->name('fichajes.correcciones.store');
             Route::post('/fichajes/{fichaje}/salida', [SalidaOlvidadaController::class, 'store'])->name('fichajes.salida.store');
             Route::get('/fichajes/integridad', [IntegridadController::class, 'index'])->name('fichajes.integridad');
+            Route::get('/informes', [InformeController::class, 'index'])->name('informes.index');
+            Route::get('/informes/pdf', [InformeController::class, 'pdf'])->name('informes.pdf');
 
             Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
             Route::get('/empleados/crear', [EmpleadoController::class, 'create'])->name('empleados.create');

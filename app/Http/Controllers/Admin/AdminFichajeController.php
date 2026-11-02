@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\FichajesExport;
 use App\Http\Controllers\Concerns\PaginaColecciones;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Fichaje;
 use App\Models\User;
 use App\Services\JornadasAgrupador;
@@ -55,6 +56,14 @@ class AdminFichajeController extends Controller
         $jornadas = $this->jornadasFiltradas($request);
         $nombreArchivo = 'fichajes-'.now()->format('Y-m-d-His');
 
+        // Sacar datos personales de la aplicación queda registrado (RGPD, responsabilidad
+        // proactiva): quién exportó, qué periodo y en qué formato.
+        AuditLog::registrar('fichajes_exportados', Auth::user()->empresa, [
+            'formato' => $formato,
+            'filtros' => $this->filtros($request),
+            'jornadas' => $jornadas->count(),
+        ]);
+
         return match ($formato) {
             'excel' => Excel::download(new FichajesExport($jornadas), "{$nombreArchivo}.xlsx"),
             'pdf' => Pdf::loadView('admin.fichajes.pdf', [
@@ -74,20 +83,12 @@ class AdminFichajeController extends Controller
     {
         $callback = function () use ($jornadas) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['Empleado', 'DNI/NIE', 'Fecha', 'Entrada', 'Salida', 'Horas', 'Correcciones']);
+            // Marca BOM: así Excel abre el CSV con las tildes bien.
+            fwrite($handle, "\u{FEFF}");
+            fputcsv($handle, FichajesExport::columnas());
 
             foreach ($jornadas as $jornada) {
-                $fichajeRef = $jornada['entrada'] ?? $jornada['salida'];
-
-                fputcsv($handle, [
-                    $jornada['usuario']->name,
-                    $jornada['usuario']->dni_nie,
-                    $fichajeRef->fecha_hora->format('Y-m-d'),
-                    $jornada['entrada']?->fecha_hora->format('H:i:s'),
-                    $jornada['salida']?->fecha_hora->format('H:i:s'),
-                    $jornada['horas'],
-                    $jornada['notas'],
-                ]);
+                fputcsv($handle, FichajesExport::fila($jornada));
             }
 
             fclose($handle);
@@ -111,7 +112,7 @@ class AdminFichajeController extends Controller
         $hasta = $this->fechaDelFiltro($request, 'hasta')?->endOfDay();
 
         $fichajes = Fichaje::query()
-            ->with(['usuario', 'correcciones'])
+            ->with(['usuario', 'correcciones.corregidoPor', 'registradoPor'])
             ->when($request->filled('user_id'), fn ($q) => $q->where('user_id', $request->integer('user_id')))
             ->when($desde, fn ($q) => $q->where('fecha_hora', '>=', $desde->copy()->subDay()))
             ->when($hasta, fn ($q) => $q->where('fecha_hora', '<=', $hasta->copy()->addDay()))

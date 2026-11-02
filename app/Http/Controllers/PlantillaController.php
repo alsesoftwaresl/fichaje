@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PlantillaJornadaExport;
+use App\Http\Controllers\Concerns\MesDeLaPeticion;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PlantillaController extends Controller
 {
+    use MesDeLaPeticion;
+
     /**
      * Página de la plantilla con la vista previa y los botones de descarga.
      */
@@ -46,17 +48,5 @@ class PlantillaController extends Controller
             'mes' => $mes,
             'nombreMes' => PlantillaJornadaExport::nombreDelMes($mes),
         ])->setPaper('a4', 'portrait')->download('plantilla-registro-jornada-'.$mes->format('Y-m').'.pdf');
-    }
-
-    /** Mes de la petición (?mes=AAAA-MM), con límites razonables; si no viene o no vale, el actual. */
-    protected function mes(Request $request): Carbon
-    {
-        $valor = is_string($request->query('mes')) ? $request->query('mes') : '';
-
-        if (preg_match('/^(20[2-9]\d)-(0[1-9]|1[0-2])$/', $valor, $m)) {
-            return Carbon::create((int) $m[1], (int) $m[2], 1)->startOfDay();
-        }
-
-        return now()->startOfMonth();
     }
 }

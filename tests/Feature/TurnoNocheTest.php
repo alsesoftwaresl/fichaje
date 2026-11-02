@@ -153,7 +153,10 @@ class TurnoNocheTest extends TestCase
 
         $filas = array_values(array_filter(explode("\n", trim($csv)), fn ($fila) => str_contains($fila, $this->empleado->name)));
         $this->assertCount(1, $filas);
-        $this->assertStringContainsString('22:00:00,06:00:00,8', $filas[0]);
+        $entrada = $this->dia->format('d/m/Y').' 22:00:00';
+        $salida = $this->dia->copy()->addDay()->format('d/m/Y').' 06:00:00';
+        // Registrada y válida (sin corregir son la misma), y 8 horas.
+        $this->assertStringContainsString("\"{$entrada}\",\"{$entrada}\",\"{$salida}\",\"{$salida}\",8", $filas[0]);
 
         // Y el día siguiente no muestra esa salida suelta.
         $this->actingAs($admin)

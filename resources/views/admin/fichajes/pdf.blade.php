@@ -11,6 +11,7 @@
         td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; }
         tr:nth-child(even) td { background: #f8fafc; }
         .muted { color: #94a3b8; }
+        .pie { margin-top: 16px; font-size: 9px; color: #64748b; }
     </style>
 </head>
 <body>
@@ -31,7 +32,7 @@
                 <th>Entrada</th>
                 <th>Salida</th>
                 <th>Horas</th>
-                <th>Correcciones</th>
+                <th>Correcciones y notas</th>
             </tr>
         </thead>
         <tbody>
@@ -41,8 +42,20 @@
                     <td>{{ $jornada['usuario']->name }}</td>
                     <td>{{ $jornada['usuario']->dni_nie ?? '—' }}</td>
                     <td>{{ $fichajeRef->fecha_hora->format('d/m/Y') }}</td>
-                    <td>{{ $jornada['entrada']?->fecha_hora->format('H:i:s') ?? '—' }}</td>
-                    <td>{{ $jornada['salida']?->fecha_hora->format('H:i:s') ?? (App\Services\RegistroFichajes::entradaOlvidada($jornada['entrada']) ? 'Sin salida' : 'En curso') }}</td>
+                    {{-- Hora registrada; si se corrigió, debajo la hora válida (la registrada no cambia nunca). --}}
+                    @foreach (['entrada', 'salida'] as $lado)
+                        @php $f = $jornada[$lado]; $valida = $f ? App\Services\JornadasAgrupador::horaEfectiva($f) : null; @endphp
+                        <td>
+                            @if ($f)
+                                {{ $f->fecha_hora->format('H:i:s') }}
+                                @if (! $valida->eq($f->fecha_hora))
+                                    <br><span class="muted">válida: {{ $valida->format('d/m H:i') }}</span>
+                                @endif
+                            @else
+                                {{ $lado === 'entrada' ? '—' : (App\Services\RegistroFichajes::entradaOlvidada($jornada['entrada']) ? 'Sin salida' : 'En curso') }}
+                            @endif
+                        </td>
+                    @endforeach
                     <td>{{ $jornada['horas'] !== null ? number_format($jornada['horas'], 2).' h' : '—' }}</td>
                     <td>{{ $jornada['notas'] ?: '—' }}</td>
                 </tr>
@@ -53,5 +66,11 @@
             @endforelse
         </tbody>
     </table>
+
+    <p class="pie">
+        Registro de jornada (art. 34.9 del Estatuto de los Trabajadores). Las horas registradas al fichar no se
+        modifican: cada corrección figura aparte con su motivo y su autor, y todos los registros llevan un sello
+        de integridad. Exportación completa con sellos en CSV o Excel.
+    </p>
 </body>
 </html>
