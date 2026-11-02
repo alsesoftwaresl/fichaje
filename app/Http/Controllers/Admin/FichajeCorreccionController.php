@@ -9,6 +9,7 @@ use App\Models\FichajeCorreccion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Correcciones de fichajes por el admin. Un fichaje nunca se modifica: la corrección se
@@ -26,16 +27,18 @@ class FichajeCorreccionController extends Controller
         // si perteneciera a otra empresa, Laravel devolvería 404 antes de llegar aquí.
 
         $data = $request->validate([
-            'fecha_hora_corregida' => ['required', 'date'],
+            // Una corrección refleja lo que pasó: no puede ser una hora futura.
+            'fecha_hora_corregida' => ['required', 'date', 'before_or_equal:now'],
             'motivo' => ['required', 'string', 'max:2000'],
         ]);
 
-        $correccion = FichajeCorreccion::create([
+        // Las correcciones se encadenan por empresa (huella de integridad): una a la vez.
+        $correccion = Cache::lock('corregir:'.$fichaje->empresa_id, 10)->block(5, fn () => FichajeCorreccion::create([
             'fichaje_original_id' => $fichaje->id,
             'fecha_hora_corregida' => $data['fecha_hora_corregida'],
             'motivo' => $data['motivo'],
             'corregido_por' => Auth::id(),
-        ]);
+        ]));
 
         AuditLog::registrar('fichaje_corregido', $fichaje, [
             'correccion_id' => $correccion->id,

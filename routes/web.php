@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\EmpleadoController;
 use App\Http\Controllers\Admin\FacturacionController;
 use App\Http\Controllers\Admin\FichajeCorreccionController;
 use App\Http\Controllers\Admin\IncidenciaController;
+use App\Http\Controllers\Admin\IntegridadController;
 use App\Http\Controllers\Admin\KioscoController;
 use App\Http\Controllers\Admin\LicenciaController as AdminLicenciaController;
 use App\Http\Controllers\Admin\ModuloNominasController;
@@ -196,6 +197,7 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
                 ->name('fichajes.exportar');
             Route::post('/fichajes/{fichaje}/correcciones', [FichajeCorreccionController::class, 'store'])->name('fichajes.correcciones.store');
             Route::post('/fichajes/{fichaje}/salida', [SalidaOlvidadaController::class, 'store'])->name('fichajes.salida.store');
+            Route::get('/fichajes/integridad', [IntegridadController::class, 'index'])->name('fichajes.integridad');
 
             Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
             Route::get('/empleados/crear', [EmpleadoController::class, 'create'])->name('empleados.create');

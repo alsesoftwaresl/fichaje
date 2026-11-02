@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -59,7 +60,9 @@ class SalidaOlvidadaController extends Controller
             throw ValidationException::withMessages(['fecha_hora' => $error]);
         }
 
-        $nueva = Fichaje::create([
+        // Con el mismo bloqueo que el fichaje del empleado: la huella de integridad se
+        // encadena a su último fichaje y no puede colarse otro a la vez.
+        $nueva = Cache::lock('fichar:'.$fichaje->user_id, 10)->block(5, fn () => Fichaje::create([
             'user_id' => $fichaje->user_id,
             'tipo' => 'salida',
             'fecha_hora' => $salida,
@@ -68,7 +71,7 @@ class SalidaOlvidadaController extends Controller
             'motivo' => $data['motivo'],
             'ip_address' => $request->ip(),
             'user_agent' => substr((string) $request->userAgent(), 0, 255),
-        ]);
+        ]));
 
         AuditLog::registrar('salida_olvidada_anadida', $nueva, [
             'entrada_id' => $fichaje->id,

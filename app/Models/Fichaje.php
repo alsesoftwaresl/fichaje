@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
+use App\Services\IntegridadRegistro;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -59,6 +60,10 @@ class Fichaje extends Model
     protected static function booted(): void
     {
         parent::booted();
+
+        // Huella de integridad encadenada (ver IntegridadRegistro). Va después de que
+        // BelongsToTenant ponga la empresa, porque forma parte de lo que se firma.
+        static::creating(fn (self $registro) => IntegridadRegistro::sellarFichaje($registro));
 
         static::updating(function () {
             throw new \RuntimeException('Los fichajes son append-only: no se pueden modificar.');

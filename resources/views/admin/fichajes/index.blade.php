@@ -43,6 +43,8 @@
                     <a href="{{ route('admin.fichajes.exportar', array_merge($filtros, ['formato' => 'excel'])) }}" class="hover:text-indigo-500 underline">Excel</a>
                     <span class="text-slate-300">·</span>
                     <a href="{{ route('admin.fichajes.exportar', array_merge($filtros, ['formato' => 'pdf'])) }}" class="hover:text-indigo-500 underline">PDF</a>
+                    <span class="text-slate-300">·</span>
+                    <a href="{{ route('admin.fichajes.integridad') }}" class="hover:text-indigo-500 underline">Comprobar integridad</a>
                 </div>
             </form>
         </x-card>
