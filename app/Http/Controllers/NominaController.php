@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Nomina;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -47,6 +48,11 @@ class NominaController extends Controller
         // cuenta.
         if ($nomina->user_id === $usuario->id && ! $nomina->descargada_en) {
             $nomina->update(['descargada_en' => now()]);
+        }
+
+        // Que otra persona (admin o contable) abra la nómina de alguien queda registrado.
+        if ($nomina->user_id !== $usuario->id) {
+            AuditLog::registrar('nomina_descargada', $nomina, ['empleado_id' => $nomina->user_id]);
         }
 
         // Se descifra solo en memoria para esta descarga; el navegador no debe guardarla en caché.

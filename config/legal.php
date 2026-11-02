@@ -3,8 +3,8 @@
 return [
     // Versiona los documentos legales para poder llevar histórico de qué
     // versión aceptó cada empresa. Súbelas cuando el contenido cambie.
-    'version_terminos' => '1.0',
-    'version_encargo' => '1.0',
+    'version_terminos' => '2.0',
+    'version_encargo' => '2.0',
 
     // Datos del titular de la web (obligatorios en España por el artículo 10 de la
     // LSSI). Se leen de .env: lo que esté vacío simplemente no se muestra, así que

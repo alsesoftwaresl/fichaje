@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 // Resumen de incidencias a los admins: laborables a las 11:00 (hora de la app).
 // Necesita que algo ejecute "schedule:run" cada minuto (cron o tarea de Plesk).
 Schedule::command('incidencias:resumen')->weekdays()->at('11:00');
+
+// Los mensajes del formulario de contacto se guardan como máximo 12 meses (política de privacidad).
+Schedule::command('contactos:purgar')->monthly();

@@ -98,8 +98,11 @@ class ContenidoWeb
                 'resumen' => 'Lo que se ficha no se puede cambiar, y puedes descargarlo cuando lo pidan.',
                 'puntos' => [
                     'Un fichaje guardado no se puede borrar ni editar. Si hay un error, se corrige aparte con su motivo y quién lo hizo.',
-                    'Descargas los fichajes en Excel, PDF o CSV, por empleado y por fechas.',
+                    'Cada fichaje lleva un sello digital: si alguien lo tocara por fuera de la aplicación, se notaría.',
+                    'Informe mensual de cada persona con sus horas del día a día y el total, listo para firmar.',
+                    'Descargas los fichajes en Excel, PDF o CSV, con la hora original y cada corrección, por empleado y por fechas.',
                     'Queda anotado quién ha hecho cada cosa y cuándo.',
+                    'DNI y nóminas guardados cifrados, y verificación en dos pasos para entrar.',
                     'Los datos de tu empresa están separados de los de las demás.',
                 ],
             ],
@@ -108,7 +111,7 @@ class ContenidoWeb
                 'titulo' => 'Cada empleado tiene su espacio',
                 'resumen' => 'Lo suyo, siempre a mano, sin pedírselo al jefe.',
                 'puntos' => [
-                    'Ve todos sus fichajes y las horas de cada día.',
+                    'Ve todos sus fichajes y las horas de cada día, y descarga su registro del mes.',
                     'Descarga sus nóminas cuando las necesita.',
                     'Pide vacaciones y ve si se las han aprobado.',
                     'Avisa si tiene que salir un rato.',
