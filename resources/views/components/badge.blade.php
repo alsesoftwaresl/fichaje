@@ -1,3 +1,4 @@
+{{-- Etiqueta de color: tone = success, danger, warning, indigo o neutral. --}}
 @props(['tone' => 'neutral'])
 
 @php

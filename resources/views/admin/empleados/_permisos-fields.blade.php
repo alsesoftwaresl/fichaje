@@ -1,3 +1,4 @@
+{{-- Campo del permiso de contable (gestionar nóminas sin ser admin), compartido por el alta y la edición de empleados. --}}
 @php($empleado ??= null)
 
 <div class="border-t border-slate-200 pt-4">

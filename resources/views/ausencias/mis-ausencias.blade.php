@@ -1,3 +1,4 @@
+{{-- Empleado: sus ausencias (pedir vacaciones o baja) y sus avisos de salida durante la jornada. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Mis ausencias</h2>

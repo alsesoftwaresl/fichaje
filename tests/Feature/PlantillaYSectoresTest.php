@@ -8,6 +8,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\TestCase;
 
+/**
+ * Plantilla gratuita (Excel y PDF) y páginas por sector.
+ */
 class PlantillaYSectoresTest extends TestCase
 {
     use RefreshDatabase;

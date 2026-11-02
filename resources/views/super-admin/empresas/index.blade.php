@@ -1,3 +1,4 @@
+{{-- Super admin: lista de empresas clientes con su estado. --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">

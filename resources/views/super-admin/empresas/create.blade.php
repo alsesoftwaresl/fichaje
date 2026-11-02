@@ -1,3 +1,4 @@
+{{-- Super admin: alta manual de una empresa con su primer admin. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Dar de alta empresa</h2>

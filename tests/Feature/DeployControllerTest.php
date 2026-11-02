@@ -7,6 +7,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
+/**
+ * Ruta de despliegue sin SSH: inerte sin token, solo comandos permitidos, modo mantenimiento
+ * y super admin inicial.
+ */
 class DeployControllerTest extends TestCase
 {
     use RefreshDatabase;

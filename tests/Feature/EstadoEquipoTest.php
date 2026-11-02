@@ -11,6 +11,9 @@ use App\Support\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Estado del equipo en el panel: trabajando, fuera, vacaciones, baja y salida avisada.
+ */
 class EstadoEquipoTest extends TestCase
 {
     use RefreshDatabase;

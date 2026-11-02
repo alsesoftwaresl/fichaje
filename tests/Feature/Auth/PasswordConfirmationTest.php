@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Confirmar la contraseña antes de acciones sensibles (base de Laravel Breeze).
+ */
 class PasswordConfirmationTest extends TestCase
 {
     use RefreshDatabase;

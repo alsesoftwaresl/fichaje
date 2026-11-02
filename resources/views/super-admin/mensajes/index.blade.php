@@ -1,3 +1,4 @@
+{{-- Super admin: mensajes del formulario de contacto (urgentes primero, marcar como leído). --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Mensajes de contacto</h2>

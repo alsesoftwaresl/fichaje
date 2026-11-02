@@ -1,3 +1,4 @@
+{{-- Tras entrar con una contraseña temporal, obliga a elegir una propia (ForzarCambioPassword). --}}
 <x-guest-layout>
     <h1 class="text-lg font-semibold text-slate-900 mb-1">Elige tu contraseña</h1>
     <p class="text-sm text-slate-500 mb-6">

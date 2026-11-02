@@ -8,6 +8,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Vacaciones y bajas: el empleado solicita, el admin aprueba o rechaza, avisos y aislamiento
+ * entre empresas.
+ */
 class AusenciasFlowTest extends TestCase
 {
     use RefreshDatabase;

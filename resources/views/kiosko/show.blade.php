@@ -1,3 +1,4 @@
+{{-- Kiosco de fichaje (tablet del centro): teclado de PIN y/o DNI según el modo de la empresa, y pantalla de resultado. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

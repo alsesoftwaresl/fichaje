@@ -8,6 +8,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
+/**
+ * Recuperar la contraseña por correo (base de Laravel Breeze).
+ */
 class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;

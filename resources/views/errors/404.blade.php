@@ -1,3 +1,4 @@
+{{-- Página de "no encontrada", con enlaces a las secciones principales. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

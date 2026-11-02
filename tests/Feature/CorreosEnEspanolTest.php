@@ -9,6 +9,9 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Los correos del sistema salen en español y con la marca y el nombre de la empresa.
+ */
 class CorreosEnEspanolTest extends TestCase
 {
     use RefreshDatabase;

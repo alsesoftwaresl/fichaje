@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
+/**
+ * Verificación del correo de los admins registrados por la web.
+ */
 class VerificacionEmailTest extends TestCase
 {
     use RefreshDatabase;

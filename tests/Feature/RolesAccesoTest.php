@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Cada rol solo entra en sus pantallas (empleado, admin de empresa, super admin).
+ */
 class RolesAccesoTest extends TestCase
 {
     use RefreshDatabase;

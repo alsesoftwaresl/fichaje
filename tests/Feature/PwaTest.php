@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * App instalable: manifest, service worker sin datos privados y página sin conexión.
+ */
 class PwaTest extends TestCase
 {
     use RefreshDatabase;

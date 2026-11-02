@@ -1,3 +1,4 @@
+{{-- Formulario de nombre y correo; cambiar el correo obliga al admin a confirmarlo. --}}
 <section>
     <header>
         <h2 class="text-lg font-medium text-slate-900">

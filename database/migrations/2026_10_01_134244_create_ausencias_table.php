@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Ausencias (vacaciones, bajas, otras) con su solicitud y resolución por el admin.
 return new class extends Migration
 {
     public function up(): void

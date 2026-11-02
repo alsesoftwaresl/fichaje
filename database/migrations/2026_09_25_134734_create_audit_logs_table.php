@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Registro de auditoría de acciones sensibles: quién, qué, sobre qué objeto y cuándo.
 return new class extends Migration
 {
     public function up(): void

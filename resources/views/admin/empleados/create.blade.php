@@ -1,3 +1,4 @@
+{{-- Admin: alta de un empleado (nombre, DNI/NIE, correo opcional, acceso web, horario y permisos). Al guardar se genera su PIN del kiosco. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Dar de alta empleado</h2>

@@ -1,3 +1,4 @@
+{{-- Admin: edición de un empleado (datos, acceso web, horario, permisos) y descarga de sus datos personales (RGPD). --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Editar {{ $empleado->name }}</h2>

@@ -1,3 +1,4 @@
+{{-- Elegir contraseña nueva desde el enlace de recuperación. --}}
 <x-guest-layout>
     <h1 class="text-lg font-semibold text-slate-900 mb-6">Restablecer contraseña</h1>
 

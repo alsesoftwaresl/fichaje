@@ -1,3 +1,4 @@
+{{-- Plantilla común de las páginas legales (aviso legal, privacidad, términos, encargo, cookies). --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

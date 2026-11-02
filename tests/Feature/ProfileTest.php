@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Perfil: ver y actualizar los datos (base de Laravel Breeze).
+ */
 class ProfileTest extends TestCase
 {
     use RefreshDatabase;

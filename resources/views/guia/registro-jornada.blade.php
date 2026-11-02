@@ -1,3 +1,4 @@
+{{-- Guía pública sobre el registro de jornada (art. 34.9 ET): qué es, quién y cómo. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

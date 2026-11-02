@@ -1,3 +1,4 @@
+{{-- Kiosco de una empresa sin suscripción ni licencia: no deja fichar. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

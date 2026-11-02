@@ -13,6 +13,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
+/**
+ * Turno partido (varios tramos al día) y avisos de salida (citas) en las incidencias.
+ */
 class TurnoPartidoYCitasTest extends TestCase
 {
     use RefreshDatabase;

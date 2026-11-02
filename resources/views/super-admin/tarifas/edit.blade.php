@@ -1,3 +1,4 @@
+{{-- Super admin: precios (plan directo, asesorías, IVA, módulo de nóminas) y sincronización con Stripe. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Tarifas</h2>

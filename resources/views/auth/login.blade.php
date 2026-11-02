@@ -1,3 +1,4 @@
+{{-- Inicio de sesión con correo o DNI/NIE y contraseña, o con Google (solo admins). Si hay verificación en dos pasos, después se pide el código. --}}
 <x-guest-layout>
     <h1 class="text-lg font-semibold text-slate-900 mb-1">Iniciar sesión</h1>
     <p class="text-sm text-slate-500 mb-6">Accede con las credenciales que te ha dado tu empresa.</p>

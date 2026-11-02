@@ -9,6 +9,9 @@ use App\Support\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Los fichajes y sus correcciones no se pueden modificar ni borrar (append-only).
+ */
 class FichajeAppendOnlyTest extends TestCase
 {
     use RefreshDatabase;

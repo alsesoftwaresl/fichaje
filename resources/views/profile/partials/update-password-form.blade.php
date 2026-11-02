@@ -1,3 +1,4 @@
+{{-- Formulario para cambiar la contraseña (cierra las sesiones de otros dispositivos). --}}
 <section>
     <header>
         <h2 class="text-lg font-medium text-slate-900">

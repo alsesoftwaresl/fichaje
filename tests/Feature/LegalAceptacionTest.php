@@ -8,6 +8,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Aceptación versionada de los términos y del encargo de tratamiento al dar de alta una
+ * empresa.
+ */
 class LegalAceptacionTest extends TestCase
 {
     use RefreshDatabase;

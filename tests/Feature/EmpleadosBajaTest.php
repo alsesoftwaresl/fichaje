@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
+/**
+ * Los empleados no se borran: darlos de baja conserva su fila y sus fichajes, y uno de baja
+ * no puede entrar.
+ */
 class EmpleadosBajaTest extends TestCase
 {
     use RefreshDatabase;

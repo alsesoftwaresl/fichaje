@@ -1,3 +1,4 @@
+{{-- Página pública de la plantilla gratuita de registro de jornada (Excel y PDF del mes elegido). --}}
 @php
     $preguntas = [
         ['¿Esta plantilla vale como registro de jornada?', 'La ley exige registrar el horario de inicio y de fin de la jornada de cada persona trabajadora y no impone un formato, así que una hoja en papel o en Excel se puede usar. Lo importante es que los datos sean fiables y se conserven cuatro años. Si tienes dudas sobre tu caso, consúltalo con tu asesoría laboral.'],

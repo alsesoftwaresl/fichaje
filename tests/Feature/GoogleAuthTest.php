@@ -11,6 +11,9 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 use Mockery;
 use Tests\TestCase;
 
+/**
+ * Acceso y alta con Google (Socialite simulado): solo admins, nunca empleados.
+ */
 class GoogleAuthTest extends TestCase
 {
     use RefreshDatabase;

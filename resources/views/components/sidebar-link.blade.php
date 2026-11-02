@@ -1,3 +1,4 @@
+{{-- Enlace del menú lateral, resaltado si está activo. --}}
 @props(['active' => false])
 
 @php

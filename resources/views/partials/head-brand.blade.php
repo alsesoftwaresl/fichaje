@@ -1,3 +1,4 @@
+{{-- Favicon, colores y manifest de la app instalable, comunes a todas las páginas. --}}
 <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32.png') }}">
 <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('images/favicon-64.png') }}">
 <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">

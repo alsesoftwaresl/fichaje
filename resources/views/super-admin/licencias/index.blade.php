@@ -1,3 +1,4 @@
+{{-- Super admin: crear códigos de licencia gratuita, activarlos o desactivarlos y ver quién los canjeó. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Licencias gratuitas</h2>

@@ -1,3 +1,4 @@
+{{-- Admin: plan y precio (IVA incluido), estado de la suscripción o licencia, prueba gratis, módulo de nóminas, canje de códigos y facturas (FacturacionController). --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Facturación</h2>

@@ -1,3 +1,4 @@
+{{-- Página pública de funciones, en lenguaje sencillo (bloques de ContenidoWeb::funciones()). --}}
 @php
     // Una sola fuente para la página y para los datos estructurados (featureList).
     // Lenguaje claro, pensado para quien lleva un negocio, no para un técnico.

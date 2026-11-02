@@ -10,6 +10,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
 
+/**
+ * Kiosco con DNI/NIE: modos PIN, DNI o ambos, normalización, freno de intentos y fichaje
+ * web desactivado.
+ */
 class KioskoDniTest extends TestCase
 {
     use RefreshDatabase;

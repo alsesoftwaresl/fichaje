@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
+/**
+ * SEO: robots, sitemap, llms, IndexNow, noindex en lo privado y datos estructurados.
+ */
 class SeoTest extends TestCase
 {
     use RefreshDatabase;

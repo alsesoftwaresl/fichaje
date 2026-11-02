@@ -8,6 +8,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Precios con IVA incluido: desglose, tipo de IVA en Stripe y textos de la web.
+ */
 class IvaTest extends TestCase
 {
     use RefreshDatabase;

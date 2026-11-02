@@ -9,6 +9,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Plan para asesorías: precios configurables por el super admin, validación y tope de
+ * empleados de sus licencias.
+ */
 class PlanAsesoriasTest extends TestCase
 {
     use RefreshDatabase;

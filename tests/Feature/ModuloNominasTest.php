@@ -9,6 +9,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Módulo de nóminas de pago: incluido, por licencia, en la prueba o contratado, y precio
+ * en el total.
+ */
 class ModuloNominasTest extends TestCase
 {
     use RefreshDatabase;

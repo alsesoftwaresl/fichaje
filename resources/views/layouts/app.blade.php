@@ -1,3 +1,4 @@
+{{-- Plantilla del panel (con sesión): menú lateral, cabecera de la página, avisos y banner de instalar la app. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

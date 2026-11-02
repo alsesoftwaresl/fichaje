@@ -1,3 +1,4 @@
+{{-- Super admin: ficha de una empresa (suscripción, licencia, empleados) y activar/desactivar. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">{{ $empresa->nombre }}</h2>

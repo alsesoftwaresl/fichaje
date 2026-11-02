@@ -1,3 +1,4 @@
+{{-- Empleado: sus nóminas para descargar, con aviso de las nuevas. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Mis nóminas</h2>

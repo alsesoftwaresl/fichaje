@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 
+/**
+ * Comando correo:probar (envía un correo de prueba y muestra la configuración).
+ */
 class ProbarCorreoTest extends TestCase
 {
     public function test_con_el_mailer_log_avisa_de_que_no_se_envia_nada(): void

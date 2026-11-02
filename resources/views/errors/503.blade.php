@@ -1,3 +1,4 @@
+{{-- Página de mantenimiento (php artisan down / cmd=down). --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

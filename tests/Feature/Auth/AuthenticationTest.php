@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Inicio y cierre de sesión con correo y contraseña (base de Laravel Breeze).
+ */
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;

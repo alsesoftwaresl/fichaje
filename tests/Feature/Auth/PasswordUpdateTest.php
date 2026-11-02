@@ -7,6 +7,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
+/**
+ * Cambiar la contraseña desde el perfil (base de Laravel Breeze).
+ */
 class PasswordUpdateTest extends TestCase
 {
     use RefreshDatabase;

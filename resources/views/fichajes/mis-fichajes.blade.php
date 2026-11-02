@@ -1,3 +1,4 @@
+{{-- Empleado: botón de fichar (si la empresa lo permite), descarga de su registro del mes e historial por jornadas. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Mis fichajes</h2>

@@ -1,3 +1,4 @@
+{{-- Admin: fichajes de la empresa agrupados por jornada, con filtros, exportación, corrección, salida olvidada y comprobación de integridad. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Fichajes de la empresa</h2>

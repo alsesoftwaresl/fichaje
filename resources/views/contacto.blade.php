@@ -1,3 +1,4 @@
+{{-- Página pública de contacto y atención al cliente, con el formulario (ContactoController). --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

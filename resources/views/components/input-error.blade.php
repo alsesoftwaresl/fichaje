@@ -1,3 +1,4 @@
+{{-- Lista de errores de validación de un campo. --}}
 @props(['messages'])
 
 @if ($messages)

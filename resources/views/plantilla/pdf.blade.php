@@ -1,3 +1,4 @@
+{{-- PDF de la plantilla de registro de jornada de un mes (dompdf). --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

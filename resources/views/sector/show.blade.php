@@ -1,3 +1,4 @@
+{{-- Página pública de un sector (config/sectores.php): problemas, cómo ayuda, ejemplo y preguntas. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

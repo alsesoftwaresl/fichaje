@@ -9,6 +9,9 @@ use App\Support\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Aislamiento entre empresas: nadie ve ni toca datos de otra empresa.
+ */
 class TenantIsolationTest extends TestCase
 {
     use RefreshDatabase;

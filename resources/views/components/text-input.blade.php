@@ -1,3 +1,4 @@
+{{-- Campo de texto; si es de contraseña añade el botón de mostrarla. --}}
 @props(['disabled' => false])
 
 @php

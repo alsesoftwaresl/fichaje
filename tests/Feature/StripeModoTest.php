@@ -8,6 +8,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
+/**
+ * Cambio entre Stripe de prueba y real: se olvidan los datos del modo anterior.
+ */
 class StripeModoTest extends TestCase
 {
     use RefreshDatabase;

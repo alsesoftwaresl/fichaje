@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
+/**
+ * Acceso web de los empleados: contraseña temporal, cambio obligatorio al primer acceso y
+ * login con DNI.
+ */
 class AccesoWebEmpleadoTest extends TestCase
 {
     use RefreshDatabase;

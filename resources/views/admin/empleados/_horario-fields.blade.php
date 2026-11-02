@@ -1,3 +1,4 @@
+{{-- Campos del horario esperado (tramos y días laborables) que comparten el alta y la edición de empleados. Si el último tramo acaba antes de empezar, es un turno de noche. --}}
 @php
     // En el alta no hay $empleado todavía (se pasa null desde el controlador).
     $empleado ??= null;

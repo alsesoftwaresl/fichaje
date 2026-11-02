@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 
+/**
+ * Las páginas legales cargan sin error.
+ */
 class PaginasLegalesTest extends TestCase
 {
     public function test_las_paginas_legales_cargan_sin_error(): void

@@ -1,3 +1,4 @@
+{{-- Admin: solicitudes de vacaciones y bajas de la plantilla, con filtro por estado, para aprobar o rechazar (Admin\AusenciaController). --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Ausencias</h2>

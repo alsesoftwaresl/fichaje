@@ -1,3 +1,4 @@
+{{-- Segundo paso del alta con Google: datos de la empresa y aceptación de los textos legales. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

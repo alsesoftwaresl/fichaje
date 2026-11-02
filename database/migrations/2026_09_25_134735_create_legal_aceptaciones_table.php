@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Aceptaciones de los textos legales (documento, versión, fecha e IP) al dar de alta una empresa.
 return new class extends Migration
 {
     public function up(): void

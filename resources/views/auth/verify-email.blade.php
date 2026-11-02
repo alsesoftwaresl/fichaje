@@ -1,3 +1,4 @@
+{{-- Aviso para confirmar el correo (admins registrados por la web), con reenvío del enlace. --}}
 <x-guest-layout>
     <h1 class="text-lg font-semibold text-slate-900 mb-1">Verifica tu correo</h1>
     <p class="text-sm text-slate-500 mb-6">

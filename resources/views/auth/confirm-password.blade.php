@@ -1,3 +1,4 @@
+{{-- Pide la contraseña otra vez antes de una acción sensible (middleware password.confirm de Laravel). --}}
 <x-guest-layout>
     <h1 class="text-lg font-semibold text-slate-900 mb-1">Confirma tu contraseña</h1>
     <p class="text-sm text-slate-500 mb-6">

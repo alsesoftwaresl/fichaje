@@ -1,3 +1,4 @@
+{{-- Aviso legal (art. 10 LSSI) con los datos del titular de config/legal.php. --}}
 <x-legal.layout :title="'Aviso legal'">
     @php($t = config('legal.titular'))
 

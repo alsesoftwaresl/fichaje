@@ -7,6 +7,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Bloqueo sin suscripción ni licencia: admin a Facturación, empleado a la pantalla de
+ * bloqueo, kiosco parado.
+ */
 class RequireSuscripcionTest extends TestCase
 {
     use RefreshDatabase;

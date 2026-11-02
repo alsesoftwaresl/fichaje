@@ -1,3 +1,4 @@
+{{-- Ventana para corregir la hora de un fichaje con motivo (se abre con el evento "abrir-correccion"). El original no se toca. --}}
 <div
     x-data="{
         open: false,

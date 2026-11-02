@@ -1,3 +1,4 @@
+{{-- Admin: lista de empleados con su estado de hoy, acciones (editar, PIN, acceso web, activar/desactivar) y ajustes del kiosco y del fichaje web. --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">

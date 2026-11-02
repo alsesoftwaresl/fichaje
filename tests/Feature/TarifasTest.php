@@ -8,6 +8,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Tarifas del super admin: cálculo del precio, validación y sincronización con Stripe.
+ */
 class TarifasTest extends TestCase
 {
     use RefreshDatabase;

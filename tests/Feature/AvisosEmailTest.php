@@ -18,6 +18,10 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
+/**
+ * Correos de aviso (ausencias, nóminas, resumen de incidencias) y que un fallo del SMTP no
+ * rompa la acción.
+ */
 class AvisosEmailTest extends TestCase
 {
     use RefreshDatabase;

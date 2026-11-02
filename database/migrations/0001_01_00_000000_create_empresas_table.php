@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Empresas clientes (tenants): datos fiscales, estado y, más adelante, kiosco, Stripe y licencia.
 return new class extends Migration
 {
     public function up(): void

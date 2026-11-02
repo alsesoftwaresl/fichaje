@@ -13,6 +13,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
+/**
+ * Cálculo de incidencias: retraso, sin fichar, sin cerrar, horas de más, ausencias y
+ * correcciones.
+ */
 class IncidenciasTest extends TestCase
 {
     use RefreshDatabase;

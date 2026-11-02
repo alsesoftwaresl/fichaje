@@ -1,3 +1,4 @@
+{{-- Portada pública: presentación, cómo funciona, funciones, ley, sectores, precio, contacto y preguntas frecuentes (HomeController). --}}
 @php
     $preguntas = \App\Support\ContenidoWeb::preguntas($tarifa);
 @endphp

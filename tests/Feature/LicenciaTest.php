@@ -8,6 +8,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Códigos de licencia gratuita: crear (solo super admin), canjear, agotados, desactivados y
+ * caducados.
+ */
 class LicenciaTest extends TestCase
 {
     use RefreshDatabase;

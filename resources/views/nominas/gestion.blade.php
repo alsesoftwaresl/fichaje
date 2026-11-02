@@ -1,3 +1,4 @@
+{{-- Admin o contable: subir nóminas en PDF (se guardan cifradas) y ver o borrar las subidas. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Nóminas de la empresa</h2>

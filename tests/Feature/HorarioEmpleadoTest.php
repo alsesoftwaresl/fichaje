@@ -8,6 +8,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
+/**
+ * Horario esperado del empleado: alta, edición y validación de los tramos.
+ */
 class HorarioEmpleadoTest extends TestCase
 {
     use RefreshDatabase;

@@ -8,6 +8,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Kiosco con PIN: fichar, PIN incorrecto, empleados inactivos, otra empresa y freno de
+ * intentos.
+ */
 class KioskoFlowTest extends TestCase
 {
     use RefreshDatabase;

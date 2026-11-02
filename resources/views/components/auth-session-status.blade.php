@@ -1,3 +1,4 @@
+{{-- Mensaje de estado (p. ej. "enlace enviado") en las pantallas de acceso. --}}
 @props(['status'])
 
 @if ($status)

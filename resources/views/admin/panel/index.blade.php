@@ -1,3 +1,4 @@
+{{-- Admin: panel de inicio con el estado del equipo ahora, las incidencias de hoy y la pregunta inicial sobre el modo del kiosco. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Panel</h2>

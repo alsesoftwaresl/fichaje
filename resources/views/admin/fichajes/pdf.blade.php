@@ -1,3 +1,4 @@
+{{-- PDF de la exportación de fichajes (dompdf): hora registrada y, si se corrigió, la válida debajo. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

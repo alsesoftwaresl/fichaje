@@ -9,6 +9,9 @@ use App\Support\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Estado de cada empleado en la lista (trabajando, vacaciones, baja, inactivo).
+ */
 class EmpleadosEstadoTest extends TestCase
 {
     use RefreshDatabase;

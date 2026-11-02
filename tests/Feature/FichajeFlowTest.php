@@ -10,6 +10,9 @@ use App\Services\JornadasAgrupador;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Flujo completo de fichaje: fichar, ver jornadas, corregir y exportar.
+ */
 class FichajeFlowTest extends TestCase
 {
     use RefreshDatabase;

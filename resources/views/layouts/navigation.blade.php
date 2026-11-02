@@ -1,3 +1,4 @@
+{{-- Menú lateral (escritorio) y desplegable (móvil) según el rol, con el contador de incidencias de hoy. --}}
 <aside class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-indigo-950">
     <div class="flex items-center gap-2 px-5 h-16 shrink-0 border-b border-indigo-900">
         <a href="{{ route('dashboard') }}" class="flex items-center">

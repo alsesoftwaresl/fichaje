@@ -7,6 +7,10 @@ use App\Models\LegalAceptacion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Alta pública de empresas: validación, empresa y admin creados, y verificación de
+ * correo.
+ */
 class RegistroPublicoTest extends TestCase
 {
     use RefreshDatabase;

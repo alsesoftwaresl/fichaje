@@ -1,3 +1,4 @@
+{{-- Página pública con los sectores (hostelería, comercio, talleres, oficinas). --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

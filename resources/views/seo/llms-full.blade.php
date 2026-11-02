@@ -82,4 +82,4 @@
   - {!! $s['titulo'] !!}: {!! route('sector.show', $slug) !!}
 @endforeach
 - Crear una cuenta: {!! route('registro.create') !!}
-- Aviso legal: {!! route('legal.aviso-legal') !!}
+- Aviso legal: {!! route('legal.aviso-legal') !!}{{-- Texto completo para asistentes de IA (/llms-full.txt): todo el contenido público en texto plano (SeoController). --}}

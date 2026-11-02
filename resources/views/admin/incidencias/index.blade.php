@@ -1,3 +1,4 @@
+{{-- Admin: control horario de un periodo (retrasos, sin fichar, sin cerrar, horas de más) con resumen por empleado y detalle por día. --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-slate-900">Control horario</h2>

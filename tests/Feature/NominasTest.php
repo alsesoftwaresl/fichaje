@@ -10,6 +10,10 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
+/**
+ * Nóminas: subir, ver y descargar solo las propias o las de la empresa, validación del PDF
+ * y borrado.
+ */
 class NominasTest extends TestCase
 {
     use RefreshDatabase;

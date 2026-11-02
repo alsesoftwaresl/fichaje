@@ -1,3 +1,4 @@
+{{-- Alta pública de una empresa y su admin (con correo o con Google) y aceptación de los textos legales. --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>

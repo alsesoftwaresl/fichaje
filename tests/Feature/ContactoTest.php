@@ -11,6 +11,9 @@ use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
+/**
+ * Formulario de contacto: guardado, aviso al buzón, antispam y límites.
+ */
 class ContactoTest extends TestCase
 {
     use RefreshDatabase;
