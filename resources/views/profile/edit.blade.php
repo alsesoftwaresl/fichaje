@@ -11,5 +11,9 @@
         <x-card class="p-6">
             @include('profile.partials.update-password-form')
         </x-card>
+
+        <x-card class="p-6">
+            @include('profile.partials.dos-pasos')
+        </x-card>
     </div>
 </x-app-layout>

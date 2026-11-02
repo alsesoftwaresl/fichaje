@@ -74,6 +74,19 @@ Alpine.data('instalarApp', () => ({
     },
 }));
 
+// ---- Código QR de la verificación en dos pasos (perfil) -------------------------
+// La librería se descarga solo en esa pantalla (import dinámico: va en un archivo
+// aparte y no pesa en el resto de la app). Se dibuja como SVG, sin servicios externos.
+Alpine.data('codigoQr', (texto) => ({
+    async init() {
+        const { default: qrcode } = await import('qrcode-generator');
+        const qr = qrcode(0, 'M');
+        qr.addData(texto);
+        qr.make();
+        this.$el.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+    },
+}));
+
 Alpine.start();
 
 // Etiqueta cada celda con el texto de su cabecera para las tablas que en móvil

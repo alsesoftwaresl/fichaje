@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Tarifa;
 use App\Services\AltaEmpresaService;
+use App\Support\InicioSesion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -67,7 +67,7 @@ class RegistroCompletarController extends Controller
 
         $request->session()->forget('registro_google');
 
-        Auth::login($admin);
+        InicioSesion::entrar($request, $admin);
 
         return redirect()->route('admin.facturacion.index')
             ->with('status', '¡Bienvenido a Achrono! Ya puedes elegir tu plan para empezar a fichar.');

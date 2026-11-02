@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\DosPasosController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\ForzarCambioPasswordController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\DosPasosPerfilController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas de acceso (login, recuperar contraseña, verificar email). El alta de
@@ -30,9 +32,23 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // Segundo paso del login (contraseña ya comprobada, falta el código del móvil).
+    Route::get('dos-pasos', [DosPasosController::class, 'reto'])->name('dos-pasos.reto');
+    Route::post('dos-pasos', [DosPasosController::class, 'verificar'])
+        ->middleware('throttle:10,1')
+        ->name('dos-pasos.verificar');
 });
 
 Route::middleware('auth')->group(function () {
+    // Verificación en dos pasos desde el perfil.
+    Route::post('profile/dos-pasos', [DosPasosPerfilController::class, 'activar'])->name('dos-pasos.activar');
+    Route::post('profile/dos-pasos/confirmar', [DosPasosPerfilController::class, 'confirmar'])
+        ->middleware('throttle:10,1')
+        ->name('dos-pasos.confirmar');
+    Route::post('profile/dos-pasos/desactivar', [DosPasosPerfilController::class, 'desactivar'])->name('dos-pasos.desactivar');
+    Route::post('profile/dos-pasos/codigos', [DosPasosPerfilController::class, 'regenerarCodigos'])->name('dos-pasos.codigos');
+
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
 

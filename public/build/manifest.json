@@ -1,6 +1,11 @@
 {
+  "_qrcode-TX7ZlNo8.js": {
+    "file": "assets/qrcode-TX7ZlNo8.js",
+    "name": "qrcode",
+    "isDynamicEntry": true
+  },
   "resources/css/app.css": {
-    "file": "assets/app-S3t0ArW0.css",
+    "file": "assets/app-1SxECBJT.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -9,9 +14,12 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CASGyFZR.js",
+    "file": "assets/app-BWCXarps.js",
     "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true
+    "isEntry": true,
+    "dynamicImports": [
+      "_qrcode-TX7ZlNo8.js"
+    ]
   }
 }

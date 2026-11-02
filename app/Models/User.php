@@ -66,6 +66,8 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'remember_token',
         'pin_hash',
         'dni_hash',
+        'dos_pasos_secreto',
+        'dos_pasos_recuperacion',
     ];
 
     /**
@@ -78,6 +80,10 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            // Verificación en dos pasos: cifrados en la base de datos.
+            'dos_pasos_secreto' => 'encrypted',
+            'dos_pasos_recuperacion' => 'encrypted:array',
+            'dos_pasos_confirmada_en' => 'datetime',
             'activo' => 'boolean',
             'gestiona_nominas' => 'boolean',
             'debe_cambiar_password' => 'boolean',
@@ -151,6 +157,14 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function scopeConDni(Builder $query, string $dni): Builder
     {
         return $query->where('dni_hash', static::huellaDni($dni));
+    }
+
+    /**
+     * true si tiene activa la verificación en dos pasos (secreto confirmado con un código).
+     */
+    public function tieneDosPasos(): bool
+    {
+        return $this->dos_pasos_confirmada_en !== null && $this->dos_pasos_secreto !== null;
     }
 
     /**

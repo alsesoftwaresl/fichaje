@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Tarifa;
 use App\Services\AltaEmpresaService;
+use App\Support\InicioSesion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
@@ -50,7 +50,7 @@ class RegistroController extends Controller
 
         ['admin' => $admin] = AltaEmpresaService::crear($data, $request->ip(), requiereVerificacionEmail: true);
 
-        Auth::login($admin);
+        InicioSesion::entrar($request, $admin);
         $admin->sendEmailVerificationNotification();
 
         return redirect()->route('verification.notice');

@@ -12,6 +12,7 @@ use App\Http\Middleware\SeoRobots;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Session\Middleware\AuthenticateSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -42,7 +43,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Quien entra con una contraseña temporal no puede hacer nada más
         // hasta elegir la suya.
+        // AuthenticateSession: al cambiar la contraseña se cierran las sesiones abiertas en
+        // otros dispositivos (la sesión guarda la huella de la contraseña y deja de cuadrar).
         $middleware->web(append: [
+            AuthenticateSession::class,
             ForzarCambioPassword::class,
             SeoRobots::class,
         ]);

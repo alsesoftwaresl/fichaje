@@ -52,7 +52,7 @@ class LoginRequest extends FormRequest
      *
      * @throws ValidationException
      */
-    public function authenticate(): void
+    public function authenticate(): User
     {
         $this->ensureIsNotRateLimited();
 
@@ -76,9 +76,10 @@ class LoginRequest extends FormRequest
             Auth::getProvider()->rehashPasswordIfRequired($usuario, ['password' => (string) $this->string('password')]);
         }
 
-        Auth::login($usuario, $this->boolean('remember'));
-
         RateLimiter::clear($this->throttleKey());
+
+        // No entra aquí: InicioSesion decide si entra ya o si falta el segundo paso.
+        return $usuario;
     }
 
     /**

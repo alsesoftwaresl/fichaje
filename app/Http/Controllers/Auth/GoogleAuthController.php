@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\InicioSesion;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -47,9 +47,14 @@ class GoogleAuthController extends Controller
         $existente = User::where('email', $googleUser->getEmail())->first();
 
         if ($existente?->rol === 'admin_empresa') {
-            Auth::login($existente);
+            // Igual que con contraseña: un admin dado de baja o de una empresa desactivada
+            // no entra (antes Google se lo saltaba).
+            if (! $existente->activo || $existente->empresa?->activa !== true) {
+                return redirect()->route('login')
+                    ->with('status', 'Esta cuenta no está activa. Si crees que es un error, escríbenos.');
+            }
 
-            return redirect()->route('dashboard');
+            return InicioSesion::completar(request(), $existente);
         }
 
         // El email ya es de otra cuenta (empleado, super admin...): no se
