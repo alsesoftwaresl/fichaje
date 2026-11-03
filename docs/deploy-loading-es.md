@@ -129,7 +129,11 @@ admins. Los empleados que entran solo con DNI (sin email) no reciben correos.
    MAIL_PASSWORD=<contraseña del buzón>
    MAIL_FROM_ADDRESS="info@achrono.es"
    MAIL_FROM_NAME="Achrono"
+   QUEUE_CONNECTION=sync
    ```
+   `QUEUE_CONNECTION=sync` hace que los avisos salgan al momento: en el hosting no hay un proceso
+   que vacíe la cola. (Si se dejara en `database`, la tarea programada del punto 4 los envía cada
+   minuto; sin ella no saldrían nunca.)
    Después limpia la configuración: `cmd=config:clear`.
 3. **Para que no caigan en spam**, comprueba en el DNS de `achrono.es` que
    existen los registros SPF y DKIM del dominio (Plesk los crea al activar el

@@ -284,6 +284,9 @@ Todas están documentadas en [`.env.example`](.env.example). Las principales:
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` | Acceso con Google. |
 | `MAIL_*` | Correo. En local queda en `log`; en producción, SMTP del buzón (ver más abajo). |
 | `LEGAL_NOMBRE`, `LEGAL_NIF`, `LEGAL_DOMICILIO`, `LEGAL_EMAIL`, `LEGAL_TELEFONO`, `LEGAL_REGISTRO_MERCANTIL` | Datos del titular de la web (aviso legal, pie, correos y datos estructurados). Lo vacío no se muestra. |
+| `LEGAL_BORRADOR` | `true` (por defecto) muestra el aviso de «documento plantilla» en las páginas legales; `false` cuando un profesional las haya revisado. |
+| `QUEUE_CONNECTION` | `sync` en hosting compartido: los correos salen al momento. Con `database`, la tarea programada los envía cada minuto. |
+| `SESSION_ENCRYPT`, `SESSION_SECURE_COOKIE` | `true` en producción (sesiones cifradas y cookie solo por https). |
 | `INDEXNOW_KEY` | Opcional: clave de IndexNow; si no se define se deriva de `APP_KEY`. |
 | `DEPLOY_TOKEN` | Solo en hosting sin SSH; vacío en cualquier otro caso. |
 
@@ -363,6 +366,7 @@ La web se puede instalar en el móvil: aparece un banner "Instala Achrono en tu 
 | `seo:indexnow` | Avisa a los buscadores IndexNow de las páginas públicas. |
 | `registro:verificar` | Comprueba el sello de integridad del registro de todas las empresas (o `--empresa=`). |
 | `contactos:purgar` | Borra los mensajes de contacto con más de 12 meses. Programado una vez al mes. |
+| `queue:work --stop-when-empty` | Programado cada minuto: envía los correos que queden en cola si `QUEUE_CONNECTION` no es `sync`. |
 | `schedule:run` | Ejecuta lo programado; hay que llamarlo cada minuto (cron o tarea de Plesk). |
 
 En hosting sin SSH, estos comandos (y `migrate`, `db:seed`, `storage:link`, las limpiezas de caché, `down` y `up`) se lanzan desde `/deploy/ejecutar?token=…&cmd=…`; la tarea programada de Plesk llama a `cmd=schedule:run`.
@@ -373,11 +377,11 @@ En hosting sin SSH, estos comandos (y `migrate`, `db:seed`, `storage:link`, las 
 php artisan test
 ```
 
-La suite (unas 320 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores, los turnos de noche, las salidas olvidadas y el doble toque, el cobro (una sola prueba gratis, sin suscripciones dobles), las cabeceras de seguridad, la política de contraseñas, los parámetros raros en la URL, el sello de integridad (cambios y borrados en la base de datos), el informe mensual, el cifrado del DNI y de las nóminas, la verificación en dos pasos (vectores del RFC 6238), la descarga de datos personales y los plazos de conservación.
+La suite (unas 330 pruebas) usa SQLite en memoria y cubre, entre otras cosas: el aislamiento entre empresas, el registro append-only, el flujo de fichaje y correcciones, el kiosco con PIN y DNI, los roles, el bloqueo por suscripción y las licencias, el registro público y la verificación de email, el acceso con Google (simulado), las incidencias con turnos partidos y citas, las nóminas, el IVA y el cambio de modo de Stripe, los correos (español, marca y envío), el formulario de contacto, la PWA, el SEO (robots, sitemap, llms, IndexNow, noindex, datos estructurados) y las páginas de plantilla y sectores, los turnos de noche, las salidas olvidadas y el doble toque, el cobro (una sola prueba gratis, sin suscripciones dobles), las cabeceras de seguridad, la política de contraseñas, los parámetros raros en la URL, el sello de integridad (cambios y borrados en la base de datos), el informe mensual, el cifrado del DNI y de las nóminas, la verificación en dos pasos (vectores del RFC 6238), la descarga de datos personales y los plazos de conservación.
 
 Las llamadas reales a Stripe, al SMTP y a IndexNow no se hacen en las pruebas. La lista de comprobaciones manuales antes de salir está en [`docs/lista-pruebas-salida.md`](docs/lista-pruebas-salida.md).
 
-El cumplimiento normativo está en [`docs/cumplimiento-legal.md`](docs/cumplimiento-legal.md) y las medidas de seguridad, el mantenimiento y qué hacer ante una brecha en [`docs/seguridad.md`](docs/seguridad.md).
+El resultado de la prueba beta (recorrido completo como cliente nuevo, fallos encontrados y qué falta para vender) está en [`docs/informe-beta.md`](docs/informe-beta.md). El cumplimiento normativo está en [`docs/cumplimiento-legal.md`](docs/cumplimiento-legal.md) y las medidas de seguridad, el mantenimiento y qué hacer ante una brecha en [`docs/seguridad.md`](docs/seguridad.md).
 
 La guía para ampliar el código sin romper nada (capas, reglas, cómo añadir funciones y módulos de pago, y por dónde escalar) está en [`docs/arquitectura.md`](docs/arquitectura.md). GitHub Actions ejecuta en cada push Pint, las pruebas y una compilación de los estilos que falla si `public/build` no está al día.
 

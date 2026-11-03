@@ -17,6 +17,8 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 - [ ] `http://achrono.es` redirige a `https://` y `www.achrono.es` redirige a `achrono.es`.
 - [ ] `cmd=correo:probar` responde "Enviado" y el correo llega a `info@achrono.es`.
 - [ ] Tarea programada de Plesk creada (`cmd=schedule:run` cada minuto).
+- [ ] En `.env`: `QUEUE_CONNECTION=sync` (o la tarea programada en marcha) y, al pedir unas vacaciones de prueba, el correo llega al admin.
+- [ ] Textos legales revisados por un profesional y, después, `LEGAL_BORRADOR=false` en `.env` (desaparece el aviso de «documento plantilla»).
 - [ ] `/robots.txt`, `/sitemap.xml` y `/llms.txt` abren bien.
 
 ## B. Registro y acceso
