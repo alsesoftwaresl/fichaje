@@ -96,6 +96,13 @@ class FacturacionController extends Controller
                 ->with('status', 'Tu empresa ya tiene una suscripción activa.');
         }
 
+        // Con una licencia vigente se pagaría sin necesidad (lo mismo al revés: no se canjea
+        // una licencia estando suscrito).
+        if ($empresa->tieneLicenciaActiva()) {
+            return redirect()->route('admin.facturacion.index')
+                ->with('status', 'Tu empresa ya usa Achrono con una licencia: no necesitas suscribirte.');
+        }
+
         $claveCheckout = 'checkout-abierto:'.$empresa->id;
 
         if ($url = Cache::get($claveCheckout)) {

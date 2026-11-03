@@ -69,6 +69,7 @@ class EmpleadoController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $this->comprobarLimiteDeLicencia();
+        $this->normalizarDni($request);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -164,6 +165,7 @@ class EmpleadoController extends Controller
     public function update(Request $request, User $empleado): RedirectResponse
     {
         $this->autorizarMismaEmpresa($empleado);
+        $this->normalizarDni($request);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -253,6 +255,17 @@ class EmpleadoController extends Controller
         return response()->json(DatosPersonales::de($empleado), 200, [
             'Content-Disposition' => 'attachment; filename="datos-'.str($empleado->name)->slug().'-'.now()->format('Y-m-d').'.json"',
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * El DNI se acepta como se suele copiar ("12.345.678-z", con espacios...): se deja en
+     * su forma canónica antes de validar el formato, igual que en el kiosco.
+     */
+    protected function normalizarDni(Request $request): void
+    {
+        if (is_string($request->input('dni_nie'))) {
+            $request->merge(['dni_nie' => User::normalizarDni($request->input('dni_nie'))]);
+        }
     }
 
     /**

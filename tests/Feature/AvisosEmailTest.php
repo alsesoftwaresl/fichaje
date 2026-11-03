@@ -137,6 +137,8 @@ class AvisosEmailTest extends TestCase
             'hora_entrada_esperada' => '09:00:00',
             'hora_salida_esperada' => '17:00:00',
             'dias_laborables' => [now()->dayOfWeekIso],
+            // Dado de alta antes de hoy: el día del alta no cuentan los tramos anteriores.
+            'created_at' => now()->subWeek(),
         ]);
 
         $sinIncidencias = Empresa::factory()->create();

@@ -59,11 +59,17 @@ class Licencia extends Model
     }
 
     /**
-     * Quita espacios y pasa a mayúsculas el código tecleado.
+     * Código tecleado en su forma canónica (ACH-XXXX-XXXX), lo escriba como lo escriba.
      */
     public static function normalizar(string $codigo): string
     {
-        return Str::upper(trim($codigo));
+        // Se aceptan minúsculas, espacios o sin guiones ("ach 5gh2 p3r6", "ACH5GH2P3R6"):
+        // pasa mucho al copiarlo de un correo o un mensaje. Se reconstruye ACH-XXXX-XXXX.
+        $limpio = preg_replace('/[^A-Z0-9]/', '', Str::upper($codigo));
+
+        return preg_match('/^ACH([A-Z0-9]{4})([A-Z0-9]{4})$/', $limpio, $m)
+            ? 'ACH-'.$m[1].'-'.$m[2]
+            : Str::upper(trim($codigo));
     }
 
     /** Motivo por el que no se puede canjear, o null si se puede. */

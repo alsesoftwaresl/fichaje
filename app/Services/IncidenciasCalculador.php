@@ -180,6 +180,12 @@ class IncidenciasCalculador
 
         // [[inicio, fin], ...] de cada tramo del día y de cada cita.
         $tramos = $trabajaHoy ? static::tramosDelDia($empleado, $fecha) : [];
+
+        // El día del alta no cuentan los tramos que empezaron antes de darle de alta: a quien
+        // se da de alta a las 13:00 no se le puede marcar "retraso" por no entrar a las 09:00.
+        if ($empleado->created_at) {
+            $tramos = array_values(array_filter($tramos, fn (array $t) => $t[0]->gte($empleado->created_at)));
+        }
         $franjasCita = $citas->map(fn (Cita $c) => [$c->desde(), $c->hasta()])->all();
 
         $jornadas = JornadasAgrupador::agrupar($fichajesDelDia);

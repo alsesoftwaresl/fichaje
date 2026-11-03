@@ -16,14 +16,15 @@
         @endif
 
         <x-card class="p-6 space-y-3 text-sm">
-            <h3 class="font-medium text-slate-900">Tu plan actual</h3>
+            {{-- Solo es "tu plan" si pagas; si no (licencia o sin suscribir) es lo que costaría. --}}
+            <h3 class="font-medium text-slate-900">{{ $empresa->subscribed('default') ? 'Tu plan actual' : 'Precio si te suscribes' }}</h3>
             <p><span class="text-slate-500">Cuota base:</span> <span class="text-slate-800">{{ number_format($tarifa->precio_base_mensual, 2) }}€/mes, IVA incluido (incluye {{ $tarifa->empleados_incluidos }} empleados)</span></p>
             <p><span class="text-slate-500">Empleados activos:</span> <span class="text-slate-800">{{ $empleadosActivos }}</span></p>
             <p><span class="text-slate-500">Empleados extra:</span> <span class="text-slate-800">{{ $empleadosExtra }} × {{ number_format($tarifa->precio_empleado_extra, 2) }}€</span></p>
             @if ($precioNominas > 0)
                 <p><span class="text-slate-500">Módulo Nóminas:</span> <span class="text-slate-800">{{ number_format($precioNominas, 2) }}€/mes</span></p>
             @endif
-            <p class="pt-2 border-t border-slate-100"><span class="text-slate-500">Total estimado:</span> <span class="text-lg font-semibold text-slate-900">{{ number_format($precioMensual, 2) }}€/mes</span> <span class="text-slate-500">IVA incluido</span></p>
+            <p class="pt-2 border-t border-slate-100"><span class="text-slate-500">{{ $empresa->subscribed('default') ? 'Total estimado:' : 'Total al mes:' }}</span> <span class="text-lg font-semibold text-slate-900">{{ number_format($precioMensual, 2) }}€/mes</span> <span class="text-slate-500">IVA incluido</span></p>
             @if ((float) $tarifa->iva_porcentaje > 0)
                 <p class="text-xs text-slate-500">
                     {{ number_format($tarifa->baseImponible($precioMensual), 2, ',', '.') }} € de base + {{ number_format($tarifa->ivaIncluido($precioMensual), 2, ',', '.') }} € de IVA ({{ $tarifa->ivaTexto() }} %).
@@ -122,6 +123,14 @@
                 <a href="{{ route('admin.facturacion.portal') }}">
                     <x-secondary-button type="button">Gestionar facturación</x-secondary-button>
                 </a>
+            @elseif ($empresa->tieneLicenciaActiva())
+                {{-- Con una licencia vigente no hace falta pagar: no se ofrece suscribirse (se pagaría sin necesidad). --}}
+                <p class="text-sm text-slate-600">
+                    Tu empresa usa Achrono con una licencia, así que no necesitas suscribirte ni poner tarjeta.
+                    @if ($empresa->licencia_hasta)
+                        Cuando la licencia termine ({{ $empresa->licencia_hasta->format('d/m/Y') }}), aquí podrás suscribirte para seguir.
+                    @endif
+                </p>
             @else
                 <p class="text-sm text-slate-600 mb-4">
                     Todavía no tienes una suscripción activa.
@@ -141,17 +150,15 @@
                     <x-primary-button type="submit">{{ $diasPrueba > 0 ? 'Empezar prueba gratis de '.$diasPrueba.' días' : 'Suscribirme' }}</x-primary-button>
                 </form>
 
-                @unless ($empresa->tieneLicenciaActiva())
-                    <form method="POST" action="{{ route('admin.facturacion.licencia') }}" class="mt-6 pt-6 border-t border-slate-100">
-                        @csrf
-                        <x-input-label for="codigo" value="¿Tienes un código de licencia?" />
-                        <div class="mt-1 flex flex-col gap-2 sm:flex-row">
-                            <x-text-input id="codigo" name="codigo" type="text" class="block w-full font-mono uppercase" :value="old('codigo')" placeholder="ACH-XXXX-XXXX" maxlength="32" autocomplete="off" required />
-                            <x-secondary-button type="submit">Canjear</x-secondary-button>
-                        </div>
-                        <x-input-error class="mt-2" :messages="$errors->get('codigo')" />
-                    </form>
-                @endunless
+                <form method="POST" action="{{ route('admin.facturacion.licencia') }}" class="mt-6 pt-6 border-t border-slate-100">
+                    @csrf
+                    <x-input-label for="codigo" value="¿Tienes un código de licencia?" />
+                    <div class="mt-1 flex flex-col gap-2 sm:flex-row">
+                        <x-text-input id="codigo" name="codigo" type="text" class="block w-full font-mono uppercase" :value="old('codigo')" placeholder="ACH-XXXX-XXXX" maxlength="32" autocomplete="off" required />
+                        <x-secondary-button type="submit">Canjear</x-secondary-button>
+                    </div>
+                    <x-input-error class="mt-2" :messages="$errors->get('codigo')" />
+                </form>
             @endif
         </x-card>
 

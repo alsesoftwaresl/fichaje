@@ -40,6 +40,8 @@ class IncidenciasTest extends TestCase
     protected function crearEmpleadoConHorario(Empresa $empresa, Carbon $hoy): User
     {
         return User::factory()->for($empresa)->create([
+            // Dado de alta antes de hoy: el día del alta no cuentan los tramos anteriores.
+            'created_at' => $hoy->copy()->subWeek(),
             'hora_entrada_esperada' => '09:00:00',
             'hora_salida_esperada' => '17:00:00',
             'dias_laborables' => [$hoy->dayOfWeekIso],
@@ -270,11 +272,28 @@ class IncidenciasTest extends TestCase
     public function test_un_empleado_nuevo_no_genera_incidencias_de_dias_anteriores_a_su_alta(): void
     {
         $empresa = Empresa::factory()->create();
-        $this->crearEmpleadoConHorario($empresa, now()->subDay()); // alta hoy
+        $this->crearEmpleadoConHorario($empresa, now()->subDay())->forceFill(['created_at' => now()])->save(); // alta hoy
 
         $ayer = now()->subDay();
         User::where('empresa_id', $empresa->id)->update(['dias_laborables' => [1, 2, 3, 4, 5, 6, 7]]);
 
         $this->assertTrue(IncidenciasCalculador::delDia($empresa->id, $ayer)->isEmpty());
+    }
+
+    public function test_el_dia_del_alta_no_hay_retraso_por_lo_que_paso_antes_de_darle_de_alta(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $hoy = now(); // 12:00
+        $empleado = User::factory()->for($empresa)->create([
+            'created_at' => $hoy->copy()->setTime(11, 30),
+            'hora_entrada_esperada' => '09:00:00',
+            'hora_salida_esperada' => '17:00:00',
+            'dias_laborables' => [$hoy->dayOfWeekIso],
+        ]);
+
+        $tipos = IncidenciasCalculador::delDia($empresa->id, $hoy)->where('empleado.id', $empleado->id)->pluck('tipo');
+
+        $this->assertNotContains('sin_fichar', $tipos);
+        $this->assertNotContains('retraso', $tipos);
     }
 }

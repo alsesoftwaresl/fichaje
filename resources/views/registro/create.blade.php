@@ -117,7 +117,7 @@
 
                         <div class="space-y-3 border-t border-slate-200 pt-6">
                             <label class="flex items-start gap-2 text-sm text-slate-700">
-                                <input type="checkbox" name="acepta_terminos" value="1" class="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" required>
+                                <input type="checkbox" name="acepta_terminos" value="1" @checked(old('acepta_terminos')) class="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" required>
                                 <span>
                                     La empresa acepta los
                                     <a href="{{ route('legal.terminos') }}" target="_blank" class="text-indigo-600 hover:underline">términos y condiciones</a>
@@ -127,7 +127,7 @@
                             <x-input-error :messages="$errors->get('acepta_terminos')" />
 
                             <label class="flex items-start gap-2 text-sm text-slate-700">
-                                <input type="checkbox" name="acepta_encargo" value="1" class="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" required>
+                                <input type="checkbox" name="acepta_encargo" value="1" @checked(old('acepta_encargo')) class="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" required>
                                 <span>
                                     La empresa acepta el
                                     <a href="{{ route('legal.encargo-tratamiento') }}" target="_blank" class="text-indigo-600 hover:underline">contrato de encargo de tratamiento</a>
