@@ -33,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
         // Cashier asume User por defecto.
         Cashier::useCustomerModel(Empresa::class);
 
+        // PDF (dompdf): incluir solo las letras que se usan del tipo de letra (DejaVu, el que
+        // pinta bien las tildes). Sin esto cada informe pesaba casi 1 MB; así unos pocos KB.
+        config(['dompdf.options.enable_font_subsetting' => true]);
+
         // Contraseñas de todo el sistema (registro, cambio, recuperación, empleados): mínimo
         // 8 caracteres con letras y números, para que no valgan "aaaaaaaa" ni "12345678".
         Password::defaults(fn () => Password::min(8)->letters()->numbers());
