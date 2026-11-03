@@ -3,6 +3,10 @@
 return [
     // Versiona los documentos legales para poder llevar histórico de qué
     // versión aceptó cada empresa. Súbelas cuando el contenido cambie.
+    // true mientras los textos legales no los haya revisado un profesional: las páginas legales
+    // muestran un aviso de "documento plantilla". Poner LEGAL_BORRADOR=false en .env al revisarlos.
+    'borrador' => (bool) env('LEGAL_BORRADOR', true),
+
     'version_terminos' => '2.0',
     'version_encargo' => '2.0',
 

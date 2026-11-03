@@ -14,11 +14,17 @@
     <div class="max-w-2xl mx-auto px-6 py-10">
         <a href="{{ url('/') }}" class="text-sm text-indigo-600 hover:underline">&larr; Volver</a>
 
-        <div class="mt-4 mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            <strong>Documento plantilla.</strong> Este texto es un borrador de partida y
-            <strong>no constituye asesoramiento legal</strong>. Debe ser revisado y adaptado por un
-            abogado antes de usarse en producción.
-        </div>
+        {{-- Aviso de borrador mientras los textos no estén revisados por un profesional.
+             Se quita con LEGAL_BORRADOR=false en el .env una vez revisados. --}}
+        @if (config('legal.borrador'))
+            <div class="mt-4 mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                <strong>Documento plantilla.</strong> Este texto es un borrador de partida y
+                <strong>no constituye asesoramiento legal</strong>. Debe ser revisado y adaptado por un
+                abogado antes de usarse en producción.
+            </div>
+        @else
+            <div class="mb-6"></div>
+        @endif
 
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8">
             <h1 class="text-2xl font-bold mb-6 text-slate-900">{{ $title }}</h1>

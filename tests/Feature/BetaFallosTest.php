@@ -81,4 +81,13 @@ class BetaFallosTest extends TestCase
         $this->assertStringContainsString('queue:work --stop-when-empty', $comandos);
         $this->assertStringContainsString('contactos:purgar', $comandos);
     }
+
+    public function test_el_aviso_de_borrador_legal_se_quita_desde_la_configuracion(): void
+    {
+        config(['legal.borrador' => true]);
+        $this->get(route('legal.privacidad'))->assertSee('Documento plantilla');
+
+        config(['legal.borrador' => false]);
+        $this->get(route('legal.privacidad'))->assertDontSee('Documento plantilla')->assertSee('ALSE SOFTWARE, S.L.,', false);
+    }
 }

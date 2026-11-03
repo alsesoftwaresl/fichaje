@@ -29,7 +29,7 @@
 
         <x-card>
             <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
+                <table class="tabla-apilada min-w-full text-sm">
                     <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-4 py-3">Persona</th>

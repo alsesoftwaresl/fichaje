@@ -8,7 +8,7 @@
 
     <p><strong>Responsable del tratamiento:</strong> tu empresa (la que te ha dado de alta). Es quien
     decide para qué se usan tus datos y ante quien debes ejercer tus derechos.
-    {{ rtrim(config('legal.titular.nombre'), '.') }}, titular de {{ config('app.name') }}, trata los datos
+    {{ config('legal.titular.nombre') }}, titular de {{ config('app.name') }}, trata los datos
     por cuenta de tu empresa como <strong>encargado del tratamiento</strong>, según el
     <a href="{{ route('legal.encargo-tratamiento') }}" class="text-indigo-600 hover:underline">contrato de encargo</a>
     firmado con ella (art. 28 RGPD).</p>
@@ -45,7 +45,7 @@
 
     <h2 class="mt-8 text-lg font-semibold text-slate-900">Si nos escribes desde la web o eres cliente</h2>
 
-    <p><strong>Responsable:</strong> {{ rtrim(config('legal.titular.nombre'), '.') }}
+    <p><strong>Responsable:</strong> {{ config('legal.titular.nombre') }}
     ({{ config('legal.titular.nif') }}), {{ config('legal.titular.domicilio') }}. Contacto:
     {{ config('legal.titular.email') }}.</p>
 

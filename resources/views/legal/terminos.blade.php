@@ -7,7 +7,7 @@
 
     <p>
         Estos términos regulan el uso de {{ config('app.name') }}, servicio de
-        {{ rtrim(config('legal.titular.nombre'), '.') }} ({{ config('legal.titular.nif') }}), por parte de la
+        {{ config('legal.titular.nombre') }} ({{ config('legal.titular.nif') }}), por parte de la
         empresa cliente («el Cliente») como herramienta de registro de jornada de sus trabajadores.
     </p>
 

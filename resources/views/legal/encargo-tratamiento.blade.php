@@ -9,7 +9,7 @@
 
     <p>
         Conforme al artículo 28 del Reglamento (UE) 2016/679 (RGPD) y a la Ley Orgánica 3/2018 (LOPDGDD),
-        este contrato regula el tratamiento que {{ rtrim(config('legal.titular.nombre'), '.') }}
+        este contrato regula el tratamiento que {{ config('legal.titular.nombre') }}
         ({{ config('legal.titular.nif') }}, en adelante «el Encargado»), titular de {{ config('app.name') }},
         hace por cuenta de la empresa cliente (en adelante «el Responsable») de los datos personales de
         sus trabajadores al usar la plataforma.
