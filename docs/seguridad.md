@@ -47,6 +47,7 @@ hacer si algo pasa. Complementa a [`cumplimiento-legal.md`](cumplimiento-legal.m
 | `cmd=registro:verificar` o Admin → Fichajes → Comprobar integridad | Mensual y tras cualquier incidente |
 | Revisar `storage/logs/laravel.log` | Semanal |
 | `composer audit` y `npm audit` en local; actualizar dependencias | Mensual |
+| Versión de PHP del hosting al día (`cmd=produccion:comprobar` la revisa; mínima actual 8.3.36 por «PHP2Shell», CVE-2026-109618/109619) | Mensual y cuando se publique un fallo de PHP |
 | Revisar que el certificado SSL se renueva | Plesk lo hace solo; comprobar cada trimestre |
 
 **La `APP_KEY` no se cambia nunca en producción**: con ella se descifran los DNI, las nóminas y

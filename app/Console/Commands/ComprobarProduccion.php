@@ -29,6 +29,7 @@ class ComprobarProduccion extends Command
         $this->line('Comprobación de producción ('.now()->format('d/m/Y H:i').')');
         $this->newLine();
 
+        $this->comprobarPhp();
         $this->comprobar(app()->isProduction(), 'APP_ENV=production', 'APP_ENV es "'.app()->environment().'": pon APP_ENV=production');
         $this->comprobar(! config('app.debug'), 'APP_DEBUG=false', 'APP_DEBUG está activado: pon APP_DEBUG=false (si no, los errores enseñan detalles internos)');
         $this->comprobar(str_starts_with((string) config('app.url'), 'https://'), 'APP_URL empieza por https://', 'APP_URL no es https: pon APP_URL=https://achrono.es');
@@ -73,6 +74,27 @@ class ComprobarProduccion extends Command
         $this->line($this->fallos === 0 ? 'Todo lo imprescindible está bien.' : "Hay {$this->fallos} cosas que corregir (marcadas con FALLO).");
 
         return $this->fallos === 0 ? self::SUCCESS : self::FAILURE;
+    }
+
+    /**
+     * Versión de PHP con la que corre la web (desde la ruta de despliegue es la misma que
+     * atiende las visitas). Mínimas por rama con el parche de "PHP2Shell"
+     * (CVE-2026-109618 y CVE-2026-109619, octubre de 2026: ejecución remota de código).
+     * Al publicarse otro fallo grave, subir aquí las mínimas.
+     */
+    protected function comprobarPhp(): void
+    {
+        $minimas = ['8.2' => '8.2.35', '8.3' => '8.3.36', '8.4' => '8.4.27', '8.5' => '8.5.12'];
+        $rama = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
+        $minima = $minimas[$rama] ?? null;
+
+        $this->comprobar(
+            $minima !== null && version_compare(PHP_VERSION, $minima, '>='),
+            'PHP '.PHP_VERSION.' (con el parche de seguridad de octubre de 2026)',
+            $minima === null
+                ? 'PHP '.PHP_VERSION.' no tiene soporte: cambia en Plesk a PHP 8.3 o 8.4 actualizado'
+                : 'PHP '.PHP_VERSION.' es vulnerable (PHP2Shell, CVE-2026-109618/109619): necesita '.$minima.' o superior. Cambia la versión en Plesk o pide a Loading que la actualice'
+        );
     }
 
     /**

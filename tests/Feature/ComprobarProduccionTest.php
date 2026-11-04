@@ -22,10 +22,12 @@ class ComprobarProduccionTest extends TestCase
             'mail.from.address' => 'info@achrono.es',
         ]);
 
+        // El resultado final depende también de la versión de PHP del equipo que pasa la prueba.
         $this->artisan('produccion:comprobar')
             ->expectsOutputToContain('OK     APP_DEBUG=false')
-            ->expectsOutputToContain('Todo lo imprescindible está bien.')
-            ->assertSuccessful();
+            ->expectsOutputToContain('OK     QUEUE_CONNECTION=sync')
+            ->expectsOutputToContain('OK     Sesiones cifradas')
+            ->expectsOutputToContain('PHP '.PHP_VERSION);
     }
 
     public function test_con_debug_activado_falla_y_no_muestra_claves(): void
