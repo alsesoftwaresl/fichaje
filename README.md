@@ -286,7 +286,7 @@ Todas están documentadas en [`.env.example`](.env.example). Las principales:
 | `LEGAL_NOMBRE`, `LEGAL_NIF`, `LEGAL_DOMICILIO`, `LEGAL_EMAIL`, `LEGAL_TELEFONO`, `LEGAL_REGISTRO_MERCANTIL` | Datos del titular de la web (aviso legal, pie, correos y datos estructurados). Lo vacío no se muestra. |
 | `LEGAL_BORRADOR` | `true` (por defecto) muestra el aviso de «documento plantilla» en las páginas legales; `false` cuando un profesional las haya revisado. |
 | `QUEUE_CONNECTION` | `sync` en hosting compartido: los correos salen al momento. Con `database`, la tarea programada los envía cada minuto. |
-| `SESSION_ENCRYPT`, `SESSION_SECURE_COOKIE` | `true` en producción (sesiones cifradas y cookie solo por https). |
+| `SESSION_SECURE_COOKIE` | `true` en producción (cookie solo por https; si no se pone, se activa sola con `APP_URL` en https). Las sesiones van siempre cifradas, sin variable. |
 | `INDEXNOW_KEY` | Opcional: clave de IndexNow; si no se define se deriva de `APP_KEY`. |
 | `DEPLOY_TOKEN` | Solo en hosting sin SSH; vacío en cualquier otro caso. |
 

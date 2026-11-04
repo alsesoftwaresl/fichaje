@@ -55,7 +55,7 @@ los secretos de dos pasos, y se calculan los PIN, las huellas del DNI y los sell
 Si se perdiera, esos datos serían irrecuperables: **guárdala aparte**, junto a las copias.
 
 Variables de producción relacionadas: `APP_ENV=production`, `APP_DEBUG=false`,
-`APP_URL=https://…`, `SESSION_ENCRYPT=true`, `SESSION_SECURE_COOKIE=true`, y `DEPLOY_TOKEN`
+`APP_URL=https://…`, `SESSION_SECURE_COOKIE=true` (las sesiones van siempre cifradas), y `DEPLOY_TOKEN`
 vacío cuando no se esté desplegando.
 
 ## 5. Si hay una brecha de seguridad

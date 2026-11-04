@@ -47,9 +47,10 @@ return [
     |
     */
 
-    // Cifrada por defecto: los ficheros de sesión del servidor no se pueden leer aunque
-    // alguien acceda a la carpeta storage.
-    'encrypt' => env('SESSION_ENCRYPT', true),
+    // Siempre cifrada, diga lo que diga SESSION_ENCRYPT en el .env: los ficheros de sesión
+    // del servidor no se pueden leer aunque alguien acceda a la carpeta storage. No hay
+    // ningún caso en que convenga guardarlas sin cifrar.
+    'encrypt' => true,
 
     /*
     |--------------------------------------------------------------------------

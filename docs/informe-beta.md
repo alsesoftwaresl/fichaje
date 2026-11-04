@@ -56,7 +56,7 @@ de código:
 
 1. Desplegar lo último en el servidor **con copia de seguridad previa** y la `APP_KEY` guardada aparte
    (ver [despliegue](deploy-loading-es.md#4-migraciones-sin-terminal)).
-2. En el `.env` del servidor: `QUEUE_CONNECTION=sync`, `SESSION_ENCRYPT=true`,
+2. En el `.env` del servidor: `QUEUE_CONNECTION=sync`,
    `SESSION_SECURE_COOKIE=true`, `APP_DEBUG=false` y la tarea programada de Plesk llamando a
    `cmd=schedule:run` cada minuto.
 3. Probar Stripe en modo prueba de principio a fin y luego pasar a modo real.

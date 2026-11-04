@@ -114,7 +114,7 @@ mantenimiento) en cada navegador o dispositivo que uses para probar.
 - [ ] Tras migrar, `cmd=registro:verificar` dice «correcto» en todas las empresas.
 - [ ] Activar la verificación en dos pasos en tu cuenta de super admin y en la de admin de tu empresa; guardar los códigos de recuperación; probar a entrar con el código y con un código de recuperación.
 - [ ] Cambiar la contraseña en un navegador cierra la sesión abierta en otro.
-- [ ] En `.env`: `SESSION_ENCRYPT=true`, `SESSION_SECURE_COOKIE=true`, `APP_DEBUG=false`.
+- [ ] En `.env`: `SESSION_SECURE_COOKIE=true` y `APP_DEBUG=false` (las sesiones ya van siempre cifradas). `cmd=produccion:comprobar` no da ningún FALLO.
 
 ## H2. Registro, informes y RGPD
 
