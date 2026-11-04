@@ -34,11 +34,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'modulo.nominas' => ModuloNominas::class,
         ]);
 
-        // En modo mantenimiento solo pasa quien tenga la clave secreta, salvo el
-        // webhook de Stripe: no es una persona, y si recibiera un 503 Stripe
-        // acumularía reintentos fallidos (y se perderían avisos de pago).
+        // En modo mantenimiento solo pasa quien tenga la clave secreta, salvo:
+        // - el webhook de Stripe: no es una persona, y si recibiera un 503 Stripe
+        //   acumularía reintentos fallidos (y se perderían avisos de pago);
+        // - la ruta de despliegue: ya va protegida por DEPLOY_TOKEN y tiene que
+        //   funcionar justo en mantenimiento (migrar, comprobar y "up"), aunque no
+        //   se tenga la cookie del enlace de acceso.
         $middleware->preventRequestsDuringMaintenance(except: [
             'stripe/webhook',
+            'deploy/ejecutar',
         ]);
 
         // Quien entra con una contraseña temporal no puede hacer nada más

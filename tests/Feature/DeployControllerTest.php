@@ -100,4 +100,20 @@ class DeployControllerTest extends TestCase
 
         $this->assertDatabaseHas('users', ['email' => 'jefe@ejemplo.test', 'rol' => 'super_admin']);
     }
+
+    public function test_funciona_en_mantenimiento_sin_la_cookie_de_acceso(): void
+    {
+        config(['deploy.token' => str_repeat('a', 40)]);
+        $this->app->maintenanceMode()->activate(['secret' => 'clave-de-prueba-123']);
+
+        try {
+            $this->get('/')->assertStatus(503);
+            $this->get('/deploy/ejecutar?token='.str_repeat('a', 40).'&cmd=produccion:comprobar')
+                ->assertOk()
+                ->assertSee('Comprobación de producción');
+            $this->get('/deploy/ejecutar?token=malo&cmd=up')->assertNotFound();
+        } finally {
+            $this->app->maintenanceMode()->deactivate();
+        }
+    }
 }
