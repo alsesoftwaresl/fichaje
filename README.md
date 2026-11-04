@@ -365,6 +365,7 @@ La web se puede instalar en el móvil: aparece un banner "Instala Achrono en tu 
 | `correo:probar` | Envía un correo de prueba a `LEGAL_EMAIL` y muestra la configuración SMTP (sin contraseña). |
 | `seo:indexnow` | Avisa a los buscadores IndexNow de las páginas públicas. |
 | `registro:verificar` | Comprueba el sello de integridad del registro de todas las empresas (o `--empresa=`). |
+| `produccion:comprobar` | Revisa el `.env` y la configuración de producción (debug, https, cola, sesiones, correo, migraciones, Stripe, Google, textos legales) sin mostrar ninguna clave. |
 | `contactos:purgar` | Borra los mensajes de contacto con más de 12 meses. Programado una vez al mes. |
 | `queue:work --stop-when-empty` | Programado cada minuto: envía los correos que queden en cola si `QUEUE_CONNECTION` no es `sync`. |
 | `schedule:run` | Ejecuta lo programado; hay que llamarlo cada minuto (cron o tarea de Plesk). |

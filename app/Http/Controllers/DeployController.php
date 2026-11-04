@@ -47,6 +47,8 @@ class DeployController extends Controller
         'seo:indexnow',
         // Solo lectura: comprueba el sello de integridad del registro de todas las empresas.
         'registro:verificar',
+        // Solo lectura: revisa el .env y la configuración de producción (sin mostrar claves).
+        'produccion:comprobar',
     ];
 
     /**

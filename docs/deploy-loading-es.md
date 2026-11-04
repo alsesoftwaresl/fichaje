@@ -101,7 +101,7 @@ precios en Stripe) ni dar de alta empresas a mano.
 
 Comandos disponibles (cambia `cmd=`): `migrate`, `db:seed`, `storage:link`,
 `config:clear`, `route:clear`, `view:clear`, `cache:clear`,
-`optimize` (activa las cachés de producción), `optimize:clear`, `schedule:run` (tareas programadas), `correo:probar` (correo de prueba), `registro:verificar` (comprueba el sello de integridad del registro), `down` y `up` (mantenimiento).
+`optimize` (activa las cachés de producción), `optimize:clear`, `schedule:run` (tareas programadas), `correo:probar` (correo de prueba), `registro:verificar` (comprueba el sello de integridad del registro), `produccion:comprobar` (revisa el `.env` y la configuración sin mostrar claves), `down` y `up` (mantenimiento).
 
 > **Haz una copia de seguridad (Plesk → Copias de seguridad) antes de cada `migrate`.** Algunas
 > migraciones reescriben datos: la de noviembre de 2026 cifra los DNI y las nóminas ya subidas y
