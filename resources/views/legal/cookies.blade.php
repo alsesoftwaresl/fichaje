@@ -7,7 +7,7 @@
     </p>
 
     <ul class="list-disc pl-6 space-y-1">
-        <li><strong>Sesión</strong> (achrono_session): mantiene tu sesión iniciada. Deja de valer al cerrar sesión o
+        <li><strong>Sesión</strong> (achrono-session): mantiene tu sesión iniciada. Deja de valer al cerrar sesión o
             tras 2 horas sin actividad. Va cifrada.</li>
         <li><strong>XSRF-TOKEN</strong>: protege los formularios frente a envíos desde otras webs.</li>
         <li><strong>Recordarme</strong>: solo si marcas «Recuérdame» al entrar, para no tener que volver a
