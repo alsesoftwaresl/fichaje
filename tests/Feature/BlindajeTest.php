@@ -2,7 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Empresa;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\TestCase;
 
 /**
@@ -42,5 +46,29 @@ class BlindajeTest extends TestCase
         $this->avisoStripe('')->assertForbidden();
         $this->avisoStripe('otra_clave')->assertForbidden();
         $this->avisoStripe('whsec_prueba')->assertOk();
+    }
+
+    public function test_un_nombre_con_formula_se_exporta_como_texto(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $admin = User::factory()->adminEmpresa()->for($empresa)->create();
+        // El empleado puede cambiar su nombre en el perfil; aquí intenta colar una fórmula.
+        $empleado = User::factory()->for($empresa)->create(['name' => '=HYPERLINK("https://malo.example","Pulsa")']);
+
+        $this->actingAs($empleado)->post(route('fichajes.store'));
+        $this->travel(5)->minutes();
+        $this->actingAs($empleado)->post(route('fichajes.store'));
+
+        // Excel: la celda es texto, no fórmula.
+        $excel = $this->actingAs($admin)->get(route('admin.fichajes.exportar', ['formato' => 'excel']));
+        $hoja = IOFactory::load($excel->baseResponse->getFile()->getPathname())->getActiveSheet();
+        $this->assertSame($empleado->name, $hoja->getCell('A2')->getValue());
+        $this->assertSame(DataType::TYPE_STRING, $hoja->getCell('A2')->getDataType());
+
+        // CSV: lleva un apóstrofo delante para que Excel no la ejecute.
+        $csv = $this->actingAs($admin)->get(route('admin.fichajes.exportar', ['formato' => 'csv']))->streamedContent();
+        $this->assertStringContainsString("'=HYPERLINK", $csv);
+        $this->assertStringNotContainsString("
+=HYPERLINK", $csv);
     }
 }

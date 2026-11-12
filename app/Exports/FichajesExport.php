@@ -7,9 +7,13 @@ use App\Services\RegistroFichajes;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
@@ -19,7 +23,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
  * de cada fichaje y su sello de integridad. El CSV usa las mismas columnas (columnas() y
  * fila()).
  */
-class FichajesExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
+class FichajesExport extends DefaultValueBinder implements FromCollection, ShouldAutoSize, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles
 {
     /**
      * Recibe las jornadas ya agrupadas y filtradas.
@@ -116,6 +120,37 @@ class FichajesExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
     public function map($jornada): array
     {
         return static::fila($jornada);
+    }
+
+    /**
+     * Todo texto entra en el Excel como texto, nunca como fórmula. Sin esto, un nombre como
+     * "=HYPERLINK(...)" (el empleado puede cambiar el suyo en su perfil) se ejecutaría al
+     * abrir el archivo en el ordenador de la empresa (inyección de fórmulas).
+     */
+    public function bindValue(Cell $cell, mixed $value): bool
+    {
+        if (is_string($value)) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+
+            return true;
+        }
+
+        return parent::bindValue($cell, $value);
+    }
+
+    /**
+     * Lo mismo para el CSV, que no distingue texto de fórmula: a lo que empiece por = + - @
+     * o un tabulador se le pone delante un apóstrofo, que Excel muestra como texto.
+     *
+     * @param  list<string|float|null>  $fila
+     * @return list<string|float|null>
+     */
+    public static function filaSeguraParaCsv(array $fila): array
+    {
+        return array_map(
+            fn ($valor) => is_string($valor) && preg_match('/^[=+\-@\t\r]/', $valor) ? "'".$valor : $valor,
+            $fila
+        );
     }
 
     /**

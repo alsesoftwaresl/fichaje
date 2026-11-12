@@ -88,7 +88,7 @@ class AdminFichajeController extends Controller
             fputcsv($handle, FichajesExport::columnas());
 
             foreach ($jornadas as $jornada) {
-                fputcsv($handle, FichajesExport::fila($jornada));
+                fputcsv($handle, FichajesExport::filaSeguraParaCsv(FichajesExport::fila($jornada)));
             }
 
             fclose($handle);
