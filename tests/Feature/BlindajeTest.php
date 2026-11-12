@@ -175,4 +175,19 @@ class BlindajeTest extends TestCase
         $super->forceFill(['dos_pasos_secreto' => Totp::secreto(), 'dos_pasos_confirmada_en' => now()])->save();
         $this->actingAs($super->fresh())->get(route('super-admin.empresas.index'))->assertOk();
     }
+
+    public function test_no_se_puede_probar_la_contrasena_actual_sin_limite(): void
+    {
+        $usuario = User::factory()->for(Empresa::factory())->create();
+
+        for ($i = 0; $i < 6; $i++) {
+            $this->actingAs($usuario)->put(route('password.update'), [
+                'current_password' => 'no-es-esta-'.$i, 'password' => 'Nueva1234', 'password_confirmation' => 'Nueva1234',
+            ]);
+        }
+
+        $this->actingAs($usuario)->put(route('password.update'), [
+            'current_password' => 'password', 'password' => 'Nueva1234', 'password_confirmation' => 'Nueva1234',
+        ])->assertTooManyRequests();
+    }
 }

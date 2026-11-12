@@ -24,13 +24,17 @@ Route::middleware('guest')->group(function () {
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 
+    // Límites en todo lo que comprueba o envía contraseñas: frena a quien prueba contraseñas
+    // con una sesión robada o usa el formulario para mandar correos en masa.
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->middleware('throttle:6,1')
         ->name('password.email');
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
+        ->middleware('throttle:6,1')
         ->name('password.store');
 
     // Segundo paso del login (contraseña ya comprobada, falta el código del móvil).
@@ -46,15 +50,15 @@ Route::middleware('auth')->group(function () {
     Route::post('profile/dos-pasos/confirmar', [DosPasosPerfilController::class, 'confirmar'])
         ->middleware('throttle:10,1')
         ->name('dos-pasos.confirmar');
-    Route::post('profile/dos-pasos/desactivar', [DosPasosPerfilController::class, 'desactivar'])->name('dos-pasos.desactivar');
-    Route::post('profile/dos-pasos/codigos', [DosPasosPerfilController::class, 'regenerarCodigos'])->name('dos-pasos.codigos');
+    Route::post('profile/dos-pasos/desactivar', [DosPasosPerfilController::class, 'desactivar'])->middleware('throttle:6,1')->name('dos-pasos.desactivar');
+    Route::post('profile/dos-pasos/codigos', [DosPasosPerfilController::class, 'regenerarCodigos'])->middleware('throttle:6,1')->name('dos-pasos.codigos');
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
 
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store'])->middleware('throttle:6,1');
 
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    Route::put('password', [PasswordController::class, 'update'])->middleware('throttle:6,1')->name('password.update');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
