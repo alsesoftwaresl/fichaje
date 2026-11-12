@@ -226,7 +226,7 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
     });
 
 // super_admin: gestión de empresas clientes (tenants).
-Route::middleware(['auth', 'role:super_admin'])
+Route::middleware(['auth', 'role:super_admin', 'dos.pasos'])
     ->prefix('super-admin')
     ->name('super-admin.')
     ->group(function () {

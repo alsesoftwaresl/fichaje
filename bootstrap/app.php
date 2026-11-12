@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\CabecerasSeguridad;
 use App\Http\Middleware\CuentaActiva;
+use App\Http\Middleware\DosPasosObligatorio;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\ForzarCambioPassword;
 use App\Http\Middleware\IdentifyTenant;
@@ -33,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verificado' => RequireEmailVerificado::class,
             'gestor.nominas' => PuedeGestionarNominas::class,
             'modulo.nominas' => ModuloNominas::class,
+            'dos.pasos' => DosPasosObligatorio::class,
         ]);
 
         // En modo mantenimiento solo pasa quien tenga la clave secreta, salvo:

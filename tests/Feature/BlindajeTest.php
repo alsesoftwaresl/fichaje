@@ -6,6 +6,7 @@ use App\Http\Controllers\KioskoController;
 use App\Models\Empresa;
 use App\Models\Fichaje;
 use App\Models\User;
+use App\Support\Totp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -160,5 +161,18 @@ class BlindajeTest extends TestCase
             ->post(route('kiosko.fichar', $empresa->kiosko_token), ['pin' => $pin])
             ->assertSessionHasErrors(['pin' => 'Demasiados intentos. Espera unos minutos y vuelve a probar.']);
         $this->assertSame(0, Fichaje::where('user_id', $empleado->id)->count());
+    }
+
+    public function test_en_produccion_el_super_admin_necesita_la_verificacion_en_dos_pasos(): void
+    {
+        $super = User::factory()->create(['empresa_id' => null, 'rol' => 'super_admin']);
+        $this->app['env'] = 'production';
+
+        $this->actingAs($super)->get(route('super-admin.empresas.index'))->assertRedirect(route('profile.edit'));
+        // Su perfil sí lo puede abrir, para activarla.
+        $this->actingAs($super)->get(route('profile.edit'))->assertOk();
+
+        $super->forceFill(['dos_pasos_secreto' => Totp::secreto(), 'dos_pasos_confirmada_en' => now()])->save();
+        $this->actingAs($super->fresh())->get(route('super-admin.empresas.index'))->assertOk();
     }
 }
