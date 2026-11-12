@@ -64,7 +64,8 @@ class ComprobarProduccion extends Command
 
         $secreto = (string) config('cashier.secret');
         $this->comprobar(filled($secreto), 'Stripe configurado ('.(str_starts_with($secreto, 'sk_live_') ? 'modo REAL' : 'modo prueba').')', null, 'Falta STRIPE_SECRET: no se podrá cobrar');
-        $this->comprobar(filled(config('cashier.webhook.secret')), 'Webhook de Stripe con su clave', null, 'Falta STRIPE_WEBHOOK_SECRET: los pagos no se confirmarán solos');
+        // Sin la clave del webhook Stripe rechaza todos los avisos: las suscripciones no se activarían.
+        $this->comprobar(blank($secreto) || filled(config('cashier.webhook.secret')), 'Webhook de Stripe con su clave', 'Falta STRIPE_WEBHOOK_SECRET: se rechazan los avisos de Stripe y las suscripciones no se activarán solas');
         $this->comprobar(filled(config('services.google.client_id')), 'Acceso con Google configurado', null, 'Falta GOOGLE_CLIENT_ID: el botón de Google no funcionará');
 
         $this->comprobar(! config('legal.borrador'), 'Textos legales marcados como revisados', null, 'Los textos legales muestran "documento plantilla" (LEGAL_BORRADOR): quítalo cuando los revise un profesional');
