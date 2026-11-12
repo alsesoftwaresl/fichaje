@@ -14,7 +14,7 @@ Estado a noviembre de 2026.
 | **Art. 12.4.c ET** | En el tiempo parcial, registro diario **totalizado cada mes** y entrega de copia del resumen con la nómina. | En vigor. |
 | **Art. 35.5 ET** | Las horas extraordinarias se registran día a día y se totalizan; copia del resumen al trabajador. | En vigor. |
 | **LISOS** (art. 7.5) | No llevar el registro es infracción grave. | En vigor. |
-| **Proyecto de real decreto de registro digital** | Registro solo digital, inalterable, con trazabilidad de cambios y acceso remoto de la Inspección. | **No aprobado**: dictamen desfavorable del Consejo de Estado (marzo de 2026) y aplazado sin fecha. Achrono ya cumple lo técnico del borrador (ver 2.1). |
+| **Proyecto de real decreto de registro digital** | Registro solo digital, inalterable, con trazabilidad de cambios, acceso del trabajador y acceso remoto de la Inspección. | **No aprobado** a 12 de noviembre de 2026 (nada en el BOE). Dictamen desfavorable del Consejo de Estado (marzo de 2026); Trabajo dio por terminada la revisión del texto en octubre y el Gobierno ha dicho que quiere aprobarlo antes de las elecciones del 29 de noviembre. Tendrá un plazo de adaptación desde que se publique. Achrono ya cumple lo técnico conocido del borrador salvo el acceso remoto de la Inspección (ver 5). **Revisar el texto final en cuanto salga en el BOE.** |
 | **RGPD** y **LOPDGDD** | Licitud, minimización, seguridad (art. 32), encargo de tratamiento (art. 28), derechos (arts. 15-22), brechas (arts. 33-34), plazos de conservación. | En vigor. |
 | **Art. 88 LOPDGDD y art. 20 bis ET** | Derecho a la desconexión digital. | Lo regula cada empresa (ver 3). |
 | **LSSI** | Aviso legal (art. 10) y cookies (art. 22.2). | En vigor. |
@@ -79,3 +79,12 @@ La app no puede hacerlo por ella. Conviene recordárselo al darla de alta (y est
 - Aplicar el procedimiento de **brechas** y de **fin de contrato** cuando ocurra.
 - Avisar a los clientes antes de cambiar de subencargado y cuando cambien los textos legales
   (subir la versión en `config/legal.php`).
+
+## 5. Pendiente
+
+- **Acceso de la Inspección**: hoy se le entrega la exportación completa. Si el real decreto exige
+  acceso remoto, añadir un acceso de solo lectura y con caducidad que la empresa pueda dar.
+- **Fin de los 4 años**: los fichajes no se borran solos. Pasado el plazo (más el de prescripción
+  de posibles reclamaciones) habría que bloquearlos o borrarlos (art. 5.1.e RGPD y art. 32
+  LOPDGDD). No corre prisa: los primeros datos cumplen 4 años en 2030. Hay que hacerlo sin romper
+  el sello encadenado (empezar la cadena en el primer registro que se conserve).

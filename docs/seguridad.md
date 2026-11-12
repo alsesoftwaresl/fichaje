@@ -20,10 +20,17 @@ hacer si algo pasa. Complementa a [`cumplimiento-legal.md`](cumplimiento-legal.m
 
 - Roles: super admin, admin de empresa, empleado (y permiso de contable). Datos de cada empresa
   aislados por un *global scope*; nunca se acepta `empresa_id` de un formulario.
-- **Verificación en dos pasos** (TOTP) opcional para todos y recomendada a quien administra:
+- **Verificación en dos pasos** (TOTP) opcional para todos y recomendada a quien administra;
+  **obligatoria para el super admin en producción** (`DosPasosObligatorio`):
   código caducado a los 5 min, 5 intentos por minuto, el mismo código no vale dos veces,
   8 códigos de recuperación de un uso.
-- Límite de intentos: login 5, kiosco 10 fallos de PIN o DNI en 5 minutos, registro y contacto.
+- Límite de intentos: login 5; kiosco 10 fallos de PIN o DNI en 5 minutos por conexión y 100 por
+  hora en toda la empresa; cambiar, confirmar y recuperar la contraseña, desactivar la
+  verificación en dos pasos, registro y contacto.
+- **Enlace del kiosco**: es secreto (32 caracteres) y el admin lo puede cambiar desde Empleados si
+  se pierde la tablet o sale de la empresa; el viejo deja de funcionar.
+- **Bajas**: quien es dado de baja (o cuya empresa se desactiva) pierde en su siguiente petición
+  la sesión abierta y el «Recuérdame» (`CuentaActiva`), no solo el login.
 - Al cambiar la contraseña se cierran las sesiones de los demás dispositivos (`AuthenticateSession`).
 - Google solo deja entrar a admins activos de empresas activas.
 - El admin no puede darse de baja a sí mismo.
@@ -34,7 +41,11 @@ hacer si algo pasa. Complementa a [`cumplimiento-legal.md`](cumplimiento-legal.m
   `X-Frame-Options` y `frame-ancestors`, `form-action` (web y Stripe), `base-uri`, `object-src`,
   `Referrer-Policy`, `Permissions-Policy` y HSTS en producción. No se limita `script-src` porque
   Alpine.js lo necesita.
-- CSRF en todos los formularios (excepto el webhook de Stripe, que va firmado).
+- CSRF en todos los formularios (excepto el webhook de Stripe, que va firmado: sin
+  `STRIPE_WEBHOOK_SECRET` Stripe no acepta ningún aviso, y `produccion:comprobar` lo marca como FALLO).
+- **Exportaciones a Excel y CSV sin fórmulas**: un texto como `=HYPERLINK(...)` (p. ej. en el
+  nombre, que el empleado puede cambiar) se guarda como texto y no se ejecuta al abrirlo.
+- El seeder no crea en producción el super admin con la contraseña de desarrollo.
 - Parámetros raros en la URL se ignoran en vez de romper la página.
 - `composer audit` sin avisos; `npm audit` solo afecta a dependencias de compilación.
 
@@ -77,4 +88,10 @@ vacío cuando no se esté desplegando.
 - El correo y el nombre no van cifrados (se usan para entrar y para mostrarse).
 - En el hosting compartido la base de datos tiene un único usuario con todos los permisos; el
   sello de integridad permite **detectar** cambios, pero no los impide a quien tenga ese acceso.
-- La verificación en dos pasos es opcional; se recomienda en el perfil de los admins.
+- La verificación en dos pasos es opcional para empresas y empleados (lo decide cada empresa);
+  solo el super admin la tiene obligatoria.
+- Quien tenga el enlace del kiosco y adivine un PIN puede fichar por otro: por eso el tope de
+  fallos, el enlace que se puede cambiar y el modo DNI. Un ataque al tope puede frenar el kiosco
+  hasta una hora; los empleados con acceso web pueden fichar desde el móvil mientras tanto.
+- Los datos del registro no se borran solos al cumplir 4 años (ver
+  [cumplimiento legal](cumplimiento-legal.md#5-pendiente)).
