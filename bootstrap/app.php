@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CabecerasSeguridad;
+use App\Http\Middleware\CuentaActiva;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\ForzarCambioPassword;
 use App\Http\Middleware\IdentifyTenant;
@@ -49,8 +50,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // hasta elegir la suya.
         // AuthenticateSession: al cambiar la contraseña se cierran las sesiones abiertas en
         // otros dispositivos (la sesión guarda la huella de la contraseña y deja de cuadrar).
+        // CuentaActiva: quien ha sido dado de baja sale en su siguiente petición.
         $middleware->web(append: [
             AuthenticateSession::class,
+            CuentaActiva::class,
             ForzarCambioPassword::class,
             SeoRobots::class,
         ]);

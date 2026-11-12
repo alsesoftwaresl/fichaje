@@ -71,4 +71,37 @@ class BlindajeTest extends TestCase
         $this->assertStringNotContainsString("
 =HYPERLINK", $csv);
     }
+
+    public function test_al_dar_de_baja_a_un_empleado_pierde_la_sesion_abierta(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $admin = User::factory()->adminEmpresa()->for($empresa)->create();
+        $empleado = User::factory()->for($empresa)->create();
+
+        // Entra de verdad (sesión y cookie de «Recuérdame»), no con actingAs.
+        $this->post('/login', ['login' => $empleado->email, 'password' => 'password', 'remember' => 'on']);
+        $this->get(route('nominas.mis'))->assertOk();
+        $tokenAntes = $empleado->fresh()->remember_token;
+
+        // La empresa lo da de baja mientras sigue con la sesión abierta.
+        $empleado->forceFill(['activo' => false])->save();
+        $this->app['auth']->forgetGuards(); // cada petición real vuelve a leer el usuario
+
+        $this->get(route('nominas.mis'))->assertRedirect(route('login'));
+        $this->assertGuest();
+        $this->assertNotSame($tokenAntes, $empleado->fresh()->remember_token);
+    }
+
+    public function test_si_se_desactiva_la_empresa_sus_usuarios_salen(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $admin = User::factory()->adminEmpresa()->for($empresa)->create();
+
+        $this->post('/login', ['login' => $admin->email, 'password' => 'password']);
+        $empresa->update(['activa' => false]);
+        $this->app['auth']->forgetGuards();
+
+        $this->get(route('profile.edit'))->assertRedirect(route('login'));
+        $this->assertGuest();
+    }
 }
