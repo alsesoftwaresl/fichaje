@@ -8,6 +8,7 @@ use App\Models\Fichaje;
 use App\Models\User;
 use App\Support\Totp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\TestCase;
@@ -22,7 +23,7 @@ class BlindajeTest extends TestCase
     /**
      * Aviso de Stripe firmado con la clave indicada, como lo haría Stripe (o un atacante).
      */
-    protected function avisoStripe(string $clave): \Illuminate\Testing\TestResponse
+    protected function avisoStripe(string $clave): TestResponse
     {
         $cuerpo = json_encode(['id' => 'evt_prueba', 'type' => 'evento.de.prueba', 'data' => ['object' => []]]);
         $hora = time();
@@ -71,8 +72,8 @@ class BlindajeTest extends TestCase
         // CSV: lleva un apóstrofo delante para que Excel no la ejecute.
         $csv = $this->actingAs($admin)->get(route('admin.fichajes.exportar', ['formato' => 'csv']))->streamedContent();
         $this->assertStringContainsString("'=HYPERLINK", $csv);
-        $this->assertStringNotContainsString("
-=HYPERLINK", $csv);
+        $this->assertStringNotContainsString('
+=HYPERLINK', $csv);
     }
 
     public function test_al_dar_de_baja_a_un_empleado_pierde_la_sesion_abierta(): void
