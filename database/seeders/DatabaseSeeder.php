@@ -15,6 +15,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // En producción nunca con la contraseña de desarrollo ("password"): cualquiera la adivinaría.
+        if (app()->isProduction() && config('plataforma.super_admin.password') === 'password') {
+            $this->command?->error('Pon SUPER_ADMIN_EMAIL y SUPER_ADMIN_PASSWORD en el .env antes de crear el super admin.');
+
+            return;
+        }
+
         User::firstOrCreate(
             ['email' => config('plataforma.super_admin.email')],
             [

@@ -104,4 +104,14 @@ class BlindajeTest extends TestCase
         $this->get(route('profile.edit'))->assertRedirect(route('login'));
         $this->assertGuest();
     }
+
+    public function test_en_produccion_no_se_crea_el_super_admin_con_la_contrasena_de_desarrollo(): void
+    {
+        config(['plataforma.super_admin.email' => 'super@ejemplo.test', 'plataforma.super_admin.password' => 'password']);
+        $this->app['env'] = 'production';
+
+        $this->artisan('db:seed', ['--force' => true]);
+
+        $this->assertDatabaseMissing('users', ['email' => 'super@ejemplo.test']);
+    }
 }
