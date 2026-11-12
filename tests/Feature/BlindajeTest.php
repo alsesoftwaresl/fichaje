@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\KioskoController;
 use App\Models\Empresa;
+use App\Models\Fichaje;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -113,5 +115,50 @@ class BlindajeTest extends TestCase
         $this->artisan('db:seed', ['--force' => true]);
 
         $this->assertDatabaseMissing('users', ['email' => 'super@ejemplo.test']);
+    }
+
+    public function test_el_admin_puede_cambiar_el_enlace_del_kiosco_y_el_viejo_deja_de_valer(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $admin = User::factory()->adminEmpresa()->for($empresa)->create();
+        $viejo = $empresa->kiosko_token;
+
+        $this->actingAs($admin)->patch(route('admin.kiosko.enlace'))->assertRedirect();
+
+        $nuevo = $empresa->fresh()->kiosko_token;
+        $this->assertNotSame($viejo, $nuevo);
+        $this->get(route('kiosko.show', $viejo))->assertNotFound();
+        $this->get(route('kiosko.show', $nuevo))->assertOk();
+        $this->assertDatabaseHas('audit_logs', ['empresa_id' => $empresa->id, 'accion' => 'kiosko_enlace_cambiado']);
+    }
+
+    public function test_un_empleado_no_puede_cambiar_el_enlace_del_kiosco(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $empleado = User::factory()->for($empresa)->create();
+        $viejo = $empresa->kiosko_token;
+
+        $this->actingAs($empleado)->patch(route('admin.kiosko.enlace'))->assertForbidden();
+        $this->assertSame($viejo, $empresa->fresh()->kiosko_token);
+    }
+
+    public function test_cambiar_de_conexion_no_sirve_para_probar_pin_sin_fin(): void
+    {
+        $empresa = Empresa::factory()->create();
+        $empleado = User::factory()->for($empresa)->create();
+        $pin = $empleado->generarNuevoPin();
+        $incorrecto = $pin === '111111' ? '222222' : '111111';
+
+        // Cada intento desde una IP distinta: el freno por IP no salta nunca.
+        for ($i = 1; $i <= KioskoController::FALLOS_POR_HORA_EMPRESA; $i++) {
+            $this->withServerVariables(['REMOTE_ADDR' => '10.0.'.intdiv($i, 250).'.'.($i % 250)])
+                ->post(route('kiosko.fichar', $empresa->kiosko_token), ['pin' => $incorrecto]);
+        }
+
+        // Ahora ni con el PIN bueno desde otra conexión, hasta que pase el rato.
+        $this->withServerVariables(['REMOTE_ADDR' => '192.168.50.1'])
+            ->post(route('kiosko.fichar', $empresa->kiosko_token), ['pin' => $pin])
+            ->assertSessionHasErrors(['pin' => 'Demasiados intentos. Espera unos minutos y vuelve a probar.']);
+        $this->assertSame(0, Fichaje::where('user_id', $empleado->id)->count());
     }
 }

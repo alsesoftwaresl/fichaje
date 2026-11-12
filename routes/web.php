@@ -214,6 +214,7 @@ Route::middleware(['auth', 'tenant', 'role:admin_empresa', 'verificado'])
             Route::patch('/empleados/{empleado}/activar', [EmpleadoController::class, 'activar'])->name('empleados.activar');
             Route::patch('/empleados/{empleado}/desactivar', [EmpleadoController::class, 'desactivar'])->name('empleados.desactivar');
             Route::patch('/kiosko/modo', [KioscoController::class, 'modo'])->name('kiosko.modo');
+            Route::patch('/kiosko/enlace', [KioscoController::class, 'nuevoEnlace'])->name('kiosko.enlace');
             Route::patch('/empleados/{empleado}/regenerar-pin', [EmpleadoController::class, 'regenerarPin'])->name('empleados.regenerar-pin');
             Route::patch('/empleados/{empleado}/generar-acceso', [EmpleadoController::class, 'generarAcceso'])->name('empleados.generar-acceso');
             Route::get('/empleados/{empleado}/datos', [EmpleadoController::class, 'datos'])->name('empleados.datos');

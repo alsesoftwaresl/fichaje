@@ -25,6 +25,11 @@ class KioskoController extends Controller
 
     const SEGUNDOS_DE_BLOQUEO = 300;
 
+    // Tope de fallos por hora en todo el kiosco de la empresa, venga de donde venga: quien
+    // tuviera el enlace no puede ir cambiando de conexión para probar PIN sin fin. Muy por
+    // encima de los despistes normales de una plantilla.
+    const FALLOS_POR_HORA_EMPRESA = 100;
+
     /**
      * Muestra el teclado del kiosco, o la pantalla de "bloqueado" si la empresa no tiene
      * suscripción ni licencia.
@@ -65,8 +70,10 @@ class KioskoController extends Controller
         // DNI, para que no se puedan ir probando PIN o DNIs hasta acertar uno.
         $campo = $conDni ? 'dni' : 'pin';
         $claveIntentos = 'kiosko:'.$empresa->id.'|'.$request->ip();
+        $claveEmpresa = 'kiosko-empresa:'.$empresa->id;
 
-        if (RateLimiter::tooManyAttempts($claveIntentos, self::FALLOS_PERMITIDOS)) {
+        if (RateLimiter::tooManyAttempts($claveIntentos, self::FALLOS_PERMITIDOS)
+            || RateLimiter::tooManyAttempts($claveEmpresa, self::FALLOS_POR_HORA_EMPRESA)) {
             return back()->withErrors([$campo => 'Demasiados intentos. Espera unos minutos y vuelve a probar.']);
         }
 
@@ -76,6 +83,7 @@ class KioskoController extends Controller
 
         if (! $empleado) {
             RateLimiter::hit($claveIntentos, self::SEGUNDOS_DE_BLOQUEO);
+            RateLimiter::hit($claveEmpresa, 3600);
 
             // Mensajes genéricos: no se dice si existe o está de baja.
             return back()->withErrors([$campo => $conDni ? 'No hemos encontrado ese DNI o NIE.' : 'PIN incorrecto.']);

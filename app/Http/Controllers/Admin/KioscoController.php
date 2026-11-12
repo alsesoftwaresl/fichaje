@@ -8,10 +8,11 @@ use App\Models\Empresa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 /**
  * Ajuste del kiosco por el admin de empresa: con qué se identifican los empleados al
- * fichar (PIN, DNI o ambos).
+ * fichar (PIN, DNI o ambos) y cambio del enlace.
  */
 class KioscoController extends Controller
 {
@@ -45,5 +46,19 @@ class KioscoController extends Controller
         ]);
 
         return back()->with('status', 'Kiosco actualizado.');
+    }
+
+    /**
+     * Cambia el enlace del kiosco (si se pierde la tablet o el enlace sale de la empresa). El
+     * enlace es lo único que protege el kiosco además del PIN, así que el viejo deja de valer.
+     */
+    public function nuevoEnlace(): RedirectResponse
+    {
+        $empresa = Auth::user()->empresa;
+        $empresa->forceFill(['kiosko_token' => Str::random(32)])->save();
+
+        AuditLog::registrar('kiosko_enlace_cambiado', $empresa);
+
+        return back()->with('status', 'Enlace del kiosco cambiado: abre el nuevo en la tablet.');
     }
 }

@@ -52,6 +52,15 @@
                 </a>
             </div>
 
+            {{-- Si se pierde la tablet o el enlace sale de la empresa: el enlace viejo deja de funcionar. --}}
+            <form method="POST" action="{{ route('admin.kiosko.enlace') }}" class="mt-2"
+                onsubmit="return confirm('El enlace actual dejará de funcionar y tendrás que abrir el nuevo en la tablet. ¿Seguir?')">
+                @csrf
+                @method('PATCH')
+                <p class="text-xs text-slate-500">¿Has perdido la tablet o alguien de fuera tiene el enlace?
+                    <button type="submit" class="font-medium text-indigo-600 hover:text-indigo-800 underline">Cambiar el enlace</button></p>
+            </form>
+
             <form method="POST" action="{{ route('admin.kiosko.modo') }}" class="mt-5 border-t border-slate-100 pt-4">
                 @csrf
                 @method('PATCH')
